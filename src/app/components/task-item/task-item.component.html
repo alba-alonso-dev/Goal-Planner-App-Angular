@@ -8,11 +8,12 @@
     <div class="d-flex justify-content-between align-items-start mb-2">
       <div class="d-flex align-items-center">
         <!-- Checkbox para completar -->
-        <div class="form-check me-3" (click)="$event.stopPropagation()">
+        <div class="form-check me-3">
           <input
             type="checkbox"
             class="form-check-input"
             [checked]="task.isCompleted"
+            [attr.aria-label]="'Mark ' + task.taskName + ' as completed'"
             (change)="onToggleComplete($event)"
             [id]="'task-' + task.taskId"
           />
@@ -78,7 +79,7 @@
     <button class="btn btn-sm btn-outline-primary flex-grow-1 me-2" (click)="onViewDetails()">
       <i class="bi bi-eye me-1"></i>View Details
     </button>
-    <button class="btn btn-sm btn-outline-danger" (click)="onDelete($event)">
+    <button class="btn btn-sm btn-outline-danger" aria-label="Delete task" (click)="onDelete($event)">
       <i class="bi bi-trash"></i>
     </button>
   </div>

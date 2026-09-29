@@ -19,8 +19,11 @@
         <form [formGroup]="taskForm" (ngSubmit)="onSubmit()" novalidate>
           <!-- Task Title -->
           <div class="mb-3">
-            <label class="form-label fw-semibold"> Task Title <span class="text-danger">*</span> </label>
+            <label class="form-label fw-semibold" for="new-task-taskName">
+              Task Title <span class="text-danger">*</span>
+            </label>
             <input
+              id="new-task-taskName"
               type="text"
               class="form-control"
               formControlName="taskName"
@@ -34,8 +37,11 @@
 
           <!-- Frequency -->
           <div class="mb-3">
-            <label class="form-label fw-semibold"> Frequency <span class="text-danger">*</span> </label>
+            <label class="form-label fw-semibold" for="new-task-frequency">
+              Frequency <span class="text-danger">*</span>
+            </label>
             <select
+              id="new-task-frequency"
               class="form-select"
               formControlName="frequency"
               [class.is-invalid]="taskForm.get('frequency')?.invalid && taskForm.get('frequency')?.touched"
@@ -50,8 +56,11 @@
           <div class="row">
             <div class="col-6">
               <div class="mb-3">
-                <label class="form-label fw-semibold"> Start Date <span class="text-danger">*</span> </label>
+                <label class="form-label fw-semibold" for="new-task-startDate">
+                  Start Date <span class="text-danger">*</span>
+                </label>
                 <input
+                  id="new-task-startDate"
                   type="date"
                   class="form-control"
                   formControlName="startDate"
@@ -64,8 +73,11 @@
             </div>
             <div class="col-6">
               <div class="mb-3">
-                <label class="form-label fw-semibold"> Due Date <span class="text-danger">*</span> </label>
+                <label class="form-label fw-semibold" for="new-task-dueDate">
+                  Due Date <span class="text-danger">*</span>
+                </label>
                 <input
+                  id="new-task-dueDate"
                   type="date"
                   class="form-control"
                   formControlName="dueDate"
@@ -83,8 +95,9 @@
 
           <!-- Description -->
           <div class="mb-3">
-            <label class="form-label fw-semibold">Description</label>
+            <label class="form-label fw-semibold" for="new-task-description">Description</label>
             <textarea
+              id="new-task-description"
               class="form-control"
               formControlName="description"
               rows="3"

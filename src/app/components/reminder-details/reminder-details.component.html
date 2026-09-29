@@ -25,7 +25,7 @@
           <div class="alert alert-danger alert-dismissible fade show" role="alert">
             <i class="bi bi-exclamation-triangle-fill me-2"></i>
             {{ error() }}
-            <button type="button" class="btn-close" (click)="error.set(null)"></button>
+            <button aria-label="Close" type="button" class="btn-close" (click)="error.set(null)"></button>
           </div>
         }
 
@@ -34,8 +34,11 @@
           <form [formGroup]="editForm">
             <!-- Title -->
             <div class="mb-3">
-              <label class="form-label fw-semibold"> Title <span class="text-danger">*</span> </label>
+              <label class="form-label fw-semibold" for="reminder-details-title">
+                Title <span class="text-danger">*</span>
+              </label>
               <input
+                id="reminder-details-title"
                 type="text"
                 class="form-control"
                 formControlName="title"
@@ -48,8 +51,11 @@
 
             <!-- Date & Time -->
             <div class="mb-3">
-              <label class="form-label fw-semibold"> Date & Time <span class="text-danger">*</span> </label>
+              <label class="form-label fw-semibold" for="reminder-details-reminderDateTime">
+                Date & Time <span class="text-danger">*</span>
+              </label>
               <input
+                id="reminder-details-reminderDateTime"
                 type="datetime-local"
                 class="form-control"
                 formControlName="reminderDateTime"
@@ -69,8 +75,13 @@
 
             <!-- Description -->
             <div class="mb-3">
-              <label class="form-label fw-semibold">Description</label>
-              <textarea class="form-control" formControlName="description" rows="4"></textarea>
+              <label class="form-label fw-semibold" for="reminder-details-description">Description</label>
+              <textarea
+                id="reminder-details-description"
+                class="form-control"
+                formControlName="description"
+                rows="4"
+              ></textarea>
             </div>
 
             <!-- Acknowledged Checkbox -->

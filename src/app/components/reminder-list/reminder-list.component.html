@@ -120,7 +120,12 @@
       </div>
     </div>
     <div class="col-md-2 text-end">
-      <button class="btn btn-outline-secondary me-2" (click)="toggleViewMode()" title="Toggle view">
+      <button
+        class="btn btn-outline-secondary me-2"
+        (click)="toggleViewMode()"
+        title="Toggle view"
+        aria-label="Toggle view"
+      >
         @if (viewMode() === 'grid') {
           <i class="bi bi-list-ul"></i>
         } @else {
@@ -191,7 +196,11 @@
           @for (reminder of filteredReminders(); track reminder.reminderId) {
             <div
               class="list-group-item list-group-item-action d-flex justify-content-between align-items-center p-3"
+              role="button"
+              tabindex="0"
               (click)="viewReminderDetails(reminder)"
+              (keydown.enter)="viewReminderDetails(reminder)"
+              (keydown.space)="$event.preventDefault(); viewReminderDetails(reminder)"
             >
               <div class="d-flex align-items-center flex-grow-1">
                 <div class="me-3">

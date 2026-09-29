@@ -1,10 +1,17 @@
 <nav class="navbar navbar-expand-lg navbar-dark">
   <div class="container">
     <a class="navbar-brand fw-bold" routerLink="/home"> <i class="bi bi-check-all me-2"></i>TaskMaster Pro </a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+    <button
+      class="navbar-toggler"
+      type="button"
+      aria-controls="navbarNav"
+      aria-label="Toggle navigation"
+      [attr.aria-expanded]="menuOpen()"
+      (click)="toggleMenu()"
+    >
       <span class="navbar-toggler-icon"></span>
     </button>
-    <div class="collapse navbar-collapse" id="navbarNav">
+    <div class="collapse navbar-collapse" id="navbarNav" [class.show]="menuOpen()">
       <ul class="navbar-nav me-auto">
         @if (!authService.loggedUser()) {
           <li class="nav-item">

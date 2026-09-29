@@ -30,6 +30,7 @@ import { NotificationService } from '../../services/notification.service';
             ></i>
             <strong class="me-auto ms-2">{{ toast.title || toast.type | titlecase }}</strong>
             <button
+              aria-label="Close"
               type="button"
               class="btn-close"
               [class.btn-close-white]="toast.type !== 'warning'"

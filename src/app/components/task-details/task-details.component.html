@@ -25,7 +25,7 @@
           <div class="alert alert-danger alert-dismissible fade show" role="alert">
             <i class="bi bi-exclamation-triangle-fill me-2"></i>
             {{ error() }}
-            <button type="button" class="btn-close" (click)="error.set(null)"></button>
+            <button aria-label="Close" type="button" class="btn-close" (click)="error.set(null)"></button>
           </div>
         }
 
@@ -34,8 +34,11 @@
           <form [formGroup]="editForm">
             <!-- Task Name -->
             <div class="mb-3">
-              <label class="form-label fw-semibold"> Task Title <span class="text-danger">*</span> </label>
+              <label class="form-label fw-semibold" for="task-details-taskName">
+                Task Title <span class="text-danger">*</span>
+              </label>
               <input
+                id="task-details-taskName"
                 type="text"
                 class="form-control"
                 formControlName="taskName"
@@ -48,8 +51,11 @@
 
             <!-- Frequency -->
             <div class="mb-3">
-              <label class="form-label fw-semibold"> Frequency <span class="text-danger">*</span> </label>
+              <label class="form-label fw-semibold" for="task-details-frequency">
+                Frequency <span class="text-danger">*</span>
+              </label>
               <select
+                id="task-details-frequency"
                 class="form-select"
                 formControlName="frequency"
                 [class.is-invalid]="editForm.get('frequency')?.invalid && editForm.get('frequency')?.touched"
@@ -64,8 +70,9 @@
             <div class="row">
               <div class="col-6">
                 <div class="mb-3">
-                  <label class="form-label fw-semibold">Start Date</label>
+                  <label class="form-label fw-semibold" for="task-details-startDate">Start Date</label>
                   <input
+                    id="task-details-startDate"
                     type="date"
                     class="form-control"
                     formControlName="startDate"
@@ -75,8 +82,9 @@
               </div>
               <div class="col-6">
                 <div class="mb-3">
-                  <label class="form-label fw-semibold">Due Date</label>
+                  <label class="form-label fw-semibold" for="task-details-dueDate">Due Date</label>
                   <input
+                    id="task-details-dueDate"
                     type="date"
                     class="form-control"
                     formControlName="dueDate"
@@ -91,8 +99,13 @@
 
             <!-- Description -->
             <div class="mb-3">
-              <label class="form-label fw-semibold">Description</label>
-              <textarea class="form-control" formControlName="description" rows="4"></textarea>
+              <label class="form-label fw-semibold" for="task-details-description">Description</label>
+              <textarea
+                id="task-details-description"
+                class="form-control"
+                formControlName="description"
+                rows="4"
+              ></textarea>
             </div>
 
             <!-- Completed Checkbox -->

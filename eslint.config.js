@@ -43,13 +43,6 @@ module.exports = tseslint.config(
   {
     files: ['**/*.html'],
     extends: [...angular.configs.templateRecommended, ...angular.configs.templateAccessibility],
-    rules: {
-      // Deuda de accesibilidad conocida: se abordará en la Fase 3 (ver docs/ARCHITECTURE_REVIEW.md).
-      // Se mantienen como avisos para que sigan siendo visibles sin bloquear la CI.
-      '@angular-eslint/template/label-has-associated-control': 'warn',
-      '@angular-eslint/template/interactive-supports-focus': 'warn',
-      '@angular-eslint/template/click-events-have-key-events': 'warn',
-      '@angular-eslint/template/elements-content': 'warn'
-    }
+    rules: {}
   }
 );
