@@ -57,9 +57,3 @@ export interface ChartData {
     fill?: boolean;
   }[];
 }
-
-export interface TaskCompletionData {
-  date: string;
-  completed: number;
-  created: number;
-}
