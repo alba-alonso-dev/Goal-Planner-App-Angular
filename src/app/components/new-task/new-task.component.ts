@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Output, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { toDateInputValue } from '../../shared/utils/date';
 
 @Component({
   selector: 'app-new-task',
@@ -32,8 +33,8 @@ export class NewTaskComponent {
     this.taskForm = this.fb.group({
       taskName: ['', [Validators.required, Validators.minLength(3)]],
       frequency: ['Daily', Validators.required],
-      startDate: [this.formatDateForInput(today), Validators.required],
-      dueDate: [this.formatDateForInput(nextWeek), Validators.required],
+      startDate: [toDateInputValue(today), Validators.required],
+      dueDate: [toDateInputValue(nextWeek), Validators.required],
       description: ['']
     });
 
@@ -74,10 +75,6 @@ export class NewTaskComponent {
         }
       }
     }
-  }
-
-  private formatDateForInput(date: Date): string {
-    return date.toISOString().split('T')[0];
   }
 
   onSubmit() {

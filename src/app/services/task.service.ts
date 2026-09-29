@@ -1,8 +1,10 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, map, catchError, throwError, switchMap } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import { AuthService } from './auth.service';
-import { TaskRequest, TaskResponse, TaskStats } from '../model/task';
+import { API_BASE_URL } from '../core/config/api.config';
+import { toApiDate } from '../shared/utils/date';
+import { TaskInput, TaskRequest, TaskResponse, TaskStats } from '../model/task';
 
 @Injectable({
   providedIn: 'root'
@@ -10,55 +12,39 @@ import { TaskRequest, TaskResponse, TaskStats } from '../model/task';
 export class TaskService {
   private http = inject(HttpClient);
   private authService = inject(AuthService);
-  
-  private baseUrl = 'https://api.freeprojectapi.com/api';
+  private apiUrl = inject(API_BASE_URL);
 
   /**
    * Crear una nueva tarea
    */
-  createTask(taskData: any): Observable<TaskResponse> {
-    const user = this.authService.loggedUser();
-    if (!user) {
-      return throwError(() => new Error('User not authenticated'));
-    }
+  createTask(taskData: TaskInput): Observable<TaskResponse> {
+    return this.authService.withUser(user => {
+      const requestBody: TaskRequest = {
+        taskId: 0,
+        taskName: taskData.taskName.trim(),
+        description: taskData.description?.trim() || '',
+        frequency: taskData.frequency,
+        createdDate: new Date().toISOString(),
+        startDate: toApiDate(taskData.startDate),
+        dueDate: toApiDate(taskData.dueDate),
+        isCompleted: false,
+        userId: user.userId
+      };
 
-    const url = `${this.baseUrl}/GoalTracker/createTask`;
-
-    const requestBody: TaskRequest = {
-      taskId: 0,
-      taskName: taskData.taskName.trim(),
-      description: taskData.description?.trim() || '',
-      frequency: taskData.frequency,
-      createdDate: new Date().toISOString(),
-      startDate: this.formatToISOString(taskData.startDate),
-      dueDate: this.formatToISOString(taskData.dueDate),
-      isCompleted: false,
-      userId: user.userId
-    };
-
-    return this.http.post<TaskResponse>(url, requestBody).pipe(
-      map(response => this.transformTaskResponse(response)),
-      catchError(this.handleError)
-    );
+      return this.http
+        .post<TaskResponse>(`${this.apiUrl}/createTask`, requestBody)
+        .pipe(map(response => this.transformTaskResponse(response)));
+    });
   }
 
   /**
    * Obtener todas las tareas de un usuario
    */
   getAllTasksByUser(): Observable<TaskResponse[]> {
-    const user = this.authService.loggedUser();
-    if (!user) {
-      return throwError(() => new Error('User not authenticated'));
-    }
-
-    const url = `${this.baseUrl}/GoalTracker/getAllTasks`;
-    
-
-    return this.http.get<any[]>(url, { 
-      params: { userId: user.userId.toString() } 
-    }).pipe(
-      map(tasks => tasks.map(task => this.transformTaskResponse(task))),
-      catchError(this.handleError)
+    return this.authService.withUser(user =>
+      this.http
+        .get<TaskResponse[]>(`${this.apiUrl}/getAllTasks`, { params: { userId: user.userId } })
+        .pipe(map(tasks => tasks.map(task => this.transformTaskResponse(task))))
     );
   }
 
@@ -66,114 +52,51 @@ export class TaskService {
    * Obtener una tarea específica por ID
    */
   getTaskById(taskId: number): Observable<TaskResponse> {
-    const url = `${this.baseUrl}/GoalTracker/getTask/${taskId}`;
-    
-
-    return this.http.get<TaskResponse>(url).pipe(
-      map(response => this.transformTaskResponse(response)),
-      catchError(this.handleError)
-    );
+    return this.http
+      .get<TaskResponse>(`${this.apiUrl}/getTask/${taskId}`)
+      .pipe(map(response => this.transformTaskResponse(response)));
   }
 
   /**
    * Actualizar una tarea existente
    */
-  updateTask(taskId: number, taskData: any): Observable<TaskResponse> {
-    const user = this.authService.loggedUser();
-    if (!user) {
-      return throwError(() => new Error('User not authenticated'));
-    }
-
-    const url = `${this.baseUrl}/GoalTracker/updateTask/${taskId}`;
-
-    const requestBody: TaskRequest = {
-      taskId: taskId,
-      taskName: taskData.taskName.trim(),
-      description: taskData.description?.trim() || '',
-      frequency: taskData.frequency,
-      createdDate: taskData.createdDate || new Date().toISOString(),
-      startDate: this.formatToISOString(taskData.startDate),
-      dueDate: this.formatToISOString(taskData.dueDate),
-      isCompleted: taskData.isCompleted || false,
-      userId: user.userId
-    };
-
-    return this.http.put<any>(url, requestBody).pipe(
-      catchError(this.handleError)
-    );
-  }
-
-/**
- * Marcar tarea como completada/no completada
- */
-toggleTaskCompletion(taskId: number, currentStatus: boolean): Observable<TaskResponse> {
-  const user = this.authService.loggedUser();
-  if (!user) {
-    return throwError(() => new Error('User not authenticated'));
-  }
-
-  const url = `${this.baseUrl}/GoalTracker/updateTask/${taskId}`;
-
-  // Primero obtener la tarea actual para mantener los datos existentes
-  return this.getTaskById(taskId).pipe(
-    switchMap(task => {
+  updateTask(taskId: number, taskData: TaskInput): Observable<unknown> {
+    return this.authService.withUser(user => {
       const requestBody: TaskRequest = {
         taskId: taskId,
-        taskName: task.taskName,
-        description: task.description || '',
-        frequency: task.frequency,
-        createdDate: task.createdDate,
-        startDate: task.startDate,
-        dueDate: task.dueDate,
-        isCompleted: !currentStatus, // Invertir el estado actual
+        taskName: taskData.taskName.trim(),
+        description: taskData.description?.trim() || '',
+        frequency: taskData.frequency,
+        createdDate: taskData.createdDate || new Date().toISOString(),
+        startDate: toApiDate(taskData.startDate),
+        dueDate: toApiDate(taskData.dueDate),
+        isCompleted: taskData.isCompleted || false,
         userId: user.userId
       };
 
-      return this.http.put<any>(url, requestBody).pipe(
-        catchError(this.handleError)
-      );
-    }),
-    catchError(this.handleError)
-  );
-}
+      return this.http.put(`${this.apiUrl}/updateTask/${taskId}`, requestBody);
+    });
+  }
+
+  /**
+   * Marcar tarea como completada/no completada.
+   * Usa los datos que ya tiene el cliente en lugar de volver a pedir la tarea (1 petición en vez de 2).
+   */
+  toggleTaskCompletion(task: TaskResponse): Observable<unknown> {
+    return this.updateTask(task.taskId, { ...task, isCompleted: !task.isCompleted });
+  }
 
   /**
    * Eliminar una tarea
    */
-  deleteTask(taskId: number): Observable<any> {
-    const url = `${this.baseUrl}/GoalTracker/deleteTask/${taskId}`;
-    
-
-    return this.http.delete(url).pipe(
-      catchError(this.handleError)
-    );
-  }
-
-  /**
-   * Formatear fecha al formato ISO
-   */
-  private formatToISOString(date: string | Date): string {
-    if (!date) {
-      return new Date().toISOString();
-    }
-
-    try {
-      const d = new Date(date);
-      if (isNaN(d.getTime())) {
-        console.warn('Fecha inválida:', date);
-        return new Date().toISOString();
-      }
-      return d.toISOString();
-    } catch (error) {
-      console.error('Error formateando fecha:', error);
-      return new Date().toISOString();
-    }
+  deleteTask(taskId: number): Observable<unknown> {
+    return this.http.delete(`${this.apiUrl}/deleteTask/${taskId}`);
   }
 
   /**
    * Transformar respuesta de la API con campos calculados
    */
-  private transformTaskResponse(task: any): TaskResponse {
+  private transformTaskResponse(task: TaskResponse): TaskResponse {
     const today = new Date();
     const dueDate = new Date(task.dueDate);
     const diffTime = dueDate.getTime() - today.getTime();
@@ -201,49 +124,12 @@ toggleTaskCompletion(taskId: number, currentStatus: boolean): Observable<TaskRes
    */
   getTaskStats(tasks: TaskResponse[]): TaskStats {
     const today = new Date();
-    
+
     return {
       total: tasks.length,
       completed: tasks.filter(t => t.isCompleted).length,
       pending: tasks.filter(t => !t.isCompleted && new Date(t.dueDate) >= today).length,
       overdue: tasks.filter(t => !t.isCompleted && new Date(t.dueDate) < today).length
     };
-  }
-
-  /**
-   * Manejo de errores
-   */
-  private handleError(error: any) {
-    console.error('❌ Error en TaskService:', error);
-    
-    let errorMessage = 'Error connecting to the server';
-    let serverError = null;
-
-    if (error.error) {
-      try {
-        serverError = typeof error.error === 'string' ? JSON.parse(error.error) : error.error;
-      } catch (e) {
-        serverError = error.error;
-      }
-    }
-    
-    if (error.status === 400) {
-      errorMessage = 'Error de validación: Los datos enviados no son correctos';
-    } else if (error.status === 0) {
-      errorMessage = 'Error de red: No se puede conectar al servidor';
-    } else if (error.status === 401) {
-      errorMessage = 'No autorizado: Por favor, inicia sesión de nuevo';
-    } else if (error.status === 404) {
-      errorMessage = 'Recurso no encontrado';
-    } else if (error.status === 500) {
-      errorMessage = 'Error interno del servidor';
-    }
-    
-    return throwError(() => ({
-      message: errorMessage,
-      status: error.status,
-      serverError: serverError,
-      originalError: error
-    }));
   }
 }

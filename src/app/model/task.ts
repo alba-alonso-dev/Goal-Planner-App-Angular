@@ -32,3 +32,6 @@ export interface TaskStats {
   pending: number;
   overdue: number;
 }
+// Datos que aportan los formularios para crear/actualizar una tarea
+export type TaskInput = Pick<TaskRequest, 'taskName' | 'description' | 'frequency' | 'startDate' | 'dueDate'> &
+  Partial<Pick<TaskRequest, 'isCompleted' | 'createdDate'>>;

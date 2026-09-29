@@ -169,7 +169,7 @@ export class TaskListComponent implements OnInit {
   }
 
   toggleTaskCompletion(task: TaskResponse) {
-    this.taskService.toggleTaskCompletion(task.taskId, task.isCompleted).subscribe({
+    this.taskService.toggleTaskCompletion(task).subscribe({
       next: () => {
         this.loadTasks();
       },

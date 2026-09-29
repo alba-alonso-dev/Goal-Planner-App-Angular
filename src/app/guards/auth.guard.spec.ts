@@ -4,7 +4,6 @@ import { TestBed } from '@angular/core/testing';
 import { ActivatedRouteSnapshot, CanActivateFn, provideRouter, Router, RouterStateSnapshot, UrlTree } from '@angular/router';
 
 import { authGuard } from './auth.guard';
-import { AuthService } from '../services/auth.service';
 
 describe('authGuard', () => {
   const executeGuard: CanActivateFn = (...guardParameters) =>
@@ -23,9 +22,9 @@ describe('authGuard', () => {
   afterEach(() => localStorage.removeItem('user'));
 
   it('should allow navigation when a user is logged in', () => {
-    TestBed.inject(AuthService).loggedUser.set({
+    localStorage.setItem('user', JSON.stringify({
       userId: 1, emailId: 'test@example.com', fullName: 'Test', mobileNo: '600000000'
-    });
+    }));
 
     expect(executeGuard(route, state)).toBeTrue();
   });

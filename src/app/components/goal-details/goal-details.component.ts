@@ -4,6 +4,7 @@ import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, FormArray, Va
 import { GoalResponse, MilestoneResponse } from '../../model/goal';
 import { GoalService } from '../../services/goal.service';
 import { AuthService } from '../../services/auth.service';
+import { toDateInputValue } from '../../shared/utils/date';
 
 @Component({
   selector: 'app-goal-details',
@@ -74,22 +75,12 @@ export class GoalDetailsComponent implements OnInit, OnChanges {
     });
   }
 
+  // Si la fecha falta o no es válida, se usa la fecha actual
   private formatDateForInput(date: string): string {
-    if (!date) {
-      // Si no hay fecha, usar la fecha actual
-      return new Date().toISOString().split('T')[0];
-    }
-    
     try {
-      // Asegurar que la fecha esté en formato YYYY-MM-DD para input type="date"
-      const d = new Date(date);
-      if (isNaN(d.getTime())) {
-        return new Date().toISOString().split('T')[0];
-      }
-      return d.toISOString().split('T')[0];
-    } catch (error) {
-      console.error('Error formateando fecha:', error);
-      return new Date().toISOString().split('T')[0];
+      return toDateInputValue(date || new Date());
+    } catch {
+      return toDateInputValue();
     }
   }
 
@@ -102,7 +93,7 @@ export class GoalDetailsComponent implements OnInit, OnChanges {
     const milestoneForm = this.fb.group({
       milestoneId: [0],
       milestoneName: ['', Validators.required],
-      targetDate: [this.formatDateForInput(today.toISOString()), Validators.required],
+      targetDate: [toDateInputValue(today), Validators.required],
       description: [''],
       isCompleted: [false]
     });

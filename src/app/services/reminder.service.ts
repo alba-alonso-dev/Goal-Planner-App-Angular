@@ -1,8 +1,10 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, map, catchError, throwError } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import { AuthService } from './auth.service';
-import { ReminderRequest, ReminderResponse, ReminderStats } from '../model/reminder';
+import { API_BASE_URL } from '../core/config/api.config';
+import { toApiDate } from '../shared/utils/date';
+import { ReminderInput, ReminderRequest, ReminderResponse, ReminderStats } from '../model/reminder';
 
 @Injectable({
   providedIn: 'root'
@@ -10,52 +12,36 @@ import { ReminderRequest, ReminderResponse, ReminderStats } from '../model/remin
 export class ReminderService {
   private http = inject(HttpClient);
   private authService = inject(AuthService);
-  
-  private baseUrl = 'https://api.freeprojectapi.com/api';
+  private apiUrl = inject(API_BASE_URL);
 
   /**
    * Crear un nuevo reminder
    */
-  createReminder(reminderData: any): Observable<ReminderResponse> {
-    const user = this.authService.loggedUser();
-    if (!user) {
-      return throwError(() => new Error('User not authenticated'));
-    }
+  createReminder(reminderData: ReminderInput): Observable<ReminderResponse> {
+    return this.authService.withUser(user => {
+      const requestBody: ReminderRequest = {
+        reminderId: 0,
+        title: reminderData.title.trim(),
+        description: reminderData.description?.trim() || '',
+        reminderDateTime: toApiDate(reminderData.reminderDateTime),
+        isAcknowledged: false,
+        userId: user.userId
+      };
 
-    const url = `${this.baseUrl}/GoalTracker/createReminder`;
-
-    const requestBody: ReminderRequest = {
-      reminderId: 0,
-      title: reminderData.title.trim(),
-      description: reminderData.description?.trim() || '',
-      reminderDateTime: this.formatToISOString(reminderData.reminderDateTime),
-      isAcknowledged: false,
-      userId: user.userId
-    };
-
-    return this.http.post<ReminderResponse>(url, requestBody).pipe(
-      map(response => this.transformReminderResponse(response)),
-      catchError(this.handleError)
-    );
+      return this.http
+        .post<ReminderResponse>(`${this.apiUrl}/createReminder`, requestBody)
+        .pipe(map(response => this.transformReminderResponse(response)));
+    });
   }
 
   /**
    * Obtener todos los reminders de un usuario
    */
   getAllRemindersByUser(): Observable<ReminderResponse[]> {
-    const user = this.authService.loggedUser();
-    if (!user) {
-      return throwError(() => new Error('User not authenticated'));
-    }
-
-    const url = `${this.baseUrl}/GoalTracker/getReminders`;
-    
-
-    return this.http.get<any[]>(url, { 
-      params: { userId: user.userId.toString() } 
-    }).pipe(
-      map(reminders => reminders.map(reminder => this.transformReminderResponse(reminder))),
-      catchError(this.handleError)
+    return this.authService.withUser(user =>
+      this.http
+        .get<ReminderResponse[]>(`${this.apiUrl}/getReminders`, { params: { userId: user.userId } })
+        .pipe(map(reminders => reminders.map(reminder => this.transformReminderResponse(reminder))))
     );
   }
 
@@ -63,102 +49,47 @@ export class ReminderService {
    * Obtener un reminder específico por ID
    */
   getReminderById(reminderId: number): Observable<ReminderResponse> {
-    const url = `${this.baseUrl}/GoalTracker/getReminder/${reminderId}`;
-    
-
-    return this.http.get<ReminderResponse>(url).pipe(
-      map(response => this.transformReminderResponse(response)),
-      catchError(this.handleError)
-    );
+    return this.http
+      .get<ReminderResponse>(`${this.apiUrl}/getReminder/${reminderId}`)
+      .pipe(map(response => this.transformReminderResponse(response)));
   }
 
   /**
    * Actualizar un reminder existente
    */
-  updateReminder(reminderId: number, reminderData: any): Observable<ReminderResponse> {
-    const user = this.authService.loggedUser();
-    if (!user) {
-      return throwError(() => new Error('User not authenticated'));
-    }
+  updateReminder(reminderId: number, reminderData: ReminderInput): Observable<unknown> {
+    return this.authService.withUser(user => {
+      const requestBody: ReminderRequest = {
+        reminderId: reminderId,
+        title: reminderData.title.trim(),
+        description: reminderData.description?.trim() || '',
+        reminderDateTime: toApiDate(reminderData.reminderDateTime),
+        isAcknowledged: reminderData.isAcknowledged || false,
+        userId: user.userId
+      };
 
-    const url = `${this.baseUrl}/GoalTracker/updateReminder/${reminderId}`;
-
-    const requestBody: ReminderRequest = {
-      reminderId: reminderId,
-      title: reminderData.title.trim(),
-      description: reminderData.description?.trim() || '',
-      reminderDateTime: this.formatToISOString(reminderData.reminderDateTime),
-      isAcknowledged: reminderData.isAcknowledged || false,
-      userId: user.userId
-    };
-
-    return this.http.put<any>(url, requestBody).pipe(
-      catchError(this.handleError)
-    );
+      return this.http.put(`${this.apiUrl}/updateReminder/${reminderId}`, requestBody);
+    });
   }
 
   /**
    * Marcar reminder como acknowledge/no acknowledge
    */
-  toggleReminderAcknowledgement(reminder: ReminderResponse): Observable<ReminderResponse> {
-    const user = this.authService.loggedUser();
-    if (!user) {
-      return throwError(() => new Error('User not authenticated'));
-    }
-
-    const url = `${this.baseUrl}/GoalTracker/updateReminder/${reminder.reminderId}`;
-
-    const requestBody: ReminderRequest = {
-      reminderId: reminder.reminderId,
-      title: reminder.title,
-      description: reminder.description || '',
-      reminderDateTime: reminder.reminderDateTime,
-      isAcknowledged: !reminder.isAcknowledged,
-      userId: user.userId
-    };
-
-    return this.http.put<any>(url, requestBody).pipe(
-      catchError(this.handleError)
-    );
+  toggleReminderAcknowledgement(reminder: ReminderResponse): Observable<unknown> {
+    return this.updateReminder(reminder.reminderId, { ...reminder, isAcknowledged: !reminder.isAcknowledged });
   }
 
   /**
    * Eliminar un reminder
    */
-  deleteReminder(reminderId: number): Observable<any> {
-    const url = `${this.baseUrl}/GoalTracker/deleteReminder/${reminderId}`;
-    
-
-    return this.http.delete(url).pipe(
-      catchError(this.handleError)
-    );
-  }
-
-  /**
-   * Formatear fecha al formato ISO
-   */
-  private formatToISOString(date: string | Date): string {
-    if (!date) {
-      return new Date().toISOString();
-    }
-
-    try {
-      const d = new Date(date);
-      if (isNaN(d.getTime())) {
-        console.warn('Fecha inválida:', date);
-        return new Date().toISOString();
-      }
-      return d.toISOString();
-    } catch (error) {
-      console.error('Error formateando fecha:', error);
-      return new Date().toISOString();
-    }
+  deleteReminder(reminderId: number): Observable<unknown> {
+    return this.http.delete(`${this.apiUrl}/deleteReminder/${reminderId}`);
   }
 
   /**
    * Transformar respuesta de la API con campos calculados
    */
-  private transformReminderResponse(reminder: any): ReminderResponse {
+  private transformReminderResponse(reminder: ReminderResponse): ReminderResponse {
     const now = new Date();
     const reminderDate = new Date(reminder.reminderDateTime);
     
@@ -254,42 +185,5 @@ export class ReminderService {
         return rDate >= today && rDate <= nextWeek && !r.isAcknowledged;
       }).length
     };
-  }
-
-  /**
-   * Manejo de errores
-   */
-  private handleError(error: any) {
-    console.error('❌ Error en ReminderService:', error);
-    
-    let errorMessage = 'Error connecting to the server';
-    let serverError = null;
-
-    if (error.error) {
-      try {
-        serverError = typeof error.error === 'string' ? JSON.parse(error.error) : error.error;
-      } catch (e) {
-        serverError = error.error;
-      }
-    }
-    
-    if (error.status === 400) {
-      errorMessage = 'Error de validación: Los datos enviados no son correctos';
-    } else if (error.status === 0) {
-      errorMessage = 'Error de red: No se puede conectar al servidor';
-    } else if (error.status === 401) {
-      errorMessage = 'No autorizado: Por favor, inicia sesión de nuevo';
-    } else if (error.status === 404) {
-      errorMessage = 'Recurso no encontrado';
-    } else if (error.status === 500) {
-      errorMessage = 'Error interno del servidor';
-    }
-    
-    return throwError(() => ({
-      message: errorMessage,
-      status: error.status,
-      serverError: serverError,
-      originalError: error
-    }));
   }
 }

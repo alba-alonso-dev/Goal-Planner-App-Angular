@@ -4,6 +4,7 @@ import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } 
 import { TaskResponse } from '../../model/task';
 import { TaskService } from '../../services/task.service';
 import { AuthService } from '../../services/auth.service';
+import { toDateInputValue } from '../../shared/utils/date';
 
 @Component({
   selector: 'app-task-details',
@@ -84,12 +85,12 @@ export class TaskDetailsComponent implements OnInit, OnChanges {
     }
   }
 
+  // Si la fecha falta o no es válida, se usa la fecha actual
   private formatDateForInput(date: string): string {
-    if (!date) return new Date().toISOString().split('T')[0];
     try {
-      return new Date(date).toISOString().split('T')[0];
+      return toDateInputValue(date || new Date());
     } catch {
-      return new Date().toISOString().split('T')[0];
+      return toDateInputValue();
     }
   }
 
@@ -103,7 +104,7 @@ export class TaskDetailsComponent implements OnInit, OnChanges {
 
   toggleCompletion() {
     this.submitting = true;
-    this.taskService.toggleTaskCompletion(this.task.taskId, this.task.isCompleted).subscribe({
+    this.taskService.toggleTaskCompletion(this.task).subscribe({
       next: () => {
         this.submitting = false;
         this.taskUpdated.emit();

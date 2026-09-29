@@ -31,3 +31,6 @@ export interface ReminderStats {
   tomorrow: number;
   thisWeek: number;
 }
+// Datos que aportan los formularios para crear/actualizar un recordatorio
+export type ReminderInput = Pick<ReminderRequest, 'title' | 'description' | 'reminderDateTime'> &
+  Partial<Pick<ReminderRequest, 'isAcknowledged'>>;

@@ -4,6 +4,7 @@ import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } 
 import { ReminderResponse } from '../../model/reminder';
 import { ReminderService } from '../../services/reminder.service';
 import { AuthService } from '../../services/auth.service';
+import { toDateTimeInputValue } from '../../shared/utils/date';
 
 @Component({
   selector: 'app-reminder-details',
@@ -72,12 +73,12 @@ export class ReminderDetailsComponent implements OnInit, OnChanges {
     }
   }
 
+  // Hora local: con toISOString() el input mostraba la hora UTC y al guardar se desplazaba
   private formatDateTimeForInput(date: string): string {
-    if (!date) return new Date().toISOString().slice(0, 16);
     try {
-      return new Date(date).toISOString().slice(0, 16);
+      return toDateTimeInputValue(date || new Date());
     } catch {
-      return new Date().toISOString().slice(0, 16);
+      return toDateTimeInputValue();
     }
   }
 

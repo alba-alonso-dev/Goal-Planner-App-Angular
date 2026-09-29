@@ -39,3 +39,11 @@ export interface GoalResponse {
   milestones?: MilestoneResponse[];
   progress: number; // Campo calculado opcional para el frontend
 }
+// Datos que aportan los formularios para crear/actualizar un goal
+export type MilestoneInput = Pick<MilestoneRequest, 'milestoneName' | 'targetDate'> &
+  Partial<Pick<MilestoneRequest, 'milestoneId' | 'description' | 'isCompleted'>>;
+
+export type GoalInput = Pick<GoalRequest, 'goalName' | 'startDate' | 'endDate'> &
+  Partial<Pick<GoalRequest, 'description' | 'isAchieved'>> & {
+    milestones?: MilestoneInput[];
+  };

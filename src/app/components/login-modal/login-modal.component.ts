@@ -67,7 +67,7 @@ export class LoginModalComponent {
       },
       error: (err) => {
         this.isLoading.set(false);
-        this.errorMessage.set(err.error?.message || 'Error al iniciar sesión. Inténtalo de nuevo.');
+        this.errorMessage.set(err.serverMessage || 'Error al iniciar sesión. Inténtalo de nuevo.');
         console.error('Login error', err);
       }
     });
@@ -108,7 +108,7 @@ export class LoginModalComponent {
       },
       error: (err) => {
         this.isLoading.set(false);
-        this.errorMessage.set(err.error?.message || 'Error al registrarse. Inténtalo de nuevo.');
+        this.errorMessage.set(err.serverMessage || 'Error al registrarse. Inténtalo de nuevo.');
         console.error('Register error', err);
       }
     });

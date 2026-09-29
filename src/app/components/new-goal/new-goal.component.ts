@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Output, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { toDateInputValue } from '../../shared/utils/date';
 
 @Component({
   selector: 'app-new-goal',
@@ -27,8 +28,8 @@ export class NewGoalComponent {
     this.goalForm = this.fb.group({
       goalName: ['', [Validators.required, Validators.minLength(3)]],
       description: [''],
-      startDate: [this.formatDateForInput(today), Validators.required],
-      endDate: [this.formatDateForInput(nextMonth), Validators.required],
+      startDate: [toDateInputValue(today), Validators.required],
+      endDate: [toDateInputValue(nextMonth), Validators.required],
       milestones: this.fb.array([])
     });
 
@@ -72,10 +73,6 @@ export class NewGoalComponent {
     }
   }
 
-  private formatDateForInput(date: Date): string {
-    return date.toISOString().split('T')[0];
-  }
-
   get milestones() {
     return this.goalForm.get('milestones') as FormArray;
   }
@@ -84,7 +81,7 @@ export class NewGoalComponent {
     const today = new Date();
     const milestoneForm = this.fb.group({
       milestoneName: ['', Validators.required],
-      targetDate: [this.formatDateForInput(today), Validators.required],
+      targetDate: [toDateInputValue(today), Validators.required],
       description: ['']
     });
     this.milestones.push(milestoneForm);
