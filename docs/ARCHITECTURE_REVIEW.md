@@ -253,13 +253,29 @@ features/
 | `toggleTaskCompletion` hacía GET + PUT por cada clic                                                    | Doble latencia                                                  |
 | `DashboardService` cargaba datos en su constructor y el componente otra vez                             | Cada visita lanzaba las peticiones dos veces                    |
 
-### Fase 2 — Arquitectura por features (2–4 semanas)
+### Fase 2 — Arquitectura por features ✅ completada en la rama `fase2`
 
-- [ ] Estructura `core/ shared/ features/` con rutas lazy por feature.
-- [ ] Stores por agregado basados en signals (o NgRx SignalStore); dashboard derivado de ellos.
-- [ ] Lógica de dominio en funciones puras con tests unitarios exhaustivos.
-- [ ] Reactive Forms tipados y validaciones cruzadas de fechas.
-- [ ] Actualizaciones optimistas y eliminación del patrón "recargar todo".
+- [x] Estructura `core/ shared/ features/` (movida con `git mv`, conservando el historial) y rutas lazy por feature (`loadChildren`), con el `authGuard` declarado una sola vez.
+- [x] Stores por agregado con signals (`TaskStore`, `GoalStore`, `ReminderStore`) sobre una `EntityCollection` genérica: caché por sesión, reset al cambiar de usuario, descarte de respuestas tardías. El dashboard se deriva de ellos y desaparece `DashboardService`. _(Se descartó NgRx SignalStore: con tres agregados sencillos, una clase propia de ~150 líneas evita una dependencia; se puede migrar si el dominio crece.)_
+- [x] Lógica de dominio en funciones puras (`features/<x>/domain/*.rules.ts`) con tests, ejecutados también en `Europe/Madrid`, `America/Los_Angeles` y `Asia/Tokyo`, incluido el cambio de hora. Campos derivados calculados a partir de `ClockService.now()`, que avanza cada minuto.
+- [x] Reactive Forms tipados con validadores de grupo reutilizables (`shared/forms/date-validators.ts`): orden de fechas, milestones dentro del rango del goal y fecha no pasada.
+- [x] Actualizaciones optimistas (marcar, borrar, milestones) con reversión de la entidad afectada; crear y editar actualizan solo esa entidad. Cada lista se pide una vez por sesión (comprobado en el navegador).
+- Tests: 59 → 129.
+
+**Bugs de reglas de negocio corregidos durante la Fase 2**
+
+| Bug                                                                                            | Impacto                                                                           |
+| ---------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| Una tarea o goal vencía a las 00:00 de su fecha límite                                         | El mismo día se mostraba a la vez "Due today" y "Overdue"                         |
+| Tres implementaciones distintas de "hoy / mañana / esta semana" para recordatorios             | El dashboard contaba hoy y mañana también dentro de "esta semana"                 |
+| Estados de goals solapados en la gráfica                                                       | Un goal vencido con progreso contaba como "In Progress" y como "Overdue"          |
+| `isAchieved` nunca volvía a `false`                                                            | Desmarcar un milestone dejaba el goal como conseguido                             |
+| Campos derivados calculados una sola vez al cargar                                             | "Vencido" o "en 2 horas" se quedaban congelados con la pestaña abierta            |
+| Errores de fecha puestos a mano en un control                                                  | Se borraban o no se limpiaban; cambiar la fecha de inicio no revalidaba la de fin |
+| `new-goal` calculaba el error de fechas pero no lo mostraba; `goal-details` no validaba fechas | Se podían guardar goals con la fecha objetivo antes del inicio                    |
+| La regla "no en el pasado" se aplicaba al valor original                                       | No se podía editar el texto de un recordatorio vencido sin cambiar su fecha       |
+| El mensaje de fecha pasada estaba oculto hasta perder el foco                                  | Botón de guardar desactivado sin explicación                                      |
+| Cada pantalla y cada mutación recargaban la lista completa                                     | Peticiones redundantes y parpadeo de la lista                                     |
 
 ### Fase 3 — Producto y plataforma
 
