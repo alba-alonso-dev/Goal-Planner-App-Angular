@@ -135,7 +135,6 @@ export class TaskDetailsComponent implements OnInit, OnChanges {
 
       this.taskService.updateTask(this.task.taskId, updatedTask).subscribe({
         next: (response) => {
-          console.log('Task updated:', response);
           this.submitting = false;
           this.editMode = false;
           this.taskUpdated.emit();

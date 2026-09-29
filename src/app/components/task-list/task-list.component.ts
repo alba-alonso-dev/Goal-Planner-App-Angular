@@ -119,7 +119,6 @@ export class TaskListComponent implements OnInit {
 
     this.taskService.getAllTasksByUser().subscribe({
       next: (tasks) => {
-        console.log('Tasks loaded:', tasks);
         this.allTasks.set(tasks);
         this.loading = false;
       },
@@ -152,7 +151,6 @@ export class TaskListComponent implements OnInit {
 
     this.taskService.createTask(taskData).subscribe({
       next: (response) => {
-        console.log('Task created:', response);
         this.loadTasks();
         this.closeNewTaskModal();
         this.notificationService.success('Task created successfully', 'Success');

@@ -1,11 +1,7 @@
 import { Routes } from '@angular/router';
 import { HomeComponent } from './components/home/home.component';
-import { DashboardComponent } from './components/dashboard/dashboard.component';
-import { GoalListComponent } from './components/goal-list/goal-list.component';
-import { TaskListComponent } from './components/task-list/task-list.component';
-import { authGuard } from './guards/auth.guard';
 import { LayoutComponent } from './components/layout/layout.component';
-import { ReminderListComponent } from './components/reminder-list/reminder-list.component';
+import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
@@ -13,11 +9,28 @@ export const routes: Routes = [
     path: '',
     component: LayoutComponent, // Todas las rutas usan el mismo layout
     children: [
-      { path: 'home', component: HomeComponent }, // Home público
-      { path: 'dashboard', component: DashboardComponent, canActivate: [authGuard] }, // Protegidas
-      { path: 'goals', component: GoalListComponent, canActivate: [authGuard] },
-      { path: 'tasks', component: TaskListComponent, canActivate: [authGuard] },
-      { path: 'reminders', component: ReminderListComponent, canActivate: [authGuard] },
+      { path: 'home', component: HomeComponent }, // Home público (eager: es la página de entrada)
+      // Rutas protegidas cargadas bajo demanda para reducir el bundle inicial
+      {
+        path: 'dashboard',
+        canActivate: [authGuard],
+        loadComponent: () => import('./components/dashboard/dashboard.component').then(m => m.DashboardComponent)
+      },
+      {
+        path: 'goals',
+        canActivate: [authGuard],
+        loadComponent: () => import('./components/goal-list/goal-list.component').then(m => m.GoalListComponent)
+      },
+      {
+        path: 'tasks',
+        canActivate: [authGuard],
+        loadComponent: () => import('./components/task-list/task-list.component').then(m => m.TaskListComponent)
+      },
+      {
+        path: 'reminders',
+        canActivate: [authGuard],
+        loadComponent: () => import('./components/reminder-list/reminder-list.component').then(m => m.ReminderListComponent)
+      },
     ]
   },
   // Ruta comodín para redirigir cualquier URL no encontrada

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -10,7 +10,7 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css']
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent {
   currentYear = new Date().getFullYear();
   
   // Email para newsletter
@@ -151,17 +151,12 @@ export class HomeComponent implements OnInit {
     }
   ];
 
-  ngOnInit() {
-    // Sin AOS - simplemente no hacemos nada
-  }
-
   toggleFaq(index: number) {
     this.faqs[index].open = !this.faqs[index].open;
   }
 
   subscribeNewsletter() {
     if (this.newsletterEmail && this.validateEmail(this.newsletterEmail)) {
-      console.log('Newsletter subscription:', this.newsletterEmail);
       this.newsletterSubmitted = true;
       this.newsletterEmail = '';
       

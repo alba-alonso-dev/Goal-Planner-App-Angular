@@ -27,10 +27,10 @@ Construida con **Angular 19** (standalone components + signals), Bootstrap 5 y C
 |---|---|
 | Framework | Angular 19.2 · standalone components · signals · control flow (`@if`, `@for`) |
 | Lenguaje | TypeScript 5.7 (`strict`, `strictTemplates`) |
-| UI | Bootstrap 5.3, Bootstrap Icons, Font Awesome |
+| UI | Bootstrap 5.3, Bootstrap Icons y Font Awesome 6 (CDN) |
 | Gráficas | Chart.js 4 |
 | HTTP | `HttpClient` + RxJS 7.8 |
-| Tests | Karma + Jasmine |
+| Tests | Karma + Jasmine · CI con GitHub Actions |
 
 ---
 
@@ -59,9 +59,14 @@ La aplicación usa directamente la API pública, así que no hace falta levantar
 | `npm start` | Servidor de desarrollo con recarga en caliente (`ng serve`). |
 | `npm run build` | Build de producción en `dist/goal-planer/`. |
 | `npm run watch` | Build de desarrollo en modo watch. |
-| `npm test` | Tests unitarios con Karma (Chrome). |
+| `npm test` | Tests unitarios con Karma (Chrome, modo watch). |
+| `npm run test:ci` | Tests en Chrome headless, una sola ejecución (el que usa la CI). |
 
-> Para ejecutar los tests en un entorno sin interfaz gráfica: `npm test -- --watch=false --browsers=ChromeHeadless`.
+> `test:ci` necesita Chrome/Chromium instalado; si no está en el `PATH`, indica su ruta con `CHROME_BIN`.
+
+### Integración continua
+
+`.github/workflows/ci.yml` ejecuta en cada push a `main` y en cada Pull Request: `npm ci` → `npm run test:ci` → `npm run build`.
 
 ---
 
@@ -73,8 +78,8 @@ src/
 ├── main.ts                    # bootstrapApplication(AppComponent, appConfig)
 ├── styles.css                 # Estilos globales y variables CSS
 └── app/
-    ├── app.config.ts          # Providers: router, HttpClient, animaciones
-    ├── app.routes.ts          # Rutas (Layout + páginas, guard en las privadas)
+    ├── app.config.ts          # Providers: router, HttpClient
+    ├── app.routes.ts          # Rutas (Layout + páginas lazy, guard en las privadas)
     ├── guards/
     │   └── auth.guard.ts      # Redirige a /home si no hay sesión
     ├── model/                 # Interfaces DTO (Request/Response) y de vista
@@ -93,6 +98,8 @@ src/
         ├── goal-list/  goal-item/  goal-details/  new-goal/
         ├── task-list/  task-item/  task-details/  new-task/
         └── reminder-list/  reminder-item/  reminder-details/  new-reminder/
+src/testing/
+    └── fixtures.ts            # Datos de prueba compartidos por los specs
 ```
 
 ### Rutas
@@ -106,7 +113,7 @@ src/
 | `/reminders` | `ReminderListComponent` | 🔒 Autenticado |
 | `**` | → `/home` | — |
 
-Todas las rutas se renderizan dentro de `LayoutComponent` (navbar + contenido + footer + toasts).
+Todas las rutas se renderizan dentro de `LayoutComponent` (navbar + contenido + footer + toasts). Las rutas privadas se cargan bajo demanda (`loadComponent`), de modo que Chart.js solo se descarga al abrir el dashboard.
 
 ---
 
@@ -150,13 +157,12 @@ Todas las rutas se renderizan dentro de `LayoutComponent` (navbar + contenido + 
 
 Resumen de la [revisión de arquitectura completa](docs/ARCHITECTURE_REVIEW.md):
 
-- ❌ **`npm run build` falla**: el bundle inicial (1.03 MB) supera el budget de error de 1 MB. Solución prevista: lazy loading de rutas y Chart.js tree-shaken. Mientras tanto, `ng build --configuration development` funciona.
-- ❌ **Los tests no pasan**: `auth.guard.spec.ts` no compila y la mayoría de specs fallan por falta de providers (`HttpClient`, `Router`). Solo existen tests autogenerados "should create".
+- ⚠️ **Tamaño del bundle**: el build de producción pasa, pero el bundle inicial (613 kB, ~124 kB transferidos) supera el aviso de 500 kB, sobre todo por el CSS completo de Bootstrap (~234 kB). Pendiente: importar solo los parciales SCSS necesarios.
+- 🧪 **Cobertura de tests baja**: la suite está en verde, pero la mayoría de specs solo comprueban que el componente se crea; la lógica de negocio aún no tiene tests.
 - 🔐 **Seguridad**: no hay token; la sesión es el perfil de usuario en `localStorage` y la API identifica al usuario por `userId` en la petición. **No usar con datos sensibles.**
 - 📊 **Dashboard**: la "actividad reciente" usa marcas de tiempo simuladas y los selectores de periodo/fecha aún no filtran.
 - 🗃️ **Archivar** goals/recordatorios completados solo los oculta en memoria (reaparecen al recargar). La API no expone borrado de goals.
 - 🌐 Textos mezclados en inglés y español; fechas formateadas con locale `es-ES` fijo.
-- 🧩 Hay ficheros de configuración SSR (`app.config.server.ts`, `app.routes.server.ts`) sin el resto de piezas necesarias: SSR no está operativo.
 
 ---
 
@@ -164,7 +170,7 @@ Resumen de la [revisión de arquitectura completa](docs/ARCHITECTURE_REVIEW.md):
 
 Detalle y justificación en [`docs/ARCHITECTURE_REVIEW.md`](docs/ARCHITECTURE_REVIEW.md#4-hoja-de-ruta-propuesta).
 
-1. **Estabilizar** — build y tests en verde, limpieza de dependencias no usadas, CI con GitHub Actions.
+1. ✅ **Estabilizar** — build y tests en verde, limpieza de dependencias no usadas, CI con GitHub Actions.
 2. **Fundamentos** — `environment` + `API_BASE_URL`, interceptores HTTP, helpers compartidos, ESLint/Prettier, `OnPush` e `input()/output()`.
 3. **Arquitectura por features** — `core/ shared/ features/`, stores con signals como fuente única de verdad, lógica de dominio en funciones puras testeadas, Reactive Forms tipados.
 4. **Producto** — backend con autenticación real, i18n, accesibilidad, e2e con Playwright, notificaciones push.

@@ -251,7 +251,6 @@ export class DashboardService {
       this.reminderService.getAllRemindersByUser()
     ]).subscribe({
       next: ([tasks, goals, reminders]) => {
-        console.log('Dashboard data loaded:', { tasks, goals, reminders });
         this.tasks.set(tasks);
         this.goals.set(goals);
         this.reminders.set(reminders);
@@ -266,7 +265,6 @@ export class DashboardService {
   }
 
   refresh() {
-    console.log('DashboardService: Refrescando datos...');
     this.loadDashboardData();
   }
 
@@ -384,8 +382,6 @@ export class DashboardService {
       const rDate = new Date(r.reminderDateTime);
       return rDate > nextWeek;
     }).length;
-
-    console.log('Reminder counts:', { today_count, tomorrow_count, thisWeek_count, later_count });
 
     return {
       labels: ['Today', 'Tomorrow', 'This Week', 'Later'],
