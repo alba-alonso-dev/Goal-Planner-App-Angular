@@ -196,7 +196,7 @@
             </div>
         </div>
 
-        <!-- Task Completion Trend with Table -->
+        <!-- Task Activity with Table -->
         <div class="row mb-4">
             <div class="col-12">
                 <div class="card dashboard-card">
@@ -204,36 +204,8 @@
                         <div class="d-flex justify-content-between align-items-center mb-4">
                             <h5 class="card-title mb-0">
                                 <i class="bi bi-bar-chart-line-fill me-2"></i>
-                                Task Completion Trend
+                                Task Activity <small class="text-muted fw-normal">(last 7 days)</small>
                             </h5>
-                            <div class="d-flex gap-2">
-                                <input 
-                                    type="date" 
-                                    class="form-control form-control-sm" 
-                                    style="width: auto;"
-                                    [value]="selectedDate()"
-                                    (change)="onDateChange($event)">
-                                <div class="btn-group btn-group-sm">
-                                    <button class="btn" 
-                                            [class.btn-primary]="chartPeriod() === 'daily'"
-                                            [class.btn-outline-secondary]="chartPeriod() !== 'daily'"
-                                            (click)="setChartPeriod('daily')">
-                                        Daily
-                                    </button>
-                                    <button class="btn" 
-                                            [class.btn-primary]="chartPeriod() === 'weekly'"
-                                            [class.btn-outline-secondary]="chartPeriod() !== 'weekly'"
-                                            (click)="setChartPeriod('weekly')">
-                                        Weekly
-                                    </button>
-                                    <button class="btn" 
-                                            [class.btn-primary]="chartPeriod() === 'monthly'"
-                                            [class.btn-outline-secondary]="chartPeriod() !== 'monthly'"
-                                            (click)="setChartPeriod('monthly')">
-                                        Monthly
-                                    </button>
-                                </div>
-                            </div>
                         </div>
 
                         <!-- Chart Container -->
@@ -306,15 +278,15 @@
             </div>
         </div>
 
-        <!-- Bottom Row: Recent Activity and Goal Progress -->
+        <!-- Bottom Row: Needs Attention and Goal Progress -->
         <div class="row">
-            <!-- Recent Activity -->
+            <!-- Needs Attention (overdue items) -->
             <div class="col-md-7 mb-4">
                 <div class="card dashboard-card h-100">
                     <div class="card-body">
                         <h5 class="card-title mb-4">
-                            <i class="bi bi-clock-history me-2"></i>
-                            Recent Activity
+                            <i class="bi bi-exclamation-circle me-2"></i>
+                            Needs Attention
                         </h5>
                         <div class="list-group list-group-flush">
                             @for (activity of recentActivity(); track activity.id) {
@@ -341,8 +313,8 @@
                                 </div>
                             } @empty {
                                 <div class="text-center py-4">
-                                    <i class="bi bi-activity fa-2x d-block mb-2 text-muted"></i>
-                                    <span class="text-muted">No recent activity</span>
+                                    <i class="bi bi-check2-circle fa-2x d-block mb-2 text-success"></i>
+                                    <span class="text-muted">Nothing overdue</span>
                                 </div>
                             }
                         </div>
