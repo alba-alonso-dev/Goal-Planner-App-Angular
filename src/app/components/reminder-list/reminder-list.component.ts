@@ -219,11 +219,11 @@ export class ReminderListComponent implements OnInit {
 
   // Métodos auxiliares para la vista de lista
   getReminderListIcon(reminder: ReminderResponse): string {
-    if (reminder.isAcknowledged) return 'fas fa-check-circle text-success';
-    if (reminder.isOverdue) return 'fas fa-exclamation-circle text-danger';
-    if (reminder.isToday) return 'fas fa-bell text-warning';
-    if (reminder.isTomorrow) return 'fas fa-clock text-info';
-    return 'fas fa-bell text-primary';
+    if (reminder.isAcknowledged) return 'bi bi-check-circle-fill text-success';
+    if (reminder.isOverdue) return 'bi bi-exclamation-circle-fill text-danger';
+    if (reminder.isToday) return 'bi bi-bell-fill text-warning';
+    if (reminder.isTomorrow) return 'bi bi-clock-fill text-info';
+    return 'bi bi-bell-fill text-primary';
   }
 
   getListBadgeClass(reminder: ReminderResponse): string {

@@ -5,9 +5,9 @@
       <div class="modal-header">
         <h5 class="modal-title fw-bold">
           @if (editMode()) {
-            <i class="fas fa-edit me-2"></i>Edit Task
+            <i class="bi bi-pencil-square me-2"></i>Edit Task
           } @else {
-            <i class="fas fa-tasks me-2"></i>Task Details
+            <i class="bi bi-list-check me-2"></i>Task Details
           }
         </h5>
         <button
@@ -23,7 +23,7 @@
         <!-- Error message -->
         @if (error()) {
           <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <i class="fas fa-exclamation-triangle me-2"></i>
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
             {{ error() }}
             <button type="button" class="btn-close" (click)="error.set(null)"></button>
           </div>
@@ -118,7 +118,7 @@
                 'bg-warning': !task.isCompleted && !task.isOverdue
               }"
             >
-              <i class="fas fa-circle me-1" style="font-size: 8px"></i>
+              <i class="bi bi-circle-fill me-1" style="font-size: 8px"></i>
               {{ getStatusText() }}
             </span>
           </div>
@@ -128,7 +128,7 @@
             <div class="col-6">
               <div class="card bg-light border-0">
                 <div class="card-body text-center">
-                  <i class="fas fa-sync-alt fa-2x text-primary mb-2"></i>
+                  <i class="bi bi-arrow-repeat icon-2x text-primary mb-2"></i>
                   <h6 class="text-muted mb-1">Frequency</h6>
                   <p class="h5 mb-0">{{ task.frequency }}</p>
                 </div>
@@ -137,7 +137,7 @@
             <div class="col-6">
               <div class="card bg-light border-0">
                 <div class="card-body text-center">
-                  <i class="far fa-clock fa-2x text-primary mb-2"></i>
+                  <i class="bi bi-clock icon-2x text-primary mb-2"></i>
                   <h6 class="text-muted mb-1">Status</h6>
                   <p class="h5 mb-0" [class]="getStatusClass()">
                     {{ getDaysRemainingText() }}
@@ -148,7 +148,7 @@
             <div class="col-6">
               <div class="card bg-light border-0">
                 <div class="card-body text-center">
-                  <i class="far fa-calendar-alt fa-2x text-primary mb-2"></i>
+                  <i class="bi bi-calendar3 icon-2x text-primary mb-2"></i>
                   <h6 class="text-muted mb-1">Start Date</h6>
                   <p class="h5 mb-0">{{ task.startDate | date: 'fullDate' }}</p>
                 </div>
@@ -157,7 +157,7 @@
             <div class="col-6">
               <div class="card bg-light border-0">
                 <div class="card-body text-center">
-                  <i class="far fa-calendar-check fa-2x text-primary mb-2"></i>
+                  <i class="bi bi-calendar-check icon-2x text-primary mb-2"></i>
                   <h6 class="text-muted mb-1">Due Date</h6>
                   <p class="h5 mb-0">{{ task.dueDate | date: 'fullDate' }}</p>
                 </div>
@@ -193,22 +193,22 @@
               <span class="spinner-border spinner-border-sm me-2"></span>
               Saving...
             } @else {
-              <i class="fas fa-save me-2"></i>Save Changes
+              <i class="bi bi-floppy me-2"></i>Save Changes
             }
           </button>
         } @else {
           <button type="button" class="btn btn-outline-success" (click)="toggleCompletion()" [disabled]="submitting()">
             @if (task.isCompleted) {
-              <i class="fas fa-undo me-2"></i>Mark Pending
+              <i class="bi bi-arrow-counterclockwise me-2"></i>Mark Pending
             } @else {
-              <i class="fas fa-check me-2"></i>Mark Complete
+              <i class="bi bi-check-lg me-2"></i>Mark Complete
             }
           </button>
           <button type="button" class="btn btn-outline-primary" (click)="toggleEditMode()">
-            <i class="fas fa-edit me-2"></i>Edit
+            <i class="bi bi-pencil-square me-2"></i>Edit
           </button>
           <button type="button" class="btn btn-outline-danger" (click)="deleteTask()">
-            <i class="fas fa-trash me-2"></i>Delete
+            <i class="bi bi-trash me-2"></i>Delete
           </button>
           <button type="button" class="btn btn-primary" (click)="closeModal()">Close</button>
         }

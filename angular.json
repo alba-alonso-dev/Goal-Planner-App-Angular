@@ -43,8 +43,13 @@
                 "input": "public"
               }
             ],
-            "styles": ["./node_modules/bootstrap/dist/css/bootstrap.min.css", "src/styles.css"],
-            "scripts": []
+            "styles": ["src/styles/bootstrap.scss", "src/styles/icons.generated.css", "src/styles.css"],
+            "scripts": [],
+            "stylePreprocessorOptions": {
+              "sass": {
+                "silenceDeprecations": ["import", "global-builtin", "color-functions", "mixed-decls"]
+              }
+            }
           },
           "configurations": {
             "production": {
@@ -102,7 +107,7 @@
                 "input": "public"
               }
             ],
-            "styles": ["src/styles.css"],
+            "styles": ["src/styles/bootstrap.scss", "src/styles/icons.generated.css", "src/styles.css"],
             "scripts": [],
             "karmaConfig": "karma.conf.js"
           }

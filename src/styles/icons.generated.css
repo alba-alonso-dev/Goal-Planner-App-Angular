@@ -1,0 +1,204 @@
+/* Generado por scripts/generate-icons.mjs a partir de los iconos usados en src/app. No editar a mano. */
+@font-face {
+  font-display: block;
+  font-family: 'bootstrap-icons';
+  src:
+    url('../../node_modules/bootstrap-icons/font/fonts/bootstrap-icons.woff2') format('woff2'),
+    url('../../node_modules/bootstrap-icons/font/fonts/bootstrap-icons.woff') format('woff');
+}
+
+.bi::before,
+[class^='bi-']::before,
+[class*=' bi-']::before {
+  display: inline-block;
+  font-family: 'bootstrap-icons' !important;
+  font-style: normal;
+  font-weight: normal !important;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+  vertical-align: -0.125em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.bi-arrow-counterclockwise::before {
+  content: '\f117';
+}
+.bi-arrow-repeat::before {
+  content: '\f130';
+}
+.bi-arrow-right::before {
+  content: '\f138';
+}
+.bi-bar-chart-line-fill::before {
+  content: '\f17b';
+}
+.bi-bell::before {
+  content: '\f18a';
+}
+.bi-bell-fill::before {
+  content: '\f189';
+}
+.bi-box-arrow-in-right::before {
+  content: '\f1be';
+}
+.bi-box-arrow-right::before {
+  content: '\f1c3';
+}
+.bi-bullseye::before {
+  content: '\f1de';
+}
+.bi-calendar-check::before {
+  content: '\f1e2';
+}
+.bi-calendar-month-fill::before {
+  content: '\f1ec';
+}
+.bi-calendar-week::before {
+  content: '\f1f3';
+}
+.bi-calendar-week-fill::before {
+  content: '\f1f2';
+}
+.bi-calendar3::before {
+  content: '\f214';
+}
+.bi-check-all::before {
+  content: '\f269';
+}
+.bi-check-circle-fill::before {
+  content: '\f26a';
+}
+.bi-check-lg::before {
+  content: '\f633';
+}
+.bi-check2-circle::before {
+  content: '\f270';
+}
+.bi-chevron-down::before {
+  content: '\f282';
+}
+.bi-chevron-right::before {
+  content: '\f285';
+}
+.bi-chevron-up::before {
+  content: '\f286';
+}
+.bi-circle::before {
+  content: '\f28a';
+}
+.bi-circle-fill::before {
+  content: '\f287';
+}
+.bi-circle-half::before {
+  content: '\f288';
+}
+.bi-clock::before {
+  content: '\f293';
+}
+.bi-clock-fill::before {
+  content: '\f291';
+}
+.bi-cloud-sun-fill::before {
+  content: '\f2bd';
+}
+.bi-exclamation-circle::before {
+  content: '\f333';
+}
+.bi-exclamation-circle-fill::before {
+  content: '\f332';
+}
+.bi-exclamation-triangle-fill::before {
+  content: '\f33a';
+}
+.bi-eye::before {
+  content: '\f341';
+}
+.bi-flag-fill::before {
+  content: '\f3cb';
+}
+.bi-floppy::before {
+  content: '\f7d8';
+}
+.bi-github::before {
+  content: '\f3ed';
+}
+.bi-graph-up::before {
+  content: '\f3f2';
+}
+.bi-graph-up-arrow::before {
+  content: '\f673';
+}
+.bi-grid-3x3-gap-fill::before {
+  content: '\f3f8';
+}
+.bi-grid-fill::before {
+  content: '\f3fb';
+}
+.bi-hourglass-split::before {
+  content: '\f41f';
+}
+.bi-inbox::before {
+  content: '\f42d';
+}
+.bi-info-circle-fill::before {
+  content: '\f430';
+}
+.bi-linkedin::before {
+  content: '\f472';
+}
+.bi-list-check::before {
+  content: '\f473';
+}
+.bi-list-task::before {
+  content: '\f477';
+}
+.bi-list-ul::before {
+  content: '\f478';
+}
+.bi-pencil-square::before {
+  content: '\f4ca';
+}
+.bi-people-fill::before {
+  content: '\f4cf';
+}
+.bi-person-fill::before {
+  content: '\f4da';
+}
+.bi-person-plus-fill::before {
+  content: '\f4dc';
+}
+.bi-pie-chart-fill::before {
+  content: '\f4e8';
+}
+.bi-plus-circle::before {
+  content: '\f4fa';
+}
+.bi-plus-lg::before {
+  content: '\f64d';
+}
+.bi-search::before {
+  content: '\f52a';
+}
+.bi-speedometer2::before {
+  content: '\f580';
+}
+.bi-star-fill::before {
+  content: '\f586';
+}
+.bi-sun-fill::before {
+  content: '\f5a1';
+}
+.bi-trash::before {
+  content: '\f5de';
+}
+.bi-trophy-fill::before {
+  content: '\f5e6';
+}
+.bi-twitter-x::before {
+  content: '\f8db';
+}
+.bi-x-lg::before {
+  content: '\f659';
+}

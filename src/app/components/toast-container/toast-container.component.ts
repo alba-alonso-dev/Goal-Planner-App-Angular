@@ -20,12 +20,12 @@ import { NotificationService } from '../../services/notification.service';
             }"
           >
             <i
-              class="fas"
+              class="bi"
               [ngClass]="{
-                'fa-check-circle': toast.type === 'success',
-                'fa-exclamation-circle': toast.type === 'error',
-                'fa-exclamation-triangle': toast.type === 'warning',
-                'fa-info-circle': toast.type === 'info'
+                'bi-check-circle-fill': toast.type === 'success',
+                'bi-exclamation-circle-fill': toast.type === 'error',
+                'bi-exclamation-triangle-fill': toast.type === 'warning',
+                'bi-info-circle-fill': toast.type === 'info'
               }"
             ></i>
             <strong class="me-auto ms-2">{{ toast.title || toast.type | titlecase }}</strong>
