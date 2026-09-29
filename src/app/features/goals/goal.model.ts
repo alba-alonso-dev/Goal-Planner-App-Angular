@@ -22,8 +22,6 @@ export type MilestoneResponse = MilestoneRequest;
 /** Goal tal como lo devuelve la API. El listado no incluye los milestones; el detalle sí. */
 export interface GoalResponse extends Omit<GoalRequest, 'milestones'> {
   milestones?: MilestoneResponse[];
-  /** @deprecated Usar GoalView (se elimina al migrar a stores). */
-  progress?: number;
 }
 
 /** Estado excluyente de un goal, usado en filtros y gráficas. */

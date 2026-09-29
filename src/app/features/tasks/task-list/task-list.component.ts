@@ -1,16 +1,15 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject, signal, computed } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { TaskService } from '../data-access/task.service';
-import { TaskInput, TaskResponse } from '../task.model';
+import { TaskStore } from '../data-access/task.store';
+import { selectTasks } from '../domain/task.rules';
+import { TaskFilter, TaskFrequency, TaskInput, TaskView } from '../task.model';
 import { ApiError } from '../../../core/http/api-error';
 import { NewTaskComponent } from '../ui/new-task/new-task.component';
 import { TaskItemComponent } from '../ui/task-item/task-item.component';
 import { NotificationService } from '../../../core/notifications/notification.service';
 import { TaskDetailsComponent } from '../ui/task-details/task-details.component';
-
-type TaskFilter = 'all' | 'pending' | 'completed' | 'overdue';
 
 @Component({
   selector: 'app-task-list',
@@ -21,106 +20,48 @@ type TaskFilter = 'all' | 'pending' | 'completed' | 'overdue';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TaskListComponent implements OnInit {
-  private taskService = inject(TaskService);
+  private store = inject(TaskStore);
   private notificationService = inject(NotificationService);
 
-  // Signals
-  private allTasks = signal<TaskResponse[]>([]);
-  filter = signal<TaskFilter>('all');
-  private searchTerm = signal('');
+  readonly filter = signal<TaskFilter>('all');
+  private readonly searchTerm = signal('');
 
-  // Tasks agrupadas por frecuencia
-  dailyTasks = computed(() => {
-    return this.filterTasksByFrequency('Daily');
-  });
+  // Estado compartido: vive en el store
+  readonly stats = this.store.stats;
+  readonly loading = this.store.loading;
+  readonly error = this.store.error;
 
-  weeklyTasks = computed(() => {
-    return this.filterTasksByFrequency('Weekly');
-  });
+  // Tasks agrupadas por frecuencia, filtradas y ordenadas
+  readonly dailyTasks = computed(() => this.select('Daily'));
+  readonly weeklyTasks = computed(() => this.select('Weekly'));
+  readonly monthlyTasks = computed(() => this.select('Monthly'));
 
-  monthlyTasks = computed(() => {
-    return this.filterTasksByFrequency('Monthly');
-  });
-
-  // Método auxiliar para filtrar y ordenar tareas por frecuencia
-  private filterTasksByFrequency(frequency: 'Daily' | 'Weekly' | 'Monthly'): TaskResponse[] {
-    let tasks = this.allTasks().filter(t => t.frequency === frequency);
-
-    // Aplicar filtro de estado
-    switch (this.filter()) {
-      case 'pending':
-        tasks = tasks.filter(t => !t.isCompleted && !t.isOverdue);
-        break;
-      case 'completed':
-        tasks = tasks.filter(t => t.isCompleted);
-        break;
-      case 'overdue':
-        tasks = tasks.filter(t => !t.isCompleted && t.isOverdue);
-        break;
-      default:
-        break;
-    }
-
-    // Aplicar búsqueda
-    const search = this.searchTerm().toLowerCase();
-    if (search) {
-      tasks = tasks.filter(
-        t => t.taskName.toLowerCase().includes(search) || t.description?.toLowerCase().includes(search)
-      );
-    }
-
-    // Ordenar: pendientes primero, luego por fecha
-    return tasks.sort((a, b) => {
-      if (a.isCompleted !== b.isCompleted) {
-        return a.isCompleted ? 1 : -1;
-      }
-      return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
-    });
-  }
-
-  // Para mantener compatibilidad con la búsqueda global
-  hasTasksInAnyCategory = computed(() => {
-    return this.dailyTasks().length > 0 || this.weeklyTasks().length > 0 || this.monthlyTasks().length > 0;
-  });
-
-  stats = computed(() => {
-    return this.taskService.getTaskStats(this.allTasks());
-  });
+  readonly hasTasksInAnyCategory = computed(
+    () => this.dailyTasks().length > 0 || this.weeklyTasks().length > 0 || this.monthlyTasks().length > 0
+  );
 
   // UI State
   readonly showNewTaskModal = signal(false);
-  readonly showDetailsModal = signal(false);
-  readonly selectedTask = signal<TaskResponse | null>(null);
-  readonly loading = signal(false);
   readonly creating = signal(false);
-  readonly error = signal<string | null>(null);
+  // Se guarda el id (no el objeto) para que el detalle refleje siempre el estado actual del store
+  private readonly selectedTaskId = signal<number | null>(null);
+  readonly selectedTask = computed(() => this.store.tasks().find(t => t.taskId === this.selectedTaskId()) ?? null);
+  readonly showDetailsModal = computed(() => this.selectedTask() !== null);
 
   // Colapsar/expandir secciones
-  collapsedSections = signal({
+  readonly collapsedSections = signal({
     daily: false,
     weekly: false,
     monthly: false
   });
 
   ngOnInit() {
-    this.loadTasks();
+    // Usa los datos en memoria si ya se cargaron (p. ej. desde el dashboard)
+    this.store.load();
   }
 
-  loadTasks() {
-    this.loading.set(true);
-    this.error.set(null);
-
-    this.taskService.getAllTasksByUser().subscribe({
-      next: tasks => {
-        this.allTasks.set(tasks);
-        this.loading.set(false);
-      },
-      error: (error: ApiError) => {
-        this.error.set(error.message);
-        this.loading.set(false);
-        console.error('Error loading tasks:', error);
-      }
-    });
+  private select(frequency: TaskFrequency): TaskView[] {
+    return selectTasks(this.store.tasks(), { frequency, filter: this.filter(), search: this.searchTerm() });
   }
 
   setFilter(filter: TaskFilter) {
@@ -142,11 +83,10 @@ export class TaskListComponent implements OnInit {
   onTaskCreated(taskData: TaskInput) {
     this.creating.set(true);
 
-    this.taskService.createTask(taskData).subscribe({
+    this.store.create(taskData).subscribe({
       next: () => {
         this.creating.set(false);
         this.closeNewTaskModal();
-        this.loadTasks();
         this.notificationService.success('Task created successfully', 'Success');
       },
       error: (error: ApiError) => {
@@ -158,47 +98,32 @@ export class TaskListComponent implements OnInit {
   }
 
   onTaskUpdated() {
-    this.loadTasks();
     this.notificationService.success('Task updated successfully', 'Success');
   }
 
-  toggleTaskCompletion(task: TaskResponse) {
-    this.taskService.toggleTaskCompletion(task).subscribe({
-      next: () => {
-        this.loadTasks();
-      },
-      error: error => {
-        console.error('Error toggling task:', error);
-        this.notificationService.error('Error updating task', 'Error');
-      }
+  toggleTaskCompletion(task: TaskView) {
+    this.store.toggleCompletion(task.taskId).subscribe({
+      error: (error: ApiError) => this.notificationService.error(error.message, 'Error updating task')
     });
   }
 
-  viewTaskDetails(task: TaskResponse) {
-    this.selectedTask.set(task);
-    this.showDetailsModal.set(true);
+  viewTaskDetails(task: TaskView) {
+    this.selectedTaskId.set(task.taskId);
   }
 
   closeDetailsModal() {
-    this.showDetailsModal.set(false);
-    this.selectedTask.set(null);
+    this.selectedTaskId.set(null);
   }
 
   deleteTask(taskId: number) {
-    this.taskService.deleteTask(taskId).subscribe({
-      next: () => {
-        this.loadTasks();
-        this.notificationService.success('Task deleted successfully', 'Success');
-      },
-      error: error => {
-        console.error('Error deleting task:', error);
-        this.notificationService.error('Error deleting task', 'Error');
-      }
+    this.store.delete(taskId).subscribe({
+      next: () => this.notificationService.success('Task deleted successfully', 'Success'),
+      error: (error: ApiError) => this.notificationService.error(error.message, 'Error deleting task')
     });
   }
 
   retry() {
-    this.loadTasks();
+    this.store.load({ force: true });
   }
 
   toggleSection(section: 'daily' | 'weekly' | 'monthly') {
@@ -220,11 +145,4 @@ export class TaskListComponent implements OnInit {
         return 'bi bi-clock-fill';
     }
   }
-
-  getSectionCount(section: TaskResponse[]): number {
-    return section.length;
-  }
-
-  // Para usar en el template
-  protected Math = Math;
 }

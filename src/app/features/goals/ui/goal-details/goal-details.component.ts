@@ -1,18 +1,10 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  effect,
-  inject,
-  input,
-  linkedSignal,
-  output,
-  signal,
-  untracked
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject, input, output, signal, untracked } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormArray, FormGroup, Validators } from '@angular/forms';
-import { GoalResponse, MilestoneInput, MilestoneResponse } from '../../goal.model';
-import { GoalService } from '../../data-access/goal.service';
+import { GoalView, MilestoneInput, MilestoneResponse } from '../../goal.model';
+import { GoalStore } from '../../data-access/goal.store';
+import { resolveAchieved } from '../../domain/goal.rules';
 import { ApiError } from '../../../../core/http/api-error';
 import { toDateInputValue } from '../../../../shared/utils/date';
 
@@ -25,15 +17,13 @@ import { toDateInputValue } from '../../../../shared/utils/date';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class GoalDetailsComponent {
-  readonly goal = input.required<GoalResponse>();
+  /** El padre lo obtiene del store, así que refleja siempre el último estado guardado. */
+  readonly goal = input.required<GoalView>();
   readonly closed = output<void>();
   readonly goalUpdated = output<void>();
 
   private fb = inject(FormBuilder);
-  private goalService = inject(GoalService);
-
-  // Copia local del goal: parte del input y se sustituye tras guardar cambios
-  readonly currentGoal = linkedSignal(() => this.goal());
+  private store = inject(GoalStore);
 
   readonly editMode = signal(false);
   readonly submitting = signal(false);
@@ -50,14 +40,19 @@ export class GoalDetailsComponent {
   });
 
   constructor() {
-    // Rellenar el formulario cada vez que cambia el goal (input o recarga tras guardar)
+    // Rellenar el formulario cuando cambia el goal, salvo mientras se está editando
     effect(() => {
-      const goal = this.currentGoal();
-      untracked(() => this.initForm(goal));
+      const goal = this.goal();
+      untracked(() => {
+        if (!this.editMode()) this.initForm(goal);
+      });
     });
+
+    // Con milestones, "conseguido" se deriva de ellos: la casilla se sincroniza y se desactiva
+    this.milestonesArray.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => this.syncAchieved());
   }
 
-  private initForm(goal: GoalResponse) {
+  private initForm(goal: GoalView) {
     this.editForm.reset({
       goalId: goal.goalId,
       goalName: goal.goalName,
@@ -69,9 +64,21 @@ export class GoalDetailsComponent {
 
     // Cargar milestones existentes
     this.milestonesArray.clear();
-    (goal.milestones ?? []).forEach(milestone => {
-      this.milestonesArray.push(this.createMilestoneFormGroup(milestone));
+    goal.milestones.forEach(milestone => {
+      this.milestonesArray.push(this.createMilestoneFormGroup(milestone), { emitEvent: false });
     });
+    this.syncAchieved();
+  }
+
+  private syncAchieved() {
+    const milestones = this.milestonesArray.getRawValue() as MilestoneInput[];
+    const achieved = this.editForm.controls.isAchieved;
+    if (milestones.length > 0) {
+      achieved.setValue(resolveAchieved(milestones, false), { emitEvent: false });
+      achieved.disable({ emitEvent: false });
+    } else {
+      achieved.enable({ emitEvent: false });
+    }
   }
 
   private createMilestoneFormGroup(milestone: MilestoneResponse): FormGroup {
@@ -118,37 +125,40 @@ export class GoalDetailsComponent {
     this.error.set(null);
     if (!this.editMode()) {
       // Si cancelamos, revertimos los cambios
-      this.initForm(this.currentGoal());
+      this.initForm(this.goal());
     }
   }
 
+  /** En modo vista: optimista, el progreso cambia al momento y se revierte si falla. */
   toggleMilestoneCompletion(index: number) {
-    if (!this.editMode()) {
-      const isCompleted = this.milestonesArray.at(index).get('isCompleted');
-      isCompleted?.setValue(!isCompleted.value);
-      this.save('Error al actualizar el milestone');
-    }
+    if (this.editMode()) return;
+    const milestone = this.goal().milestones[index];
+    if (!milestone) return;
+
+    this.error.set(null);
+    this.store.toggleMilestone(this.goal().goalId, milestone.milestoneId).subscribe({
+      next: () => this.goalUpdated.emit(),
+      error: (error: ApiError) => this.error.set(error.message || 'Error al actualizar el milestone')
+    });
   }
 
   saveChanges() {
     if (this.editForm.valid) {
-      this.save('Error al actualizar el goal');
+      this.save();
     } else {
       // Marcar campos inválidos
       this.editForm.markAllAsTouched();
     }
   }
 
-  private save(fallbackError: string) {
-    if (!this.editForm.valid) return;
-
+  private save() {
     this.submitting.set(true);
     this.error.set(null);
 
     const formValue = this.editForm.getRawValue();
 
-    this.goalService
-      .updateGoalWithMilestones(this.currentGoal().goalId, {
+    this.store
+      .update(this.goal().goalId, {
         goalName: formValue.goalName ?? '',
         description: formValue.description ?? '',
         startDate: formValue.startDate ?? '',
@@ -158,24 +168,17 @@ export class GoalDetailsComponent {
       })
       .subscribe({
         next: () => {
+          // El store ya tiene el goal actualizado (con los ids de los milestones nuevos)
           this.submitting.set(false);
           this.editMode.set(false);
           this.goalUpdated.emit();
-          this.loadUpdatedGoal();
         },
         error: (error: ApiError) => {
-          this.error.set(error.message || fallbackError);
+          this.error.set(error.message || 'Error al actualizar el goal');
           this.submitting.set(false);
           console.error('Error updating goal:', error);
         }
       });
-  }
-
-  private loadUpdatedGoal() {
-    this.goalService.getGoalById(this.currentGoal().goalId).subscribe({
-      next: updatedGoal => this.currentGoal.set(updatedGoal),
-      error: error => console.error('Error loading updated goal:', error)
-    });
   }
 
   closeModal() {
@@ -189,10 +192,8 @@ export class GoalDetailsComponent {
     return 'danger';
   }
 
+  /** Días naturales hasta la fecha objetivo (negativo si ya pasó). */
   getDaysRemaining(): number {
-    const endDate = this.currentGoal().endDate;
-    if (!endDate) return 0;
-    const diffTime = new Date(endDate).getTime() - Date.now();
-    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return this.goal().daysRemaining;
   }
 }

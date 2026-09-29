@@ -1,24 +1,12 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  effect,
-  inject,
-  input,
-  linkedSignal,
-  output,
-  signal,
-  untracked
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject, input, output, signal, untracked } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { merge } from 'rxjs';
-import { TaskResponse } from '../../task.model';
-import { TaskService } from '../../data-access/task.service';
+import { TaskFrequency, TaskView } from '../../task.model';
+import { TaskStore } from '../../data-access/task.store';
 import { ApiError } from '../../../../core/http/api-error';
 import { toDateInputValue } from '../../../../shared/utils/date';
-
-type Frequency = TaskResponse['frequency'];
 
 @Component({
   selector: 'app-task-details',
@@ -29,22 +17,20 @@ type Frequency = TaskResponse['frequency'];
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TaskDetailsComponent {
-  readonly task = input.required<TaskResponse>();
+  /** El padre la obtiene del store, así que refleja siempre el último estado guardado. */
+  readonly task = input.required<TaskView>();
   readonly closed = output<void>();
   readonly taskUpdated = output<void>();
   readonly delete = output<number>();
 
   private fb = inject(FormBuilder);
-  private taskService = inject(TaskService);
-
-  // Copia local de la tarea: parte del input y se sustituye tras guardar cambios
-  readonly currentTask = linkedSignal(() => this.task());
+  private store = inject(TaskStore);
 
   readonly editMode = signal(false);
   readonly submitting = signal(false);
   readonly error = signal<string | null>(null);
 
-  readonly frequencies: { value: Frequency; label: string }[] = [
+  readonly frequencies: { value: TaskFrequency; label: string }[] = [
     { value: 'Daily', label: 'Daily' },
     { value: 'Weekly', label: 'Weekly' },
     { value: 'Monthly', label: 'Monthly' }
@@ -53,17 +39,19 @@ export class TaskDetailsComponent {
   readonly editForm = this.fb.nonNullable.group({
     taskName: ['', [Validators.required, Validators.minLength(3)]],
     description: [''],
-    frequency: ['Daily' as Frequency, Validators.required],
+    frequency: ['Daily' as TaskFrequency, Validators.required],
     startDate: ['', Validators.required],
     dueDate: ['', Validators.required],
     isCompleted: [false]
   });
 
   constructor() {
-    // Rellenar el formulario cada vez que cambia la tarea (input o recarga tras guardar)
+    // Rellenar el formulario cuando cambia la tarea, salvo mientras se está editando
     effect(() => {
-      const task = this.currentTask();
-      untracked(() => this.initForm(task));
+      const task = this.task();
+      untracked(() => {
+        if (!this.editMode()) this.initForm(task);
+      });
     });
 
     merge(this.editForm.controls.startDate.valueChanges, this.editForm.controls.dueDate.valueChanges)
@@ -71,7 +59,7 @@ export class TaskDetailsComponent {
       .subscribe(() => this.validateDates());
   }
 
-  private initForm(task: TaskResponse) {
+  private initForm(task: TaskView) {
     this.editForm.reset({
       taskName: task.taskName,
       description: task.description || '',
@@ -104,22 +92,15 @@ export class TaskDetailsComponent {
     this.editMode.update(value => !value);
     this.error.set(null);
     if (!this.editMode()) {
-      this.initForm(this.currentTask());
+      this.initForm(this.task());
     }
   }
 
   toggleCompletion() {
-    this.submitting.set(true);
-    this.taskService.toggleTaskCompletion(this.currentTask()).subscribe({
-      next: () => {
-        this.submitting.set(false);
-        this.taskUpdated.emit();
-        this.loadUpdatedTask();
-      },
-      error: (error: ApiError) => {
-        this.error.set(error.message || 'Error updating task');
-        this.submitting.set(false);
-      }
+    this.error.set(null);
+    this.store.toggleCompletion(this.task().taskId).subscribe({
+      next: () => this.taskUpdated.emit(),
+      error: (error: ApiError) => this.error.set(error.message || 'Error updating task')
     });
   }
 
@@ -132,17 +113,14 @@ export class TaskDetailsComponent {
     this.submitting.set(true);
     this.error.set(null);
 
-    this.taskService
-      .updateTask(this.currentTask().taskId, {
-        ...this.editForm.getRawValue(),
-        createdDate: this.currentTask().createdDate
-      })
+    this.store
+      .update(this.task().taskId, { ...this.editForm.getRawValue(), createdDate: this.task().createdDate })
       .subscribe({
         next: () => {
+          // El store ya tiene la tarea actualizada; el padre la vuelve a pasar como input
           this.submitting.set(false);
           this.editMode.set(false);
           this.taskUpdated.emit();
-          this.loadUpdatedTask();
         },
         error: (error: ApiError) => {
           this.error.set(error.message || 'Error updating task');
@@ -152,17 +130,10 @@ export class TaskDetailsComponent {
   }
 
   deleteTask() {
-    if (confirm(`Are you sure you want to delete "${this.currentTask().taskName}"?`)) {
-      this.delete.emit(this.currentTask().taskId);
+    if (confirm(`Are you sure you want to delete "${this.task().taskName}"?`)) {
+      this.delete.emit(this.task().taskId);
       this.closeModal();
     }
-  }
-
-  private loadUpdatedTask() {
-    this.taskService.getTaskById(this.currentTask().taskId).subscribe({
-      next: updatedTask => this.currentTask.set(updatedTask),
-      error: error => console.error('Error loading updated task:', error)
-    });
   }
 
   closeModal() {
@@ -170,7 +141,7 @@ export class TaskDetailsComponent {
   }
 
   getFrequencyIconClass(): string {
-    switch (this.currentTask().frequency) {
+    switch (this.task().frequency) {
       case 'Daily':
         return 'bi bi-sun-fill text-warning';
       case 'Weekly':
@@ -183,21 +154,21 @@ export class TaskDetailsComponent {
   }
 
   getStatusClass(): string {
-    const task = this.currentTask();
+    const task = this.task();
     if (task.isCompleted) return 'text-success';
     if (task.isOverdue) return 'text-danger';
     return 'text-warning';
   }
 
   getStatusText(): string {
-    const task = this.currentTask();
+    const task = this.task();
     if (task.isCompleted) return 'Completed';
     if (task.isOverdue) return 'Overdue';
     return 'Pending';
   }
 
   getDaysRemainingText(): string {
-    const { isCompleted, daysRemaining } = this.currentTask();
+    const { isCompleted, daysRemaining } = this.task();
     if (isCompleted) return 'Completed';
     if (daysRemaining === undefined || daysRemaining === null) return 'No due date';
 

@@ -5,12 +5,11 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ReminderItemComponent } from '../ui/reminder-item/reminder-item.component';
 import { NewReminderComponent } from '../ui/new-reminder/new-reminder.component';
 import { ReminderDetailsComponent } from '../ui/reminder-details/reminder-details.component';
-import { ReminderService } from '../data-access/reminder.service';
-import { ReminderInput, ReminderResponse } from '../reminder.model';
+import { ReminderStore } from '../data-access/reminder.store';
+import { selectReminders } from '../domain/reminder.rules';
+import { ReminderFilter, ReminderInput, ReminderView } from '../reminder.model';
 import { ApiError } from '../../../core/http/api-error';
 import { NotificationService } from '../../../core/notifications/notification.service';
-
-type FilterType = 'all' | 'pending' | 'acknowledged' | 'overdue';
 
 @Component({
   selector: 'app-reminder-list',
@@ -29,109 +28,38 @@ type FilterType = 'all' | 'pending' | 'acknowledged' | 'overdue';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ReminderListComponent implements OnInit {
-  private reminderService = inject(ReminderService);
+  private store = inject(ReminderStore);
   private notificationService = inject(NotificationService);
 
-  // Signals para mejor reactividad
-  private allReminders = signal<ReminderResponse[]>([]);
-  filter = signal<FilterType>('all');
-  private searchTerm = signal('');
+  readonly filter = signal<ReminderFilter>('all');
+  private readonly searchTerm = signal('');
 
-  // Computed signals para los reminders filtrados
-  filteredReminders = computed(() => {
-    let reminders = this.allReminders();
+  // Estado compartido: vive en el store
+  readonly stats = this.store.stats;
+  readonly loading = this.store.loading;
+  readonly error = this.store.error;
 
-    // Aplicar filtro por estado
-    switch (this.filter()) {
-      case 'pending':
-        reminders = reminders.filter(r => !r.isAcknowledged && !r.isOverdue);
-        break;
-      case 'acknowledged':
-        reminders = reminders.filter(r => r.isAcknowledged);
-        break;
-      case 'overdue':
-        reminders = reminders.filter(r => !r.isAcknowledged && r.isOverdue);
-        break;
-      default: // 'all'
-        break;
-    }
+  readonly filteredReminders = computed(() =>
+    selectReminders(this.store.reminders(), { filter: this.filter(), search: this.searchTerm() })
+  );
 
-    // Aplicar búsqueda por texto
-    const search = this.searchTerm().toLowerCase();
-    if (search) {
-      reminders = reminders.filter(
-        r => r.title.toLowerCase().includes(search) || r.description?.toLowerCase().includes(search)
-      );
-    }
-
-    return reminders;
-  });
-
-  // Estadísticas
-  stats = computed(() => {
-    const reminders = this.allReminders();
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-
-    const weekEnd = new Date(today);
-    weekEnd.setDate(today.getDate() + 7);
-
-    return {
-      total: reminders.length,
-      acknowledged: reminders.filter(r => r.isAcknowledged).length,
-      pending: reminders.filter(r => !r.isAcknowledged && !r.isOverdue).length,
-      overdue: reminders.filter(r => !r.isAcknowledged && r.isOverdue).length,
-      today: reminders.filter(r => {
-        const rDate = new Date(r.reminderDateTime);
-        rDate.setHours(0, 0, 0, 0);
-        return !r.isAcknowledged && rDate.getTime() === today.getTime();
-      }).length,
-      tomorrow: reminders.filter(r => {
-        const rDate = new Date(r.reminderDateTime);
-        rDate.setHours(0, 0, 0, 0);
-        return !r.isAcknowledged && rDate.getTime() === tomorrow.getTime();
-      }).length,
-      thisWeek: reminders.filter(r => {
-        const rDate = new Date(r.reminderDateTime);
-        rDate.setHours(0, 0, 0, 0);
-        return !r.isAcknowledged && rDate >= today && rDate <= weekEnd;
-      }).length
-    };
-  });
-
+  // UI State
   readonly showNewReminderModal = signal(false);
-  readonly showDetailsModal = signal(false);
-  readonly selectedReminder = signal<ReminderResponse | null>(null);
-  readonly loading = signal(false);
   readonly creating = signal(false);
-  readonly error = signal<string | null>(null);
   readonly viewMode = signal<'grid' | 'list'>('grid'); // Para cambiar vista
+  // Se guarda el id (no el objeto) para que el detalle refleje siempre el estado actual del store
+  private readonly selectedReminderId = signal<number | null>(null);
+  readonly selectedReminder = computed(
+    () => this.store.reminders().find(r => r.reminderId === this.selectedReminderId()) ?? null
+  );
+  readonly showDetailsModal = computed(() => this.selectedReminder() !== null);
 
   ngOnInit() {
-    this.loadReminders();
+    // Usa los datos en memoria si ya se cargaron (p. ej. desde el dashboard)
+    this.store.load();
   }
 
-  loadReminders() {
-    this.loading.set(true);
-    this.error.set(null);
-
-    this.reminderService.getAllRemindersByUser().subscribe({
-      next: reminders => {
-        this.allReminders.set(reminders);
-        this.loading.set(false);
-      },
-      error: (error: ApiError) => {
-        this.error.set(error.message);
-        this.loading.set(false);
-        console.error('Error loading reminders:', error);
-      }
-    });
-  }
-
-  setFilter(filter: FilterType) {
+  setFilter(filter: ReminderFilter) {
     this.filter.set(filter);
   }
 
@@ -154,11 +82,10 @@ export class ReminderListComponent implements OnInit {
   onReminderCreated(reminderData: ReminderInput) {
     this.creating.set(true);
 
-    this.reminderService.createReminder(reminderData).subscribe({
+    this.store.create(reminderData).subscribe({
       next: () => {
         this.creating.set(false);
         this.closeNewReminderModal();
-        this.loadReminders();
         this.notificationService.success('Reminder created successfully', 'Success');
       },
       error: (error: ApiError) => {
@@ -170,55 +97,36 @@ export class ReminderListComponent implements OnInit {
   }
 
   onReminderUpdated() {
-    this.loadReminders();
+    this.notificationService.success('Reminder updated successfully', 'Success');
   }
 
-  viewReminderDetails(reminder: ReminderResponse) {
-    if (!reminder.reminderId) return;
-
-    this.loading.set(true);
-
-    this.reminderService.getReminderById(reminder.reminderId).subscribe({
-      next: reminderDetails => {
-        this.selectedReminder.set(reminderDetails);
-        this.showDetailsModal.set(true);
-        this.loading.set(false);
-      },
-      error: (error: ApiError) => {
-        this.loading.set(false);
-        this.notificationService.error(error.message, 'Error loading reminder details');
-      }
-    });
+  viewReminderDetails(reminder: ReminderView) {
+    this.selectedReminderId.set(reminder.reminderId);
   }
 
   closeDetailsModal() {
-    this.showDetailsModal.set(false);
-    this.selectedReminder.set(null);
+    this.selectedReminderId.set(null);
   }
 
-  toggleReminderAcknowledgement(reminder: ReminderResponse) {
-    this.reminderService.toggleReminderAcknowledgement(reminder).subscribe({
-      next: () => this.loadReminders(),
+  toggleReminderAcknowledgement(reminder: ReminderView) {
+    this.store.toggleAcknowledgement(reminder.reminderId).subscribe({
       error: (error: ApiError) => this.notificationService.error(error.message, 'Error updating reminder')
     });
   }
 
   deleteReminder(reminderId: number) {
-    this.reminderService.deleteReminder(reminderId).subscribe({
-      next: () => {
-        this.loadReminders();
-        this.notificationService.success('Reminder deleted successfully', 'Success');
-      },
+    this.store.delete(reminderId).subscribe({
+      next: () => this.notificationService.success('Reminder deleted successfully', 'Success'),
       error: (error: ApiError) => this.notificationService.error(error.message, 'Error deleting reminder')
     });
   }
 
   retry() {
-    this.loadReminders();
+    this.store.load({ force: true });
   }
 
   // Métodos auxiliares para la vista de lista
-  getReminderListIcon(reminder: ReminderResponse): string {
+  getReminderListIcon(reminder: ReminderView): string {
     if (reminder.isAcknowledged) return 'bi bi-check-circle-fill text-success';
     if (reminder.isOverdue) return 'bi bi-exclamation-circle-fill text-danger';
     if (reminder.isToday) return 'bi bi-bell-fill text-warning';
@@ -226,7 +134,7 @@ export class ReminderListComponent implements OnInit {
     return 'bi bi-bell-fill text-primary';
   }
 
-  getListBadgeClass(reminder: ReminderResponse): string {
+  getListBadgeClass(reminder: ReminderView): string {
     if (reminder.isAcknowledged) return 'bg-success';
     if (reminder.isOverdue) return 'bg-danger';
     if (reminder.isToday) return 'bg-warning';
@@ -234,7 +142,7 @@ export class ReminderListComponent implements OnInit {
     return 'bg-primary';
   }
 
-  getListBadgeText(reminder: ReminderResponse): string {
+  getListBadgeText(reminder: ReminderView): string {
     if (reminder.isAcknowledged) return 'Done';
     if (reminder.isOverdue) return 'Overdue';
     if (reminder.isToday) return 'Today';

@@ -13,14 +13,7 @@ export interface TaskRequest {
 }
 
 /** Tarea tal como la devuelve la API. */
-export interface TaskResponse extends TaskRequest {
-  /** @deprecated Usar TaskView (se elimina al migrar a stores). */
-  progress?: number;
-  /** @deprecated Usar TaskView (se elimina al migrar a stores). */
-  daysRemaining?: number;
-  /** @deprecated Usar TaskView (se elimina al migrar a stores). */
-  isOverdue?: boolean;
-}
+export type TaskResponse = TaskRequest;
 
 /** Tarea con los campos derivados que usa la interfaz (dependen de la fecha actual). */
 export interface TaskView extends TaskResponse {

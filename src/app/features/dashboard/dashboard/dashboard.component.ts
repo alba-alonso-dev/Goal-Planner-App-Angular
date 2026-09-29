@@ -13,8 +13,19 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { DashboardService } from '../dashboard.service';
+import { ClockService } from '../../../core/time/clock.service';
+import { GoalStore } from '../../goals/data-access/goal.store';
+import { ReminderStore } from '../../reminders/data-access/reminder.store';
+import { TaskStore } from '../../tasks/data-access/task.store';
 import { ChartData, RecentActivity } from '../dashboard.model';
+import {
+  dashboardStats,
+  goalStatusChart,
+  needsAttention,
+  taskActivityChart,
+  upcomingRemindersChart,
+  upcomingTasks
+} from '../domain/dashboard.rules';
 import {
   ArcElement,
   BarController,
@@ -58,26 +69,35 @@ Chart.register(
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DashboardComponent implements OnInit {
-  private dashboardService = inject(DashboardService);
+  private taskStore = inject(TaskStore);
+  private goalStore = inject(GoalStore);
+  private reminderStore = inject(ReminderStore);
+  private clock = inject(ClockService);
 
   // Los canvas solo existen cuando no se está cargando ni hay error
   private taskChartCanvas = viewChild<ElementRef<HTMLCanvasElement>>('taskChart');
   private goalChartCanvas = viewChild<ElementRef<HTMLCanvasElement>>('goalChart');
   private reminderChartCanvas = viewChild<ElementRef<HTMLCanvasElement>>('reminderChart');
 
-  // Signals del servicio
-  stats = this.dashboardService.stats;
-  recentActivity = this.dashboardService.recentActivity;
-  loading = this.dashboardService.loading;
-  error = this.dashboardService.error;
+  // Todo se deriva de los stores de cada feature: los cambios hechos en otras pantallas se ven sin recargar
+  readonly stats = computed(() =>
+    dashboardStats(this.taskStore.tasks(), this.goalStore.goals(), this.reminderStore.reminders())
+  );
+  readonly recentActivity = computed(() =>
+    needsAttention(this.taskStore.tasks(), this.goalStore.goals(), this.reminderStore.reminders())
+  );
+  readonly loading = computed(
+    () => this.taskStore.loading() || this.goalStore.loading() || this.reminderStore.loading()
+  );
+  readonly error = computed(() => this.taskStore.error() ?? this.goalStore.error() ?? this.reminderStore.error());
 
   // Data for charts
-  taskChartData = computed(() => this.dashboardService.getTaskChartData());
-  goalChartData = computed(() => this.dashboardService.getGoalProgressChartData());
-  reminderChartData = computed(() => this.dashboardService.getReminderChartData());
+  readonly taskChartData = computed(() => taskActivityChart(this.taskStore.tasks(), this.clock.now()));
+  readonly goalChartData = computed(() => goalStatusChart(this.goalStore.goals()));
+  readonly reminderChartData = computed(() => upcomingRemindersChart(this.reminderStore.reminders()));
 
-  // Recent tasks for the table
-  recentTasks = computed(() => this.dashboardService.getRecentTasks(5));
+  // Próximas tareas para la tabla
+  readonly recentTasks = computed(() => upcomingTasks(this.taskStore.tasks(), 5));
 
   private destroyRef = inject(DestroyRef);
 
@@ -90,11 +110,16 @@ export class DashboardComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.dashboardService.loadDashboardData();
+    // Solo se piden los datos que aún no estén en memoria
+    this.taskStore.load();
+    this.goalStore.load();
+    this.reminderStore.load();
   }
 
   refresh() {
-    this.dashboardService.refresh();
+    this.taskStore.load({ force: true });
+    this.goalStore.load({ force: true });
+    this.reminderStore.load({ force: true });
   }
 
   private bindChart<T extends ChartType>(

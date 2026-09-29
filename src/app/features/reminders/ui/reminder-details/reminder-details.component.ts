@@ -1,19 +1,9 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  effect,
-  inject,
-  input,
-  linkedSignal,
-  output,
-  signal,
-  untracked
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject, input, output, signal, untracked } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
-import { ReminderResponse } from '../../reminder.model';
-import { ReminderService } from '../../data-access/reminder.service';
+import { ReminderView } from '../../reminder.model';
+import { ReminderStore } from '../../data-access/reminder.store';
 import { ApiError } from '../../../../core/http/api-error';
 import { toDateTimeInputValue } from '../../../../shared/utils/date';
 
@@ -26,16 +16,14 @@ import { toDateTimeInputValue } from '../../../../shared/utils/date';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ReminderDetailsComponent {
-  readonly reminder = input.required<ReminderResponse>();
+  /** El padre lo obtiene del store, así que refleja siempre el último estado guardado. */
+  readonly reminder = input.required<ReminderView>();
   readonly closed = output<void>();
   readonly reminderUpdated = output<void>();
   readonly delete = output<number>();
 
   private fb = inject(FormBuilder);
-  private reminderService = inject(ReminderService);
-
-  // Copia local del recordatorio: parte del input y se sustituye tras guardar cambios
-  readonly currentReminder = linkedSignal(() => this.reminder());
+  private store = inject(ReminderStore);
 
   readonly editMode = signal(false);
   readonly submitting = signal(false);
@@ -49,10 +37,12 @@ export class ReminderDetailsComponent {
   });
 
   constructor() {
-    // Rellenar el formulario cada vez que cambia el recordatorio (input o recarga tras guardar)
+    // Rellenar el formulario cuando cambia el recordatorio, salvo mientras se está editando
     effect(() => {
-      const reminder = this.currentReminder();
-      untracked(() => this.initForm(reminder));
+      const reminder = this.reminder();
+      untracked(() => {
+        if (!this.editMode()) this.initForm(reminder);
+      });
     });
 
     this.editForm.controls.reminderDateTime.valueChanges
@@ -60,7 +50,7 @@ export class ReminderDetailsComponent {
       .subscribe(() => this.validateDateTime());
   }
 
-  private initForm(reminder: ReminderResponse) {
+  private initForm(reminder: ReminderView) {
     this.editForm.reset({
       title: reminder.title,
       description: reminder.description || '',
@@ -89,22 +79,15 @@ export class ReminderDetailsComponent {
     this.editMode.update(value => !value);
     this.error.set(null);
     if (!this.editMode()) {
-      this.initForm(this.currentReminder());
+      this.initForm(this.reminder());
     }
   }
 
   toggleAcknowledgement() {
-    this.submitting.set(true);
-    this.reminderService.toggleReminderAcknowledgement(this.currentReminder()).subscribe({
-      next: () => {
-        this.submitting.set(false);
-        this.reminderUpdated.emit();
-        this.loadUpdatedReminder();
-      },
-      error: (error: ApiError) => {
-        this.error.set(error.message || 'Error updating reminder');
-        this.submitting.set(false);
-      }
+    this.error.set(null);
+    this.store.toggleAcknowledgement(this.reminder().reminderId).subscribe({
+      next: () => this.reminderUpdated.emit(),
+      error: (error: ApiError) => this.error.set(error.message || 'Error updating reminder')
     });
   }
 
@@ -117,12 +100,11 @@ export class ReminderDetailsComponent {
     this.submitting.set(true);
     this.error.set(null);
 
-    this.reminderService.updateReminder(this.currentReminder().reminderId, this.editForm.getRawValue()).subscribe({
+    this.store.update(this.reminder().reminderId, this.editForm.getRawValue()).subscribe({
       next: () => {
         this.submitting.set(false);
         this.editMode.set(false);
         this.reminderUpdated.emit();
-        this.loadUpdatedReminder();
       },
       error: (error: ApiError) => {
         this.error.set(error.message || 'Error updating reminder');
@@ -132,17 +114,10 @@ export class ReminderDetailsComponent {
   }
 
   deleteReminder() {
-    if (confirm(`Are you sure you want to delete "${this.currentReminder().title}"?`)) {
-      this.delete.emit(this.currentReminder().reminderId);
+    if (confirm(`Are you sure you want to delete "${this.reminder().title}"?`)) {
+      this.delete.emit(this.reminder().reminderId);
       this.closeModal();
     }
-  }
-
-  private loadUpdatedReminder() {
-    this.reminderService.getReminderById(this.currentReminder().reminderId).subscribe({
-      next: updatedReminder => this.currentReminder.set(updatedReminder),
-      error: error => console.error('Error loading updated reminder:', error)
-    });
   }
 
   closeModal() {
@@ -150,7 +125,7 @@ export class ReminderDetailsComponent {
   }
 
   getStatusIcon(): string {
-    const reminder = this.currentReminder();
+    const reminder = this.reminder();
     if (reminder.isAcknowledged) return 'bi bi-check-circle-fill text-success';
     if (reminder.isOverdue) return 'bi bi-exclamation-circle-fill text-danger';
     if (reminder.isToday) return 'bi bi-bell-fill text-warning';
@@ -159,7 +134,7 @@ export class ReminderDetailsComponent {
   }
 
   getStatusText(): string {
-    const reminder = this.currentReminder();
+    const reminder = this.reminder();
     if (reminder.isAcknowledged) return 'Acknowledged';
     if (reminder.isOverdue) return 'Overdue';
     if (reminder.isToday) return 'Today';
@@ -168,7 +143,7 @@ export class ReminderDetailsComponent {
   }
 
   getStatusClass(): string {
-    const reminder = this.currentReminder();
+    const reminder = this.reminder();
     if (reminder.isAcknowledged) return 'bg-success';
     if (reminder.isOverdue) return 'bg-danger';
     if (reminder.isToday) return 'bg-warning';

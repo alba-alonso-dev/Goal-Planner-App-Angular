@@ -6,14 +6,14 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReminderListComponent } from './reminder-list.component';
 import { API_BASE_URL } from '../../../core/config/api.config';
 import { NotificationService } from '../../../core/notifications/notification.service';
-import { mockReminder } from '../../../../testing/fixtures';
+import { mockReminder, mockReminderResponse, provideFixedClock } from '../../../../testing/fixtures';
 
 describe('ReminderListComponent', () => {
   let component: ReminderListComponent;
   let fixture: ComponentFixture<ReminderListComponent>;
   let httpTesting: HttpTestingController;
 
-  const flushList = (reminders = [mockReminder]) =>
+  const flushList = (reminders = [mockReminderResponse]) =>
     httpTesting.expectOne(r => r.url === '/api/getReminders').flush(reminders);
 
   beforeEach(async () => {
@@ -25,6 +25,7 @@ describe('ReminderListComponent', () => {
         provideHttpClient(),
         provideHttpClientTesting(),
         provideRouter([]),
+        provideFixedClock(),
         { provide: API_BASE_URL, useValue: '/api' }
       ]
     }).compileComponents();
@@ -48,26 +49,29 @@ describe('ReminderListComponent', () => {
     expect(fixture.nativeElement.textContent).toContain(mockReminder.title);
   });
 
-  it('should acknowledge a reminder and reload the list', () => {
+  it('should acknowledge a reminder optimistically without reloading the list', () => {
     flushList();
 
     component.toggleReminderAcknowledgement(mockReminder);
+    fixture.detectChanges();
 
     const req = httpTesting.expectOne(`/api/updateReminder/${mockReminder.reminderId}`);
     expect(req.request.body.isAcknowledged).toBeTrue();
+    expect(component.stats().acknowledged).toBe(1);
     req.flush({});
-    flushList([{ ...mockReminder, isAcknowledged: true }]);
+    httpTesting.expectNone(r => r.url === '/api/getReminders');
   });
 
-  it('should delete a reminder and reload the list', () => {
+  it('should delete a reminder without reloading the list', () => {
     flushList();
 
     component.deleteReminder(mockReminder.reminderId);
 
+    expect(component.filteredReminders()).toEqual([]);
     const req = httpTesting.expectOne(`/api/deleteReminder/${mockReminder.reminderId}`);
     expect(req.request.method).toBe('DELETE');
     req.flush({});
-    flushList([]);
+    httpTesting.expectNone(r => r.url === '/api/getReminders');
   });
 
   it('should keep the create modal open and notify when creation fails', () => {

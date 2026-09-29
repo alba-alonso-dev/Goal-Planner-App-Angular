@@ -2,7 +2,7 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { GoalResponse } from '../../goal.model';
+import { GoalView } from '../../goal.model';
 
 @Component({
   selector: 'app-goal-item',
@@ -13,8 +13,8 @@ import { GoalResponse } from '../../goal.model';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class GoalItemComponent {
-  readonly goal = input.required<GoalResponse>();
-  readonly viewDetails = output<GoalResponse>();
+  readonly goal = input.required<GoalView>();
+  readonly viewDetails = output<GoalView>();
 
   onViewDetails() {
     this.viewDetails.emit(this.goal());

@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TaskResponse } from '../../task.model';
+import { TaskView } from '../../task.model';
 
 @Component({
   selector: 'app-task-item',
@@ -11,9 +11,9 @@ import { TaskResponse } from '../../task.model';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TaskItemComponent {
-  readonly task = input.required<TaskResponse>();
-  readonly toggleCompletion = output<TaskResponse>();
-  readonly viewDetails = output<TaskResponse>();
+  readonly task = input.required<TaskView>();
+  readonly toggleCompletion = output<TaskView>();
+  readonly viewDetails = output<TaskView>();
   readonly delete = output<number>();
 
   onToggleComplete(event: Event) {

@@ -8,18 +8,7 @@ export interface ReminderRequest {
 }
 
 /** Recordatorio tal como lo devuelve la API. */
-export interface ReminderResponse extends ReminderRequest {
-  /** @deprecated Usar ReminderView (se elimina al migrar a stores). */
-  timeRemaining?: string;
-  /** @deprecated Usar ReminderView (se elimina al migrar a stores). */
-  isOverdue?: boolean;
-  /** @deprecated Usar ReminderView (se elimina al migrar a stores). */
-  isToday?: boolean;
-  /** @deprecated Usar ReminderView (se elimina al migrar a stores). */
-  isTomorrow?: boolean;
-  /** @deprecated Usar ReminderView (se elimina al migrar a stores). */
-  formattedDateTime?: string;
-}
+export type ReminderResponse = ReminderRequest;
 
 /**
  * Momento de un recordatorio pendiente respecto a ahora. Las categorías son excluyentes:

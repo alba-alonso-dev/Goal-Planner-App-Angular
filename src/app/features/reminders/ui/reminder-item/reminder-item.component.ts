@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReminderResponse } from '../../reminder.model';
+import { ReminderView } from '../../reminder.model';
 
 @Component({
   selector: 'app-reminder-item',
@@ -11,9 +11,9 @@ import { ReminderResponse } from '../../reminder.model';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ReminderItemComponent {
-  readonly reminder = input.required<ReminderResponse>();
-  readonly toggleAcknowledge = output<ReminderResponse>();
-  readonly viewDetails = output<ReminderResponse>();
+  readonly reminder = input.required<ReminderView>();
+  readonly toggleAcknowledge = output<ReminderView>();
+  readonly viewDetails = output<ReminderView>();
   readonly delete = output<number>();
 
   onToggleAcknowledge(event: Event) {
