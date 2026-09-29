@@ -2,12 +2,21 @@
 
 const pad = (value: number) => value.toString().padStart(2, '0');
 
+const DATE_ONLY = /^(\d{4})-(\d{2})-(\d{2})$/;
+
 function toValidDate(value: string | Date): Date {
-  const date = value instanceof Date ? new Date(value.getTime()) : new Date(value);
+  const date = value instanceof Date ? new Date(value.getTime()) : parseDate(value);
   if (isNaN(date.getTime())) {
     throw new Error(`Invalid date: ${String(value)}`);
   }
   return date;
+}
+
+// `new Date('YYYY-MM-DD')` se interpreta como medianoche UTC; los valores de <input type="date">
+// representan un día local, así que se construyen en hora local para no desplazarlos de día.
+function parseDate(value: string): Date {
+  const match = DATE_ONLY.exec(value);
+  return match ? new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3])) : new Date(value);
 }
 
 /**

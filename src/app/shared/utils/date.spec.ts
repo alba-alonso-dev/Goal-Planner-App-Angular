@@ -7,8 +7,12 @@ describe('date utils', () => {
       expect(toApiDate(date)).toBe(date.toISOString());
     });
 
-    it('should accept date input strings', () => {
-      expect(toApiDate('2026-03-15')).toBe(new Date('2026-03-15').toISOString());
+    it('should treat date-only input values as local midnight', () => {
+      expect(toApiDate('2026-03-15')).toBe(new Date(2026, 2, 15).toISOString());
+    });
+
+    it('should round-trip a date input value through the API format', () => {
+      expect(toDateInputValue(toApiDate('2026-03-15'))).toBe('2026-03-15');
     });
 
     it('should throw on invalid dates instead of silently using today', () => {
