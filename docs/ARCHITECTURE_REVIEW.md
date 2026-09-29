@@ -223,14 +223,31 @@ features/
 - [x] Pipeline de **GitHub Actions**: `npm ci` → test (ChromeHeadless) → build. _(El paso de lint se añadirá con ESLint en la Fase 1.)_
 - Pendiente de fases siguientes: bajar el bundle inicial por debajo del aviso de 500 kB (Bootstrap SCSS parcial) y unificar las librerías de iconos (FA6 + Bootstrap Icons por CDN).
 
-### Fase 1 — Fundamentos (1–2 semanas)
+### Fase 1 — Fundamentos (1–2 semanas) ✅ completada en la rama `fase1`
 
-- [ ] `environment.ts` + `API_BASE_URL` token.
-- [ ] Interceptores de error/auth; un único `ApiError`.
-- [ ] Unificar helpers de fecha/errores en `shared/`.
-- [ ] ESLint + Prettier + lint-staged.
-- [ ] `OnPush` + `input()/output()` en todos los componentes.
-- [ ] Quitar datos simulados del dashboard y funciones sin implementar.
+- [x] `environment.ts` / `environment.development.ts` + token `API_BASE_URL` (antes la URL estaba copiada en 4 servicios con dos formatos).
+- [x] `errorInterceptor` + `ApiError` únicos (logout y redirección en 401). Eliminadas las tres copias de `handleError`. `AuthService.withUser()` centraliza la comprobación de sesión. _(No hay interceptor de auth porque la API no usa token; llegará con el backend de la Fase 3.)_
+- [x] `shared/utils/date.ts` con tests: fechas en hora local, `toApiDate` falla ante fechas inválidas en lugar de usar "hoy".
+- [x] ESLint (angular-eslint + typescript-eslint, regla que exige `OnPush`) + Prettier + husky/lint-staged; lint y `format:check` en la CI.
+- [x] `OnPush` + `input()`/`output()` en los 19 componentes; estado asíncrono en signals; formularios reactivos tipados en `new-*` y `*-details`.
+- [x] Dashboard sin datos simulados; eliminados los filtros de periodo/fecha y el "archivar" que solo ocultaba en memoria.
+- [x] Tipos de entrada (`TaskInput`, `ReminderInput`, `GoalInput`) en lugar de `any` en los servicios.
+- Pendiente (pasa a fases siguientes): bundle inicial por debajo de 500 kB (Bootstrap SCSS parcial), unificar iconos y resolver los 41 avisos de accesibilidad que reporta el lint.
+
+**Bugs adicionales encontrados y corregidos durante la Fase 1** (verificados en navegador con Playwright y la API simulada):
+
+| Bug                                                                                                     | Impacto                                                         |
+| ------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
+| `toggleReminderAcknowledgement` y `deleteReminder` de la lista de recordatorios eran métodos vacíos     | Marcar o borrar un recordatorio desde la lista no hacía nada    |
+| La plantilla del login nunca mostraba `errorMessage` ni el estado de carga                              | Un login fallido no daba ningún feedback                        |
+| El campo "móvil" del registro tenía el placeholder "Confirm Password"                                   | Formulario de registro confuso                                  |
+| Las gráficas se creaban con `setTimeout(500)` antes de que existieran los `<canvas>`                    | Con una API lenta (1,5 s) no se dibujaba ninguna gráfica (0/3)  |
+| El formulario de edición de recordatorios mostraba la hora en UTC en un `datetime-local`                | Guardar sin tocar nada desplazaba la hora según el huso horario |
+| Fechas `YYYY-MM-DD` interpretadas como medianoche UTC                                                   | En husos al oeste de UTC las fechas se mostraban un día antes   |
+| Tras un error al crear, el modal `new-*` se quedaba con el spinner y la lista se sustituía por el error | Había que recargar la página                                    |
+| `getAllGoalsByUser` lanzaba una suscripción huérfana que mutaba objetos ya emitidos                     | El progreso de los goals podía no actualizarse en pantalla      |
+| `toggleTaskCompletion` hacía GET + PUT por cada clic                                                    | Doble latencia                                                  |
+| `DashboardService` cargaba datos en su constructor y el componente otra vez                             | Cada visita lanzaba las peticiones dos veces                    |
 
 ### Fase 2 — Arquitectura por features (2–4 semanas)
 
