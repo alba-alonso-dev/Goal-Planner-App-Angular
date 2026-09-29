@@ -206,12 +206,13 @@ features/
 
 ## 4. Hoja de ruta propuesta
 
-### Fase 0 — Estabilizar (1–2 días)
-- [ ] Lazy loading de rutas + Chart.js tree-shaken → `ng build` en verde.
-- [ ] `authGuard: CanActivateFn` y providers de test → `ng test` en verde.
-- [ ] Eliminar dependencias muertas (`ngx-toastr`, `aos`, `font-awesome`, `@types/chart.js`) y la config SSR huérfana.
-- [ ] Eliminar `console.log` de payloads; `try/catch` al leer `localStorage`.
-- [ ] Pipeline de **GitHub Actions**: `npm ci` → lint → test (ChromeHeadless) → build.
+### Fase 0 — Estabilizar (1–2 días) ✅ completada en la rama `fase0`
+- [x] Lazy loading de rutas + Chart.js tree-shaken → `ng build` en verde (bundle inicial 1,03 MB → 613 kB; transferencia 220 kB → 124 kB).
+- [x] `authGuard: CanActivateFn` y providers de test → `ng test` en verde (33/33, incluidos tests reales del guard y de la restauración de sesión).
+- [x] Eliminar dependencias muertas (`ngx-toastr`, `aos`, `font-awesome@4`, `@types/chart.js`, `@types/express`, `@angular/animations`) y la config SSR huérfana.
+- [x] Eliminar `console.log` (incluidos los volcados de payloads); lectura de `localStorage` tolerante a valores corruptos.
+- [x] Pipeline de **GitHub Actions**: `npm ci` → test (ChromeHeadless) → build. *(El paso de lint se añadirá con ESLint en la Fase 1.)*
+- Pendiente de fases siguientes: bajar el bundle inicial por debajo del aviso de 500 kB (Bootstrap SCSS parcial) y unificar las librerías de iconos (FA6 + Bootstrap Icons por CDN).
 
 ### Fase 1 — Fundamentos (1–2 semanas)
 - [ ] `environment.ts` + `API_BASE_URL` token.
