@@ -3,9 +3,30 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { DashboardService } from '../../services/dashboard.service';
-import { Chart, registerables } from 'chart.js';
+import {
+  ArcElement,
+  BarController,
+  BarElement,
+  CategoryScale,
+  Chart,
+  DoughnutController,
+  Filler,
+  Legend,
+  LinearScale,
+  LineController,
+  LineElement,
+  PointElement,
+  Tooltip
+} from 'chart.js';
 
-Chart.register(...registerables);
+// Registrar solo lo que usan las gráficas (line, doughnut, bar) para permitir tree-shaking
+Chart.register(
+  LineController, LineElement, PointElement, Filler,
+  DoughnutController, ArcElement,
+  BarController, BarElement,
+  CategoryScale, LinearScale,
+  Legend, Tooltip
+);
 
 @Component({
   selector: 'app-dashboard',
@@ -66,7 +87,6 @@ export class DashboardComponent implements OnInit, AfterViewInit {
         
         // Solo actualizar si no está cargando y los charts están inicializados
         if (!isLoading && this.chartsInitialized) {
-          console.log('Datos actualizados, refrescando charts...');
           setTimeout(() => {
             this.refreshCharts();
           }, 100);
@@ -95,7 +115,6 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   private initCharts() {
     if (!this.isBrowser) return;
     
-    console.log('Inicializando charts...');
     this.destroyCharts();
     this.createTaskChart();
     this.createGoalChart();
@@ -125,7 +144,6 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     if (!ctx) return;
 
     const data = this.taskChartData();
-    console.log('Task chart data:', data);
     
     this.taskChart = new Chart(ctx, {
       type: 'line',
@@ -199,7 +217,6 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     if (!ctx) return;
 
     const data = this.goalChartData();
-    console.log('Goal chart data:', data);
     
     this.goalChart = new Chart(ctx, {
       type: 'doughnut',
@@ -256,7 +273,6 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     if (!ctx) return;
 
     const data = this.reminderChartData();
-    console.log('Reminder chart data:', data);
     
     this.reminderChart = new Chart(ctx, {
       type: 'bar',
@@ -314,7 +330,6 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   refreshCharts() {
     if (!this.isBrowser) return;
     
-    console.log('Refrescando charts...');
     
     // Actualizar task chart
     if (this.taskChart) {
@@ -360,7 +375,6 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   }
 
   refresh() {
-    console.log('Refrescando dashboard...');
     this.dashboardService.refresh();
     
     // Pequeño retraso para esperar que los datos se carguen

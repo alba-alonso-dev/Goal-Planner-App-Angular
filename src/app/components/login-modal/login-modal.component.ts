@@ -61,7 +61,6 @@ export class LoginModalComponent {
     
     this.authService.login(this.loginObj).subscribe({
       next: (response) => {
-        console.log('Login exitoso', response);
         this.isLoading.set(false);
         this.closeModal(); // Cierra el modal
         this.router.navigate(['/dashboard']); // Navega al dashboard
@@ -82,7 +81,6 @@ export class LoginModalComponent {
     
     this.authService.register(this.registerObj).subscribe({
       next: (response) => {
-        console.log('Registro exitoso', response);
         
         // Después del registro exitoso, hacer login automático
         this.successMessage.set('Registro exitoso. Iniciando sesión...');
@@ -95,7 +93,6 @@ export class LoginModalComponent {
         
         this.authService.login(loginData).subscribe({
           next: (loginResponse) => {
-            console.log('Login automático exitoso', loginResponse);
             this.isLoading.set(false);
             this.closeModal(); // Cierra el modal
             this.router.navigate(['/dashboard']); // Navega al dashboard

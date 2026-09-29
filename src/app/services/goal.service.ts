@@ -38,9 +38,6 @@ export class GoalService {
       milestones: this.buildMilestones(goalData.milestones || [])
     };
 
-    console.log('🚀 Enviando petición a:', url);
-    console.log('📦 Payload completo:', JSON.stringify(requestBody, null, 2));
-
     return this.http.post<any>(url, requestBody).pipe(
       catchError(this.handleError)
     );
@@ -100,7 +97,6 @@ export class GoalService {
 
     const url = `${this.baseUrl}/GoalTracker/getAllGoalsByUser`;
     
-    console.log('📥 Cargando goals para userId:', user.userId);
 
     return this.http.get<any[]>(url, { 
       params: { userId: user.userId.toString() } 
@@ -142,11 +138,9 @@ export class GoalService {
   getGoalById(goalId: number): Observable<GoalResponse> {
     const url = `${this.baseUrl}/GoalTracker/getGoal/${goalId}`;
     
-    console.log('📥 Cargando goal details para ID:', goalId);
 
     return this.http.get<GoalResponse>(url).pipe(
       map(response => {
-        console.log('📥 Goal details recibidos:', this.transformGoalResponse(response));
         return this.transformGoalResponse(response);
       }),
       catchError(this.handleError)
@@ -216,9 +210,6 @@ export class GoalService {
       userId: user.userId,
       milestones: this.buildMilestonesForUpdate(goalData.milestones || [])
     };
-
-    console.log('📤 Actualizando goal en:', url);
-    console.log('📦 Payload de actualización:', JSON.stringify(requestBody, null, 2));
 
     return this.http.put<any>(url, requestBody).pipe(
       catchError(this.handleError)

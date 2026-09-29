@@ -33,9 +33,6 @@ export class ReminderService {
       userId: user.userId
     };
 
-    console.log('🚀 Creando reminder:', url);
-    console.log('📦 Payload:', JSON.stringify(requestBody, null, 2));
-
     return this.http.post<ReminderResponse>(url, requestBody).pipe(
       map(response => this.transformReminderResponse(response)),
       catchError(this.handleError)
@@ -53,7 +50,6 @@ export class ReminderService {
 
     const url = `${this.baseUrl}/GoalTracker/getReminders`;
     
-    console.log('📥 Cargando reminders para userId:', user.userId);
 
     return this.http.get<any[]>(url, { 
       params: { userId: user.userId.toString() } 
@@ -69,7 +65,6 @@ export class ReminderService {
   getReminderById(reminderId: number): Observable<ReminderResponse> {
     const url = `${this.baseUrl}/GoalTracker/getReminder/${reminderId}`;
     
-    console.log('📥 Cargando reminder ID:', reminderId);
 
     return this.http.get<ReminderResponse>(url).pipe(
       map(response => this.transformReminderResponse(response)),
@@ -97,9 +92,6 @@ export class ReminderService {
       userId: user.userId
     };
 
-    console.log('📤 Actualizando reminder:', url);
-    console.log('📦 Payload:', JSON.stringify(requestBody, null, 2));
-
     return this.http.put<any>(url, requestBody).pipe(
       catchError(this.handleError)
     );
@@ -125,8 +117,6 @@ export class ReminderService {
       userId: user.userId
     };
 
-    console.log('📤 Toggle reminder acknowledgement:', requestBody);
-
     return this.http.put<any>(url, requestBody).pipe(
       catchError(this.handleError)
     );
@@ -138,7 +128,6 @@ export class ReminderService {
   deleteReminder(reminderId: number): Observable<any> {
     const url = `${this.baseUrl}/GoalTracker/deleteReminder/${reminderId}`;
     
-    console.log('🗑️ Eliminando reminder ID:', reminderId);
 
     return this.http.delete(url).pipe(
       catchError(this.handleError)

@@ -4,7 +4,6 @@ import { HttpClient } from '@angular/common/http';
 import { tap } from 'rxjs';
 import { LoginData, RegisterData, User } from '../model/user';
 
-
 @Injectable({
   providedIn: 'root'
 })
@@ -16,10 +15,29 @@ export class AuthService {
 
   constructor(private http: HttpClient) {
     // Al iniciar, recuperar usuario del localStorage (solo si existe)
-    const savedUser = localStorage.getItem('user');
-    if (savedUser) {
-      this.loggedUser.set(JSON.parse(savedUser));
+    this.loggedUser.set(this.readStoredUser());
+  }
+
+  // Un valor corrupto o un storage no disponible no debe romper el arranque de la app
+  private readStoredUser(): User | null {
+    try {
+      const savedUser = localStorage.getItem('user');
+      if (!savedUser) {
+        return null;
+      }
+      const parsed = JSON.parse(savedUser);
+      if (parsed && typeof parsed.userId === 'number') {
+        return parsed as User;
+      }
+    } catch {
+      // Ignorado: se trata como sesión inexistente
     }
+    try {
+      localStorage.removeItem('user');
+    } catch {
+      // Storage no disponible
+    }
+    return null;
   }
 
   login(credentials: LoginData) {

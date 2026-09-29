@@ -163,11 +163,8 @@ export class GoalDetailsComponent implements OnInit, OnChanges {
       }))
     };
 
-    console.log('📤 Actualizando milestone (toggle):', updatedGoal);
-
     this.goalService.updateGoalWithMilestones(this.goal.goalId, updatedGoal).subscribe({
       next: (response) => {
-        console.log('✅ Milestone actualizado:', response);
         this.submitting = false;
         this.goalUpdated.emit();
         this.loadUpdatedGoal();
@@ -212,11 +209,8 @@ export class GoalDetailsComponent implements OnInit, OnChanges {
         }))
       };
 
-      console.log('📤 Guardando cambios completos:', updatedGoal);
-
       this.goalService.updateGoalWithMilestones(this.goal.goalId, updatedGoal).subscribe({
         next: (response) => {
-          console.log('✅ Goal actualizado:', response);
           this.submitting = false;
           this.editMode = false;
           this.goalUpdated.emit();

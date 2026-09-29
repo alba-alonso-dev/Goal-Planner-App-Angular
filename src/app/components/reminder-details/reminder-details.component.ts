@@ -120,7 +120,6 @@ export class ReminderDetailsComponent implements OnInit, OnChanges {
 
       this.reminderService.updateReminder(this.reminder.reminderId, updatedReminder).subscribe({
         next: (response) => {
-          console.log('Reminder updated:', response);
           this.submitting = false;
           this.editMode = false;
           this.reminderUpdated.emit();

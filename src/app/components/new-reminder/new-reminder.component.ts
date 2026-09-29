@@ -86,7 +86,6 @@ export class NewReminderComponent {
         reminderDateTime: formValue.reminderDateTime
       };
 
-      console.log('📤 Creando nuevo reminder:', reminderData);
       this.reminderCreated.emit(reminderData);
     } else {
       Object.keys(this.reminderForm.controls).forEach(key => {

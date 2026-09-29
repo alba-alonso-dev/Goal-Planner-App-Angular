@@ -113,7 +113,6 @@ export class NewGoalComponent {
         }))
       };
 
-      console.log('📤 Enviando datos del goal:', goalData);
       this.goalCreated.emit(goalData);
     } else {
       // Marcar todos los campos como tocados

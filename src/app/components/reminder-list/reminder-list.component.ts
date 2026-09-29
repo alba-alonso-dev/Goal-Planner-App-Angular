@@ -118,7 +118,6 @@ export class ReminderListComponent implements OnInit {
     
     this.reminderService.getAllRemindersByUser().subscribe({
       next: (reminders) => {
-        console.log('Reminders loaded:', reminders);
         this.allReminders.set(reminders);
         this.loading = false;
       },
@@ -155,7 +154,6 @@ export class ReminderListComponent implements OnInit {
     
     this.reminderService.createReminder(reminderData).subscribe({
       next: (response) => {
-        console.log('Reminder created successfully:', response);
         this.loadReminders();
         this.closeNewReminderModal();
       },
@@ -169,7 +167,6 @@ export class ReminderListComponent implements OnInit {
 
   onReminderUpdated() {
     this.loadReminders();
-    console.log('Reminder updated successfully');
   }
 
   viewReminderDetails(reminder: ReminderResponse) {
@@ -179,7 +176,6 @@ export class ReminderListComponent implements OnInit {
     
     this.reminderService.getReminderById(reminder.reminderId).subscribe({
       next: (reminderDetails) => {
-        console.log('Reminder details loaded:', reminderDetails);
         this.selectedReminder = reminderDetails;
         this.showDetailsModal = true;
         this.loading = false;
@@ -199,12 +195,10 @@ export class ReminderListComponent implements OnInit {
 
   toggleReminderAcknowledgement(reminder: ReminderResponse) {
     // Lógica para cambiar el estado de acknowledged
-    console.log('Toggle reminder:', reminder);
   }
 
   deleteReminder(reminderId: number) {
     // Lógica para eliminar reminder
-    console.log('Delete reminder:', reminderId);
   }
 
   retry() {
@@ -224,7 +218,6 @@ export class ReminderListComponent implements OnInit {
       const activeReminders = this.allReminders().filter(r => !r.isAcknowledged);
       this.allReminders.set(activeReminders);
       
-      console.log(`📦 Archived ${completedReminders.length} completed reminders`);
       this.notificationService.success(`Archived ${completedReminders.length} reminders`, 'Success');
     }
   }

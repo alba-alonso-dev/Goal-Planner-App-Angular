@@ -94,7 +94,6 @@ export class NewTaskComponent {
         dueDate: formValue.dueDate
       };
 
-      console.log('📤 Creando nueva tarea:', taskData);
       this.taskCreated.emit(taskData);
     } else {
       Object.keys(this.taskForm.controls).forEach(key => {

@@ -94,7 +94,6 @@ export class GoalListComponent implements OnInit {
     
     this.goalService.getAllGoalsByUser().subscribe({
       next: (goals) => {
-        console.log('Goals loaded:', goals);
         this.allGoals.set(goals);
         this.loading = false;
       },
@@ -138,7 +137,6 @@ export class GoalListComponent implements OnInit {
     
     this.goalService.createGoalWithMilestones(goalData).subscribe({
       next: (response) => {
-        console.log('Goal created successfully:', response);
         this.loadGoals();
         this.closeNewGoalModal();
       },
@@ -152,7 +150,6 @@ export class GoalListComponent implements OnInit {
 
   onGoalUpdated() {
     this.loadGoals();
-    console.log('Goal updated successfully');
   }
 
   viewGoalDetails(goal: GoalResponse) {
@@ -162,7 +159,6 @@ export class GoalListComponent implements OnInit {
     
     this.goalService.getGoalById(goal.goalId).subscribe({
       next: (goalDetails) => {
-        console.log('Goal details loaded:', goalDetails);
         this.selectedGoal = goalDetails;
         this.showDetailsModal = true;
         this.loading = false;
@@ -197,7 +193,6 @@ export class GoalListComponent implements OnInit {
       const activeGoals = this.allGoals().filter(g => !g.isAchieved);
       this.allGoals.set(activeGoals);
       
-      console.log(`📦 Archived ${completedGoals.length} completed goals`);
       this.notificationService.success(`Archived ${completedGoals.length} goals`, 'Success');
     }
   }
