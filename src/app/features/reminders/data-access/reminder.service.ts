@@ -179,6 +179,7 @@ export class ReminderService {
         rDate.setHours(0, 0, 0, 0);
         return rDate.getTime() === tomorrow.getTime() && !r.isAcknowledged;
       }).length,
+      later: 0,
       thisWeek: reminders.filter(r => {
         const rDate = new Date(r.reminderDateTime);
         return rDate >= today && rDate <= nextWeek && !r.isAcknowledged;
