@@ -232,7 +232,11 @@ features/
 - [x] `OnPush` + `input()`/`output()` en los 20 componentes (incluido `AppComponent`); estado asíncrono en signals; usos de `any` en código de producción: 45 → 0; formularios reactivos tipados en `new-*` y `*-details`.
 - [x] Dashboard sin datos simulados; eliminados los filtros de periodo/fecha y el "archivar" que solo ocultaba en memoria.
 - [x] Tipos de entrada (`TaskInput`, `ReminderInput`, `GoalInput`) en lugar de `any` en los servicios.
-- Pendiente (pasa a fases siguientes): bundle inicial por debajo de 500 kB (Bootstrap SCSS parcial), unificar iconos y resolver los 41 avisos de accesibilidad que reporta el lint.
+- Pendientes de la Fase 1 ✅ resueltos en la rama `fase1-pendientes`:
+  - Iconos unificados en Bootstrap Icons desde npm; `scripts/generate-icons.mjs` genera una hoja con solo los 60 iconos usados y la CI comprueba que está al día. `index.html` ya no depende de ningún CDN.
+  - Bundle inicial **618 kB → 496 kB** (transferencia 126 kB → 113 kB): Bootstrap desde SCSS con solo los módulos y utilidades usados, sin variables de modo oscuro, y el modal de login con `@defer`, que saca `@angular/forms` de la carga inicial.
+  - Los 41 hallazgos de accesibilidad resueltos (labels asociados, nombres accesibles en botones de icono, filas clicables accesibles por teclado) y reglas de nuevo como error.
+  - Bug adicional: el botón de menú de la navbar dependía del JS de Bootstrap, que no se carga; por debajo de 992 px la navegación y el login eran inaccesibles.
 
 **Bugs adicionales encontrados y corregidos durante la Fase 1** (verificados en navegador con Playwright y la API simulada):
 
@@ -261,7 +265,8 @@ features/
 
 - [ ] Backend propio con autenticación real (JWT/OIDC) y autorización por propietario.
 - [ ] i18n (es/en) y `LOCALE_ID`.
-- [ ] Accesibilidad (diálogos, foco, contraste) y tests e2e con Playwright.
+- [ ] Accesibilidad de modales (`role="dialog"`, foco atrapado, Escape), contraste, y tests e2e con Playwright.
+- [ ] Zoneless: con `OnPush` y signals en todos los componentes, quitar zone.js ahorraría otros 34 kB del bundle inicial.
 - [ ] Valorar zoneless (`provideExperimentalZonelessChangeDetection` → estable en Angular 20+) y actualización a la última versión de Angular.
 - [ ] Notificaciones reales de recordatorios (Web Push / Service Worker).
 
