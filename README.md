@@ -10,27 +10,27 @@ Construida con **Angular 19** (standalone components + signals), Bootstrap 5 y C
 
 ## ✨ Funcionalidades
 
-| Módulo | Qué permite |
-|---|---|
-| **Autenticación** | Registro, login (con login automático tras registrarse) y logout. Rutas privadas protegidas por guard. |
-| **Goals** | Crear, editar y ver objetivos con fechas de inicio/fin e **hitos (milestones)**. Progreso calculado a partir de los hitos completados. Filtros por estado y búsqueda. |
-| **Tasks** | Tareas **diarias, semanales o mensuales**, agrupadas por frecuencia y colapsables. Marcar como completadas, editar, eliminar, filtrar (pendientes / completadas / vencidas) y buscar. |
-| **Reminders** | Recordatorios con fecha y hora, tiempo restante, marcado como "acknowledged", detección de vencidos y agrupación (hoy, mañana, esta semana…). |
-| **Dashboard** | KPIs globales, tasa de completado y gráficas de tareas (7 días), estado de goals y próximos recordatorios. |
-| **Home** | Landing pública con presentación de funcionalidades. |
+| Módulo            | Qué permite                                                                                                                                                                           |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Autenticación** | Registro, login (con login automático tras registrarse) y logout. Rutas privadas protegidas por guard.                                                                                |
+| **Goals**         | Crear, editar y ver objetivos con fechas de inicio/fin e **hitos (milestones)**. Progreso calculado a partir de los hitos completados. Filtros por estado y búsqueda.                 |
+| **Tasks**         | Tareas **diarias, semanales o mensuales**, agrupadas por frecuencia y colapsables. Marcar como completadas, editar, eliminar, filtrar (pendientes / completadas / vencidas) y buscar. |
+| **Reminders**     | Recordatorios con fecha y hora, tiempo restante, marcado como "acknowledged", detección de vencidos y agrupación (hoy, mañana, esta semana…).                                         |
+| **Dashboard**     | KPIs globales, tasa de completado y gráficas de tareas (7 días), estado de goals y próximos recordatorios.                                                                            |
+| **Home**          | Landing pública con presentación de funcionalidades.                                                                                                                                  |
 
 ---
 
 ## 🧱 Stack
 
-| Capa | Tecnología |
-|---|---|
+| Capa      | Tecnología                                                                    |
+| --------- | ----------------------------------------------------------------------------- |
 | Framework | Angular 19.2 · standalone components · signals · control flow (`@if`, `@for`) |
-| Lenguaje | TypeScript 5.7 (`strict`, `strictTemplates`) |
-| UI | Bootstrap 5.3, Bootstrap Icons y Font Awesome 6 (CDN) |
-| Gráficas | Chart.js 4 |
-| HTTP | `HttpClient` + RxJS 7.8 |
-| Tests | Karma + Jasmine · CI con GitHub Actions |
+| Lenguaje  | TypeScript 5.7 (`strict`, `strictTemplates`)                                  |
+| UI        | Bootstrap 5.3, Bootstrap Icons y Font Awesome 6 (CDN)                         |
+| Gráficas  | Chart.js 4                                                                    |
+| HTTP      | `HttpClient` + RxJS 7.8                                                       |
+| Tests     | Karma + Jasmine · CI con GitHub Actions                                       |
 
 ---
 
@@ -54,12 +54,12 @@ La aplicación usa directamente la API pública, así que no hace falta levantar
 
 ### Scripts
 
-| Comando | Descripción |
-|---|---|
-| `npm start` | Servidor de desarrollo con recarga en caliente (`ng serve`). |
-| `npm run build` | Build de producción en `dist/goal-planer/`. |
-| `npm run watch` | Build de desarrollo en modo watch. |
-| `npm test` | Tests unitarios con Karma (Chrome, modo watch). |
+| Comando           | Descripción                                                      |
+| ----------------- | ---------------------------------------------------------------- |
+| `npm start`       | Servidor de desarrollo con recarga en caliente (`ng serve`).     |
+| `npm run build`   | Build de producción en `dist/goal-planer/`.                      |
+| `npm run watch`   | Build de desarrollo en modo watch.                               |
+| `npm test`        | Tests unitarios con Karma (Chrome, modo watch).                  |
 | `npm run test:ci` | Tests en Chrome headless, una sola ejecución (el que usa la CI). |
 
 > `test:ci` necesita Chrome/Chromium instalado; si no está en el `PATH`, indica su ruta con `CHROME_BIN`.
@@ -104,14 +104,14 @@ src/testing/
 
 ### Rutas
 
-| Ruta | Componente | Acceso |
-|---|---|---|
-| `/home` | `HomeComponent` | Pública |
-| `/dashboard` | `DashboardComponent` | 🔒 Autenticado |
-| `/goals` | `GoalListComponent` | 🔒 Autenticado |
-| `/tasks` | `TaskListComponent` | 🔒 Autenticado |
+| Ruta         | Componente              | Acceso         |
+| ------------ | ----------------------- | -------------- |
+| `/home`      | `HomeComponent`         | Pública        |
+| `/dashboard` | `DashboardComponent`    | 🔒 Autenticado |
+| `/goals`     | `GoalListComponent`     | 🔒 Autenticado |
+| `/tasks`     | `TaskListComponent`     | 🔒 Autenticado |
 | `/reminders` | `ReminderListComponent` | 🔒 Autenticado |
-| `**` | → `/home` | — |
+| `**`         | → `/home`               | —              |
 
 Todas las rutas se renderizan dentro de `LayoutComponent` (navbar + contenido + footer + toasts). Las rutas privadas se cargan bajo demanda (`loadComponent`), de modo que Chart.js solo se descarga al abrir el dashboard.
 
@@ -144,11 +144,11 @@ Todas las rutas se renderizan dentro de `LayoutComponent` (navbar + contenido + 
 
 ### Endpoints consumidos
 
-| Recurso | Endpoints (`/api/GoalTracker/...`) |
-|---|---|
-| Auth | `POST login`, `POST register` |
-| Goals | `GET getAllGoalsByUser?userId=`, `GET getGoal/{id}`, `POST createGoalWithMilestones`, `PUT updateGoalWithMilestones/{id}` |
-| Tasks | `GET getAllTasks?userId=`, `GET getTask/{id}`, `POST createTask`, `PUT updateTask/{id}`, `DELETE deleteTask/{id}` |
+| Recurso   | Endpoints (`/api/GoalTracker/...`)                                                                                                 |
+| --------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| Auth      | `POST login`, `POST register`                                                                                                      |
+| Goals     | `GET getAllGoalsByUser?userId=`, `GET getGoal/{id}`, `POST createGoalWithMilestones`, `PUT updateGoalWithMilestones/{id}`          |
+| Tasks     | `GET getAllTasks?userId=`, `GET getTask/{id}`, `POST createTask`, `PUT updateTask/{id}`, `DELETE deleteTask/{id}`                  |
 | Reminders | `GET getReminders?userId=`, `GET getReminder/{id}`, `POST createReminder`, `PUT updateReminder/{id}`, `DELETE deleteReminder/{id}` |
 
 ---
@@ -183,7 +183,7 @@ Detalle y justificación en [`docs/ARCHITECTURE_REVIEW.md`](docs/ARCHITECTURE_RE
 2. Asegúrate de que `npm test` y `npm run build` pasan.
 3. Abre un Pull Request describiendo el cambio.
 
-Convenciones del proyecto: componentes standalone generados con `ng generate` (los *schematics* ya apuntan a `src/app/components`, `services`, `guards`…), `inject()` para dependencias y signals para estado de UI.
+Convenciones del proyecto: componentes standalone generados con `ng generate` (los _schematics_ ya apuntan a `src/app/components`, `services`, `guards`…), `inject()` para dependencias y signals para estado de UI.
 
 ---
 

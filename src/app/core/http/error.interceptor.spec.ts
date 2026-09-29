@@ -34,7 +34,9 @@ describe('errorInterceptor', () => {
     let captured: unknown;
     http.get('/api/test').subscribe({ error: e => (captured = e) });
 
-    httpTesting.expectOne('/api/test').flush({ message: 'Email already registered' }, { status: 400, statusText: 'Bad Request' });
+    httpTesting
+      .expectOne('/api/test')
+      .flush({ message: 'Email already registered' }, { status: 400, statusText: 'Bad Request' });
 
     const error = captured as ApiError;
     expect(error instanceof ApiError).toBeTrue();

@@ -29,7 +29,12 @@ const DEFAULT_MESSAGE = 'Error connecting to the server';
 
 export function toApiError(error: HttpErrorResponse): ApiError {
   const details = parseBody(error.error);
-  return new ApiError(error.status, STATUS_MESSAGES[error.status] ?? DEFAULT_MESSAGE, extractServerMessage(details), details);
+  return new ApiError(
+    error.status,
+    STATUS_MESSAGES[error.status] ?? DEFAULT_MESSAGE,
+    extractServerMessage(details),
+    details
+  );
 }
 
 function parseBody(body: unknown): unknown {

@@ -29,8 +29,9 @@ export const routes: Routes = [
       {
         path: 'reminders',
         canActivate: [authGuard],
-        loadComponent: () => import('./components/reminder-list/reminder-list.component').then(m => m.ReminderListComponent)
-      },
+        loadComponent: () =>
+          import('./components/reminder-list/reminder-list.component').then(m => m.ReminderListComponent)
+      }
     ]
   },
   // Ruta comodín para redirigir cualquier URL no encontrada

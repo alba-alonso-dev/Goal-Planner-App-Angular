@@ -16,9 +16,9 @@ type FilterType = 'all' | 'pending' | 'acknowledged' | 'overdue';
   selector: 'app-reminder-list',
   standalone: true,
   imports: [
-    CommonModule, 
-    RouterModule, 
-    FormsModule, 
+    CommonModule,
+    RouterModule,
+    FormsModule,
     ReactiveFormsModule,
     ReminderItemComponent,
     NewReminderComponent,
@@ -31,16 +31,16 @@ type FilterType = 'all' | 'pending' | 'acknowledged' | 'overdue';
 export class ReminderListComponent implements OnInit {
   private reminderService = inject(ReminderService);
   private notificationService = inject(NotificationService);
-  
+
   // Signals para mejor reactividad
   private allReminders = signal<ReminderResponse[]>([]);
   filter = signal<FilterType>('all');
   private searchTerm = signal('');
-  
+
   // Computed signals para los reminders filtrados
   filteredReminders = computed(() => {
     let reminders = this.allReminders();
-    
+
     // Aplicar filtro por estado
     switch (this.filter()) {
       case 'pending':
@@ -55,31 +55,30 @@ export class ReminderListComponent implements OnInit {
       default: // 'all'
         break;
     }
-    
+
     // Aplicar búsqueda por texto
     const search = this.searchTerm().toLowerCase();
     if (search) {
-      reminders = reminders.filter(r => 
-        r.title.toLowerCase().includes(search) || 
-        r.description?.toLowerCase().includes(search)
+      reminders = reminders.filter(
+        r => r.title.toLowerCase().includes(search) || r.description?.toLowerCase().includes(search)
       );
     }
-    
+
     return reminders;
   });
-  
+
   // Estadísticas
   stats = computed(() => {
     const reminders = this.allReminders();
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    
+
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
-    
+
     const weekEnd = new Date(today);
     weekEnd.setDate(today.getDate() + 7);
-    
+
     return {
       total: reminders.length,
       acknowledged: reminders.filter(r => r.isAcknowledged).length,
@@ -118,9 +117,9 @@ export class ReminderListComponent implements OnInit {
   loadReminders() {
     this.loading.set(true);
     this.error.set(null);
-    
+
     this.reminderService.getAllRemindersByUser().subscribe({
-      next: (reminders) => {
+      next: reminders => {
         this.allReminders.set(reminders);
         this.loading.set(false);
       },
@@ -176,11 +175,11 @@ export class ReminderListComponent implements OnInit {
 
   viewReminderDetails(reminder: ReminderResponse) {
     if (!reminder.reminderId) return;
-    
+
     this.loading.set(true);
-    
+
     this.reminderService.getReminderById(reminder.reminderId).subscribe({
-      next: (reminderDetails) => {
+      next: reminderDetails => {
         this.selectedReminder.set(reminderDetails);
         this.showDetailsModal.set(true);
         this.loading.set(false);

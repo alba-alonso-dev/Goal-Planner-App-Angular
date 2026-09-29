@@ -27,8 +27,7 @@ describe('ReminderListComponent', () => {
         provideRouter([]),
         { provide: API_BASE_URL, useValue: '/api' }
       ]
-    })
-    .compileComponents();
+    }).compileComponents();
 
     httpTesting = TestBed.inject(HttpTestingController);
     fixture = TestBed.createComponent(ReminderListComponent);

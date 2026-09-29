@@ -71,9 +71,7 @@ describe('TaskService', () => {
     setup();
     let captured: unknown;
 
-    service
-      .createTask({ ...mockTask, dueDate: 'not a date' })
-      .subscribe({ error: e => (captured = e) });
+    service.createTask({ ...mockTask, dueDate: 'not a date' }).subscribe({ error: e => (captured = e) });
 
     expect(captured instanceof Error).toBeTrue();
     httpTesting.expectNone('/api/createTask');

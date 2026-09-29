@@ -1,50 +1,52 @@
 @let reminder = this.reminder();
-<div class="card h-100 shadow-sm hover-shadow transition" 
-     [class]="getReminderTypeClass()"
-     style="border-width: 2px;">
-    <div class="card-body">
-        <div class="d-flex justify-content-between align-items-start mb-2">
-            <div class="d-flex align-items-center">
-                <i [class]="getReminderIcon() + ' fa-lg me-2'"></i>
-                <h6 class="card-title fw-bold mb-0" 
-                    [class.text-decoration-line-through]="reminder.isAcknowledged"
-                    [class.text-muted]="reminder.isAcknowledged">
-                    {{reminder.title}}
-                </h6>
-            </div>
-            <span class="badge" [class]="getTimeBadgeClass()">
-                {{getTimeText()}}
-            </span>
-        </div>
-
-        <!-- Description preview -->
-        @if (reminder.description) {
-            <p class="card-text text-muted small ms-4 mb-2">
-                {{reminder.description | slice:0:50}}{{reminder.description.length > 50 ? '...' : ''}}
-            </p>
-        }
-
-        <!-- Date & Time -->
-        <div class="d-flex align-items-center mt-2 small text-muted">
-            <i class="far fa-calendar-alt me-1"></i>
-            {{reminder.reminderDateTime | date:'dd/MM/yyyy HH:mm'}}
-        </div>
+<div class="card h-100 shadow-sm hover-shadow transition" [class]="getReminderTypeClass()" style="border-width: 2px">
+  <div class="card-body">
+    <div class="d-flex justify-content-between align-items-start mb-2">
+      <div class="d-flex align-items-center">
+        <i [class]="getReminderIcon() + ' fa-lg me-2'"></i>
+        <h6
+          class="card-title fw-bold mb-0"
+          [class.text-decoration-line-through]="reminder.isAcknowledged"
+          [class.text-muted]="reminder.isAcknowledged"
+        >
+          {{ reminder.title }}
+        </h6>
+      </div>
+      <span class="badge" [class]="getTimeBadgeClass()">
+        {{ getTimeText() }}
+      </span>
     </div>
 
-    <div class="card-footer bg-transparent border-top-0 p-2">
-        <div class="btn-group w-100" role="group">
-            <button class="btn btn-sm btn-outline-primary" (click)="onViewDetails()">
-                <i class="fas fa-eye"></i>
-            </button>
-            <button class="btn btn-sm" 
-                    [class.btn-outline-success]="!reminder.isAcknowledged"
-                    [class.btn-outline-warning]="reminder.isAcknowledged"
-                    (click)="onToggleAcknowledge($event)">
-                <i class="fas" [class.fa-check]="!reminder.isAcknowledged" [class.fa-undo]="reminder.isAcknowledged"></i>
-            </button>
-            <button class="btn btn-sm btn-outline-danger" (click)="onDelete($event)">
-                <i class="fas fa-trash"></i>
-            </button>
-        </div>
+    <!-- Description preview -->
+    @if (reminder.description) {
+      <p class="card-text text-muted small ms-4 mb-2">
+        {{ reminder.description | slice: 0 : 50 }}{{ reminder.description.length > 50 ? '...' : '' }}
+      </p>
+    }
+
+    <!-- Date & Time -->
+    <div class="d-flex align-items-center mt-2 small text-muted">
+      <i class="far fa-calendar-alt me-1"></i>
+      {{ reminder.reminderDateTime | date: 'dd/MM/yyyy HH:mm' }}
     </div>
+  </div>
+
+  <div class="card-footer bg-transparent border-top-0 p-2">
+    <div class="btn-group w-100" role="group">
+      <button class="btn btn-sm btn-outline-primary" (click)="onViewDetails()">
+        <i class="fas fa-eye"></i>
+      </button>
+      <button
+        class="btn btn-sm"
+        [class.btn-outline-success]="!reminder.isAcknowledged"
+        [class.btn-outline-warning]="reminder.isAcknowledged"
+        (click)="onToggleAcknowledge($event)"
+      >
+        <i class="fas" [class.fa-check]="!reminder.isAcknowledged" [class.fa-undo]="reminder.isAcknowledged"></i>
+      </button>
+      <button class="btn btn-sm btn-outline-danger" (click)="onDelete($event)">
+        <i class="fas fa-trash"></i>
+      </button>
+    </div>
+  </div>
 </div>

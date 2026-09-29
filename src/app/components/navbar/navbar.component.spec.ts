@@ -13,8 +13,7 @@ describe('NavbarComponent', () => {
     await TestBed.configureTestingModule({
       imports: [NavbarComponent],
       providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([])]
-    })
-    .compileComponents();
+    }).compileComponents();
 
     fixture = TestBed.createComponent(NavbarComponent);
     component = fixture.componentInstance;

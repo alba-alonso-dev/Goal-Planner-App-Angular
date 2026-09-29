@@ -16,9 +16,9 @@ type FilterType = 'all' | 'active' | 'completed' | 'overdue';
   selector: 'app-goal-list',
   standalone: true,
   imports: [
-    CommonModule, 
-    RouterModule, 
-    FormsModule, 
+    CommonModule,
+    RouterModule,
+    FormsModule,
     ReactiveFormsModule,
     GoalItemComponent,
     NewGoalComponent,
@@ -31,16 +31,16 @@ type FilterType = 'all' | 'active' | 'completed' | 'overdue';
 export class GoalListComponent implements OnInit {
   private goalService = inject(GoalService);
   private notificationService = inject(NotificationService);
-  
+
   // Signals para mejor reactividad
   private allGoals = signal<GoalResponse[]>([]);
   filter = signal<FilterType>('all');
   private searchTerm = signal('');
-  
+
   // Computed signals para los goals filtrados
   filteredGoals = computed(() => {
     let goals = this.allGoals();
-    
+
     // Aplicar filtro por estado
     switch (this.filter()) {
       case 'active':
@@ -55,19 +55,18 @@ export class GoalListComponent implements OnInit {
       default: // 'all'
         break;
     }
-    
+
     // Aplicar búsqueda por texto
     const search = this.searchTerm().toLowerCase();
     if (search) {
-      goals = goals.filter(g => 
-        g.goalName.toLowerCase().includes(search) || 
-        g.description?.toLowerCase().includes(search)
+      goals = goals.filter(
+        g => g.goalName.toLowerCase().includes(search) || g.description?.toLowerCase().includes(search)
       );
     }
-    
+
     return goals;
   });
-  
+
   // Estadísticas
   stats = computed(() => {
     const goals = this.allGoals();
@@ -94,9 +93,9 @@ export class GoalListComponent implements OnInit {
   loadGoals() {
     this.loading.set(true);
     this.error.set(null);
-    
+
     this.goalService.getAllGoalsByUser().subscribe({
-      next: (goals) => {
+      next: goals => {
         this.allGoals.set(goals);
         this.loading.set(false);
       },
@@ -159,11 +158,11 @@ export class GoalListComponent implements OnInit {
 
   viewGoalDetails(goal: GoalResponse) {
     if (!goal.goalId) return;
-    
+
     this.loading.set(true);
-    
+
     this.goalService.getGoalById(goal.goalId).subscribe({
-      next: (goalDetails) => {
+      next: goalDetails => {
         this.selectedGoal.set(goalDetails);
         this.showDetailsModal.set(true);
         this.loading.set(false);

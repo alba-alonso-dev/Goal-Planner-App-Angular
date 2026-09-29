@@ -33,11 +33,15 @@ export class TaskItemComponent {
   }
 
   getFrequencyIcon(frequency: string): string {
-    switch(frequency) {
-      case 'Daily': return 'fas fa-sun';
-      case 'Weekly': return 'fas fa-calendar-week';
-      case 'Monthly': return 'fas fa-calendar-alt';
-      default: return 'fas fa-clock';
+    switch (frequency) {
+      case 'Daily':
+        return 'fas fa-sun';
+      case 'Weekly':
+        return 'fas fa-calendar-week';
+      case 'Monthly':
+        return 'fas fa-calendar-alt';
+      default:
+        return 'fas fa-clock';
     }
   }
 

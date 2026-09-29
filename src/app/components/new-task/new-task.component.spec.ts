@@ -13,8 +13,7 @@ describe('NewTaskComponent', () => {
     await TestBed.configureTestingModule({
       imports: [NewTaskComponent],
       providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([])]
-    })
-    .compileComponents();
+    }).compileComponents();
 
     fixture = TestBed.createComponent(NewTaskComponent);
     component = fixture.componentInstance;

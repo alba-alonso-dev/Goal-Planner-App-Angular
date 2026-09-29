@@ -1,130 +1,136 @@
 <!-- Hero Section -->
 <section class="hero-section py-5">
-    <div class="container">
-        <div class="row min-vh-100 align-items-center">
-            <div class="col-lg-6 mb-5 mb-lg-0">
-                <h1 class="display-3 fw-bold mb-4">
-                    Achieve Your <span class="text-gradient">Goals</span><br>One Step at a Time
-                </h1>
-                <p class="lead text-muted mb-5">
-                    Track your goals, manage tasks, and never miss important reminders with our all-in-one productivity platform.
-                </p>
-                <div class="d-flex gap-3">
-                    <a routerLink="/auth/register" class="btn btn-primary btn-lg px-4">
-                        <i class="bi bi-person-plus-fill me-2"></i>
-                        Get Started Free
-                    </a>
-                    <a routerLink="/auth/login" class="btn btn-outline-secondary btn-lg px-4">
-                        <i class="bi bi-box-arrow-in-right me-2"></i>
-                        Sign In
-                    </a>
-                </div>
-                <div class="mt-5 d-flex gap-4">
-                    <div class="d-flex align-items-center">
-                        <i class="bi bi-check-circle-fill text-success me-2"></i>
-                        <span>No credit card required</span>
-                    </div>
-                    <div class="d-flex align-items-center">
-                        <i class="bi bi-clock-fill text-primary me-2"></i>
-                        <span>Free forever</span>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-6">
-                <div class="hero-image-container position-relative">
-                    <!-- Mockup de la aplicación -->
-                    <div class="dashboard-preview card shadow-lg border-0">
-                        <div class="card-body p-4">
-                            <div class="d-flex justify-content-between align-items-center mb-4">
-                                <h5 class="fw-bold mb-0">Your Progress</h5>
-                                <span class="badge bg-primary">Live Demo</span>
-                            </div>
-                            
-                            <!-- Stats preview -->
-                            <div class="row g-3 mb-4">
-                                <div class="col-4">
-                                    <div class="bg-light rounded-3 p-2 text-center">
-                                        <small class="text-muted d-block">Tasks</small>
-                                        <strong class="h5 mb-0">12</strong>
-                                    </div>
-                                </div>
-                                <div class="col-4">
-                                    <div class="bg-light rounded-3 p-2 text-center">
-                                        <small class="text-muted d-block">Goals</small>
-                                        <strong class="h5 mb-0">3</strong>
-                                    </div>
-                                </div>
-                                <div class="col-4">
-                                    <div class="bg-light rounded-3 p-2 text-center">
-                                        <small class="text-muted d-block">Done</small>
-                                        <strong class="h5 mb-0">78%</strong>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Progress bars preview -->
-                            <div class="mb-3">
-                                <div class="d-flex justify-content-between small mb-1">
-                                    <span>Daily Tasks</span>
-                                    <span>4/6</span>
-                                </div>
-                                <div class="progress" style="height: 6px;">
-                                    <div class="progress-bar bg-success" style="width: 67%"></div>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <div class="d-flex justify-content-between small mb-1">
-                                    <span>Weekly Goals</span>
-                                    <span>2/3</span>
-                                </div>
-                                <div class="progress" style="height: 6px;">
-                                    <div class="progress-bar bg-primary" style="width: 67%"></div>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <div class="d-flex justify-content-between small mb-1">
-                                    <span>Monthly Target</span>
-                                    <span>15/20</span>
-                                </div>
-                                <div class="progress" style="height: 6px;">
-                                    <div class="progress-bar bg-warning" style="width: 75%"></div>
-                                </div>
-                            </div>
-
-                            <!-- Chart preview -->
-                            <div class="mt-4 pt-2 border-top">
-                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <span class="small fw-bold">Weekly Activity</span>
-                                    <i class="bi bi-graph-up text-primary"></i>
-                                </div>
-                                <div class="d-flex gap-1 align-items-end" style="height: 60px;">
-                                    <div class="flex-grow-1 bg-primary bg-opacity-25 rounded" style="height: 30px;"></div>
-                                    <div class="flex-grow-1 bg-primary bg-opacity-50 rounded" style="height: 45px;"></div>
-                                    <div class="flex-grow-1 bg-primary rounded" style="height: 60px;"></div>
-                                    <div class="flex-grow-1 bg-primary bg-opacity-75 rounded" style="height: 50px;"></div>
-                                    <div class="flex-grow-1 bg-primary bg-opacity-25 rounded" style="height: 25px;"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Floating elements -->
-                    <div class="floating-card card position-absolute bg-white shadow-sm border-0 p-3" style="top: 20%; right: -20px;">
-                        <div class="d-flex align-items-center gap-2">
-                            <i class="bi bi-check-circle-fill text-success"></i>
-                            <span class="small fw-bold">Goal Achieved!</span>
-                        </div>
-                    </div>
-                    <div class="floating-card card position-absolute bg-white shadow-sm border-0 p-3" style="bottom: 20%; left: -20px;">
-                        <div class="d-flex align-items-center gap-2">
-                            <i class="bi bi-bell-fill text-warning"></i>
-                            <span class="small fw-bold">Meeting in 1h</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+  <div class="container">
+    <div class="row min-vh-100 align-items-center">
+      <div class="col-lg-6 mb-5 mb-lg-0">
+        <h1 class="display-3 fw-bold mb-4">
+          Achieve Your <span class="text-gradient">Goals</span><br />One Step at a Time
+        </h1>
+        <p class="lead text-muted mb-5">
+          Track your goals, manage tasks, and never miss important reminders with our all-in-one productivity platform.
+        </p>
+        <div class="d-flex gap-3">
+          <a routerLink="/auth/register" class="btn btn-primary btn-lg px-4">
+            <i class="bi bi-person-plus-fill me-2"></i>
+            Get Started Free
+          </a>
+          <a routerLink="/auth/login" class="btn btn-outline-secondary btn-lg px-4">
+            <i class="bi bi-box-arrow-in-right me-2"></i>
+            Sign In
+          </a>
         </div>
+        <div class="mt-5 d-flex gap-4">
+          <div class="d-flex align-items-center">
+            <i class="bi bi-check-circle-fill text-success me-2"></i>
+            <span>No credit card required</span>
+          </div>
+          <div class="d-flex align-items-center">
+            <i class="bi bi-clock-fill text-primary me-2"></i>
+            <span>Free forever</span>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="hero-image-container position-relative">
+          <!-- Mockup de la aplicación -->
+          <div class="dashboard-preview card shadow-lg border-0">
+            <div class="card-body p-4">
+              <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="fw-bold mb-0">Your Progress</h5>
+                <span class="badge bg-primary">Live Demo</span>
+              </div>
+
+              <!-- Stats preview -->
+              <div class="row g-3 mb-4">
+                <div class="col-4">
+                  <div class="bg-light rounded-3 p-2 text-center">
+                    <small class="text-muted d-block">Tasks</small>
+                    <strong class="h5 mb-0">12</strong>
+                  </div>
+                </div>
+                <div class="col-4">
+                  <div class="bg-light rounded-3 p-2 text-center">
+                    <small class="text-muted d-block">Goals</small>
+                    <strong class="h5 mb-0">3</strong>
+                  </div>
+                </div>
+                <div class="col-4">
+                  <div class="bg-light rounded-3 p-2 text-center">
+                    <small class="text-muted d-block">Done</small>
+                    <strong class="h5 mb-0">78%</strong>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Progress bars preview -->
+              <div class="mb-3">
+                <div class="d-flex justify-content-between small mb-1">
+                  <span>Daily Tasks</span>
+                  <span>4/6</span>
+                </div>
+                <div class="progress" style="height: 6px">
+                  <div class="progress-bar bg-success" style="width: 67%"></div>
+                </div>
+              </div>
+              <div class="mb-3">
+                <div class="d-flex justify-content-between small mb-1">
+                  <span>Weekly Goals</span>
+                  <span>2/3</span>
+                </div>
+                <div class="progress" style="height: 6px">
+                  <div class="progress-bar bg-primary" style="width: 67%"></div>
+                </div>
+              </div>
+              <div class="mb-3">
+                <div class="d-flex justify-content-between small mb-1">
+                  <span>Monthly Target</span>
+                  <span>15/20</span>
+                </div>
+                <div class="progress" style="height: 6px">
+                  <div class="progress-bar bg-warning" style="width: 75%"></div>
+                </div>
+              </div>
+
+              <!-- Chart preview -->
+              <div class="mt-4 pt-2 border-top">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <span class="small fw-bold">Weekly Activity</span>
+                  <i class="bi bi-graph-up text-primary"></i>
+                </div>
+                <div class="d-flex gap-1 align-items-end" style="height: 60px">
+                  <div class="flex-grow-1 bg-primary bg-opacity-25 rounded" style="height: 30px"></div>
+                  <div class="flex-grow-1 bg-primary bg-opacity-50 rounded" style="height: 45px"></div>
+                  <div class="flex-grow-1 bg-primary rounded" style="height: 60px"></div>
+                  <div class="flex-grow-1 bg-primary bg-opacity-75 rounded" style="height: 50px"></div>
+                  <div class="flex-grow-1 bg-primary bg-opacity-25 rounded" style="height: 25px"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Floating elements -->
+          <div
+            class="floating-card card position-absolute bg-white shadow-sm border-0 p-3"
+            style="top: 20%; right: -20px"
+          >
+            <div class="d-flex align-items-center gap-2">
+              <i class="bi bi-check-circle-fill text-success"></i>
+              <span class="small fw-bold">Goal Achieved!</span>
+            </div>
+          </div>
+          <div
+            class="floating-card card position-absolute bg-white shadow-sm border-0 p-3"
+            style="bottom: 20%; left: -20px"
+          >
+            <div class="d-flex align-items-center gap-2">
+              <i class="bi bi-bell-fill text-warning"></i>
+              <span class="small fw-bold">Meeting in 1h</span>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
+  </div>
 </section>
 
 <!-- Stats Section 
@@ -149,62 +155,62 @@
 
 <!-- Features Section -->
 <section class="features-section py-5">
-    <div class="container py-5">
-        <div class="text-center mb-5">
-            <h2 class="display-5 fw-bold mb-3">Everything You Need to Succeed</h2>
-            <p class="lead text-muted mx-auto" style="max-width: 700px;">
-                Powerful features to help you track goals, manage tasks, and build better habits.
-            </p>
-        </div>
-
-        <div class="row g-4">
-            @for (feature of features; track feature.title; let i = $index) {
-                <div class="col-md-6 col-lg-4">
-                    <div class="card h-100 border-0 shadow-sm feature-card">
-                        <div class="card-body p-4">
-                            <div class="feature-icon mb-4">
-                                <i [class]="feature.icon + ' fa-2x text-' + feature.color"></i>
-                            </div>
-                            <h5 class="fw-bold mb-3">{{feature.title}}</h5>
-                            <p class="text-muted mb-3">{{feature.description}}</p>
-                            <a [routerLink]="[feature.link]" class="text-decoration-none">
-                                Learn more <i class="bi bi-arrow-right ms-1"></i>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            }
-        </div>
+  <div class="container py-5">
+    <div class="text-center mb-5">
+      <h2 class="display-5 fw-bold mb-3">Everything You Need to Succeed</h2>
+      <p class="lead text-muted mx-auto" style="max-width: 700px">
+        Powerful features to help you track goals, manage tasks, and build better habits.
+      </p>
     </div>
+
+    <div class="row g-4">
+      @for (feature of features; track feature.title; let i = $index) {
+        <div class="col-md-6 col-lg-4">
+          <div class="card h-100 border-0 shadow-sm feature-card">
+            <div class="card-body p-4">
+              <div class="feature-icon mb-4">
+                <i [class]="feature.icon + ' fa-2x text-' + feature.color"></i>
+              </div>
+              <h5 class="fw-bold mb-3">{{ feature.title }}</h5>
+              <p class="text-muted mb-3">{{ feature.description }}</p>
+              <a [routerLink]="[feature.link]" class="text-decoration-none">
+                Learn more <i class="bi bi-arrow-right ms-1"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
 </section>
 
 <!-- How It Works Section -->
 <section class="how-it-works py-5 bg-light">
-    <div class="container py-5">
-        <div class="text-center mb-5">
-            <h2 class="display-5 fw-bold mb-3">Get Started in 4 Simple Steps</h2>
-            <p class="lead text-muted mx-auto" style="max-width: 700px;">
-                Start your productivity journey today with our easy setup process.
-            </p>
-        </div>
-
-        <div class="row g-4">
-            @for (step of steps; track step.number; let i = $index) {
-                <div class="col-md-6 col-lg-3">
-                    <div class="text-center">
-                        <div class="step-number position-relative mb-4">
-                            <span class="display-1 fw-bold text-primary opacity-25">{{step.number}}</span>
-                            <div class="position-absolute top-50 start-50 translate-middle">
-                                <i [class]="step.icon + ' fa-2x text-primary'"></i>
-                            </div>
-                        </div>
-                        <h5 class="fw-bold mb-2">{{step.title}}</h5>
-                        <p class="text-muted small">{{step.description}}</p>
-                    </div>
-                </div>
-            }
-        </div>
+  <div class="container py-5">
+    <div class="text-center mb-5">
+      <h2 class="display-5 fw-bold mb-3">Get Started in 4 Simple Steps</h2>
+      <p class="lead text-muted mx-auto" style="max-width: 700px">
+        Start your productivity journey today with our easy setup process.
+      </p>
     </div>
+
+    <div class="row g-4">
+      @for (step of steps; track step.number; let i = $index) {
+        <div class="col-md-6 col-lg-3">
+          <div class="text-center">
+            <div class="step-number position-relative mb-4">
+              <span class="display-1 fw-bold text-primary opacity-25">{{ step.number }}</span>
+              <div class="position-absolute top-50 start-50 translate-middle">
+                <i [class]="step.icon + ' fa-2x text-primary'"></i>
+              </div>
+            </div>
+            <h5 class="fw-bold mb-2">{{ step.title }}</h5>
+            <p class="text-muted small">{{ step.description }}</p>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
 </section>
 
 <!-- Testimonials Section

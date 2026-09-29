@@ -72,7 +72,8 @@ export class HomeComponent {
       name: 'Ana García',
       role: 'Product Manager',
       avatar: 'AG',
-      content: '"Esta aplicación ha transformado completamente mi productividad. Puedo seguir todos mis objetivos y tareas diarias en un solo lugar."',
+      content:
+        '"Esta aplicación ha transformado completamente mi productividad. Puedo seguir todos mis objetivos y tareas diarias en un solo lugar."',
       rating: 5
     },
     {
@@ -80,7 +81,8 @@ export class HomeComponent {
       name: 'Carlos Rodríguez',
       role: 'Freelancer',
       avatar: 'CR',
-      content: '"Los recordatorios inteligentes me ayudan a nunca perder fechas límite. La interfaz es intuitiva y los gráficos son muy útiles."',
+      content:
+        '"Los recordatorios inteligentes me ayudan a nunca perder fechas límite. La interfaz es intuitiva y los gráficos son muy útiles."',
       rating: 5
     },
     {
@@ -125,7 +127,8 @@ export class HomeComponent {
   faqs = [
     {
       question: 'Is the app really free?',
-      answer: 'Yes! Our basic features are completely free. We offer premium plans with advanced features for power users.',
+      answer:
+        'Yes! Our basic features are completely free. We offer premium plans with advanced features for power users.',
       open: false
     },
     {

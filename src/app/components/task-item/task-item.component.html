@@ -1,77 +1,85 @@
 @let task = this.task();
-<div class="card h-100 shadow-sm hover-shadow transition" 
-     [class.border-success]="task.isCompleted"
-     [class.border-danger]="!task.isCompleted && task.isOverdue">
-    <div class="card-body">
-        <div class="d-flex justify-content-between align-items-start mb-2">
-            <div class="d-flex align-items-center">
-                <!-- Checkbox para completar -->
-            <div class="form-check me-3" (click)="$event.stopPropagation()">
-                    <input 
-                        type="checkbox" 
-                        class="form-check-input" 
-                        [checked]="task.isCompleted"
-                        (change)="onToggleComplete($event)"
-                        [id]="'task-' + task.taskId">
-                </div>
-                <h5 class="card-title fw-bold mb-0" 
-                    [class.text-decoration-line-through]="task.isCompleted"
-                    [class.text-muted]="task.isCompleted">
-                    {{task.taskName}}
-                </h5>
-            </div>
-            <span class="badge" [ngClass]="{
-                'bg-success': task.isCompleted,
-                'bg-danger': !task.isCompleted && task.isOverdue,
-                'bg-warning': !task.isCompleted && !task.isOverdue
-            }">
-                <i [class]="getFrequencyIcon(task.frequency)" class="me-1"></i>
-                {{task.frequency}}
-            </span>
+<div
+  class="card h-100 shadow-sm hover-shadow transition"
+  [class.border-success]="task.isCompleted"
+  [class.border-danger]="!task.isCompleted && task.isOverdue"
+>
+  <div class="card-body">
+    <div class="d-flex justify-content-between align-items-start mb-2">
+      <div class="d-flex align-items-center">
+        <!-- Checkbox para completar -->
+        <div class="form-check me-3" (click)="$event.stopPropagation()">
+          <input
+            type="checkbox"
+            class="form-check-input"
+            [checked]="task.isCompleted"
+            (change)="onToggleComplete($event)"
+            [id]="'task-' + task.taskId"
+          />
         </div>
-
-        <!-- Descripción corta -->
-        @if (task.description) {
-            <p class="card-text text-muted small ms-4 mb-2">
-                {{task.description | slice:0:60}}{{task.description.length > 60 ? '...' : ''}}
-            </p>
-        }
-
-        <!-- Fechas y estado -->
-        <div class="d-flex justify-content-between align-items-center mt-3">
-            <div class="small text-muted">
-                <i class="far fa-calendar-alt me-1"></i>
-                {{task.startDate | date:'dd/MM/yyyy'}} - {{task.dueDate | date:'dd/MM/yyyy'}}
-            </div>
-            <div class="small" [class]="getStatusClass()">
-                <i class="fas fa-circle me-1" style="font-size: 8px;"></i>
-                {{getStatusText()}}
-            </div>
-        </div>
-
-        <!-- Días restantes si no está completada -->
-        <div class="mt-2" [ngClass]="{'invisible-placeholder': !(!task.isCompleted && task.daysRemaining !== undefined)}">
-            @if (!task.isCompleted && task.daysRemaining !== undefined) {
-                <div class="small" [class.text-danger]="task.daysRemaining < 3">
-                    <i class="far fa-clock me-1"></i>
-                    @if (task.daysRemaining > 0) {
-                        {{task.daysRemaining}} day{{task.daysRemaining !== 1 ? 's' : ''}} remaining
-                    } @else if (task.daysRemaining === 0) {
-                        Due today
-                    } @else {
-                        Overdue by {{Math.abs(task.daysRemaining)}} day{{Math.abs(task.daysRemaining) !== 1 ? 's' : ''}}
-                    }
-                </div>
-            }
-        </div>
+        <h5
+          class="card-title fw-bold mb-0"
+          [class.text-decoration-line-through]="task.isCompleted"
+          [class.text-muted]="task.isCompleted"
+        >
+          {{ task.taskName }}
+        </h5>
+      </div>
+      <span
+        class="badge"
+        [ngClass]="{
+          'bg-success': task.isCompleted,
+          'bg-danger': !task.isCompleted && task.isOverdue,
+          'bg-warning': !task.isCompleted && !task.isOverdue
+        }"
+      >
+        <i [class]="getFrequencyIcon(task.frequency)" class="me-1"></i>
+        {{ task.frequency }}
+      </span>
     </div>
 
-    <div class="card-footer bg-transparent border-top-0 d-flex justify-content-between">
-        <button class="btn btn-sm btn-outline-primary flex-grow-1 me-2" (click)="onViewDetails()">
-            <i class="fas fa-eye me-1"></i>View Details
-        </button>
-        <button class="btn btn-sm btn-outline-danger" (click)="onDelete($event)">
-            <i class="fas fa-trash"></i>
-        </button>
+    <!-- Descripción corta -->
+    @if (task.description) {
+      <p class="card-text text-muted small ms-4 mb-2">
+        {{ task.description | slice: 0 : 60 }}{{ task.description.length > 60 ? '...' : '' }}
+      </p>
+    }
+
+    <!-- Fechas y estado -->
+    <div class="d-flex justify-content-between align-items-center mt-3">
+      <div class="small text-muted">
+        <i class="far fa-calendar-alt me-1"></i>
+        {{ task.startDate | date: 'dd/MM/yyyy' }} - {{ task.dueDate | date: 'dd/MM/yyyy' }}
+      </div>
+      <div class="small" [class]="getStatusClass()">
+        <i class="fas fa-circle me-1" style="font-size: 8px"></i>
+        {{ getStatusText() }}
+      </div>
     </div>
+
+    <!-- Días restantes si no está completada -->
+    <div class="mt-2" [ngClass]="{ 'invisible-placeholder': !(!task.isCompleted && task.daysRemaining !== undefined) }">
+      @if (!task.isCompleted && task.daysRemaining !== undefined) {
+        <div class="small" [class.text-danger]="task.daysRemaining < 3">
+          <i class="far fa-clock me-1"></i>
+          @if (task.daysRemaining > 0) {
+            {{ task.daysRemaining }} day{{ task.daysRemaining !== 1 ? 's' : '' }} remaining
+          } @else if (task.daysRemaining === 0) {
+            Due today
+          } @else {
+            Overdue by {{ Math.abs(task.daysRemaining) }} day{{ Math.abs(task.daysRemaining) !== 1 ? 's' : '' }}
+          }
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="card-footer bg-transparent border-top-0 d-flex justify-content-between">
+    <button class="btn btn-sm btn-outline-primary flex-grow-1 me-2" (click)="onViewDetails()">
+      <i class="fas fa-eye me-1"></i>View Details
+    </button>
+    <button class="btn btn-sm btn-outline-danger" (click)="onDelete($event)">
+      <i class="fas fa-trash"></i>
+    </button>
+  </div>
 </div>

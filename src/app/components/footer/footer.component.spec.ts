@@ -13,8 +13,7 @@ describe('FooterComponent', () => {
     await TestBed.configureTestingModule({
       imports: [FooterComponent],
       providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([])]
-    })
-    .compileComponents();
+    }).compileComponents();
 
     fixture = TestBed.createComponent(FooterComponent);
     component = fixture.componentInstance;

@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { LoginModalComponent } from "../login-modal/login-modal.component";
+import { LoginModalComponent } from '../login-modal/login-modal.component';
 import { AuthService } from '../../services/auth.service';
 import { RouterModule } from '@angular/router';
 import { Router } from '@angular/router';

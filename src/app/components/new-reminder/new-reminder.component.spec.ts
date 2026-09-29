@@ -13,8 +13,7 @@ describe('NewReminderComponent', () => {
     await TestBed.configureTestingModule({
       imports: [NewReminderComponent],
       providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([])]
-    })
-    .compileComponents();
+    }).compileComponents();
 
     fixture = TestBed.createComponent(NewReminderComponent);
     component = fixture.componentInstance;

@@ -15,14 +15,7 @@ type TaskFilter = 'all' | 'pending' | 'completed' | 'overdue';
 @Component({
   selector: 'app-task-list',
   standalone: true,
-  imports: [
-    CommonModule,
-    RouterModule,
-    FormsModule,
-    NewTaskComponent,
-    TaskItemComponent,
-    TaskDetailsComponent
-  ],
+  imports: [CommonModule, RouterModule, FormsModule, NewTaskComponent, TaskItemComponent, TaskDetailsComponent],
   templateUrl: './task-list.component.html',
   styleUrls: ['./task-list.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -71,9 +64,8 @@ export class TaskListComponent implements OnInit {
     // Aplicar búsqueda
     const search = this.searchTerm().toLowerCase();
     if (search) {
-      tasks = tasks.filter(t => 
-        t.taskName.toLowerCase().includes(search) || 
-        t.description?.toLowerCase().includes(search)
+      tasks = tasks.filter(
+        t => t.taskName.toLowerCase().includes(search) || t.description?.toLowerCase().includes(search)
       );
     }
 
@@ -88,9 +80,7 @@ export class TaskListComponent implements OnInit {
 
   // Para mantener compatibilidad con la búsqueda global
   hasTasksInAnyCategory = computed(() => {
-    return this.dailyTasks().length > 0 || 
-           this.weeklyTasks().length > 0 || 
-           this.monthlyTasks().length > 0;
+    return this.dailyTasks().length > 0 || this.weeklyTasks().length > 0 || this.monthlyTasks().length > 0;
   });
 
   stats = computed(() => {
@@ -121,7 +111,7 @@ export class TaskListComponent implements OnInit {
     this.error.set(null);
 
     this.taskService.getAllTasksByUser().subscribe({
-      next: (tasks) => {
+      next: tasks => {
         this.allTasks.set(tasks);
         this.loading.set(false);
       },
@@ -177,7 +167,7 @@ export class TaskListComponent implements OnInit {
       next: () => {
         this.loadTasks();
       },
-      error: (error) => {
+      error: error => {
         console.error('Error toggling task:', error);
         this.notificationService.error('Error updating task', 'Error');
       }
@@ -200,7 +190,7 @@ export class TaskListComponent implements OnInit {
         this.loadTasks();
         this.notificationService.success('Task deleted successfully', 'Success');
       },
-      error: (error) => {
+      error: error => {
         console.error('Error deleting task:', error);
         this.notificationService.error('Error deleting task', 'Error');
       }
@@ -219,11 +209,15 @@ export class TaskListComponent implements OnInit {
   }
 
   getFrequencyIcon(frequency: string): string {
-    switch(frequency) {
-      case 'Daily': return 'fas fa-sun';
-      case 'Weekly': return 'fas fa-calendar-week';
-      case 'Monthly': return 'fas fa-calendar-alt';
-      default: return 'fas fa-clock';
+    switch (frequency) {
+      case 'Daily':
+        return 'fas fa-sun';
+      case 'Weekly':
+        return 'fas fa-calendar-week';
+      case 'Monthly':
+        return 'fas fa-calendar-alt';
+      default:
+        return 'fas fa-clock';
     }
   }
 

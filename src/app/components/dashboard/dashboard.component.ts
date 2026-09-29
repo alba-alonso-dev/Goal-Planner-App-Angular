@@ -35,11 +35,18 @@ import {
 
 // Registrar solo lo que usan las gráficas (line, doughnut, bar) para permitir tree-shaking
 Chart.register(
-  LineController, LineElement, PointElement, Filler,
-  DoughnutController, ArcElement,
-  BarController, BarElement,
-  CategoryScale, LinearScale,
-  Legend, Tooltip
+  LineController,
+  LineElement,
+  PointElement,
+  Filler,
+  DoughnutController,
+  ArcElement,
+  BarController,
+  BarElement,
+  CategoryScale,
+  LinearScale,
+  Legend,
+  Tooltip
 );
 
 @Component({
@@ -280,9 +287,12 @@ export class DashboardComponent implements OnInit {
 
   getActivityText(activity: RecentActivity): string {
     switch (activity.type) {
-      case 'task': return 'Overdue task';
-      case 'goal': return 'Overdue goal';
-      case 'reminder': return 'Missed reminder';
+      case 'task':
+        return 'Overdue task';
+      case 'goal':
+        return 'Overdue goal';
+      case 'reminder':
+        return 'Missed reminder';
     }
   }
 

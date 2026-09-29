@@ -14,8 +14,7 @@ describe('TaskDetailsComponent', () => {
     await TestBed.configureTestingModule({
       imports: [TaskDetailsComponent],
       providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([])]
-    })
-    .compileComponents();
+    }).compileComponents();
 
     fixture = TestBed.createComponent(TaskDetailsComponent);
     component = fixture.componentInstance;
