@@ -14,8 +14,7 @@ describe('ReminderItemComponent', () => {
     await TestBed.configureTestingModule({
       imports: [ReminderItemComponent],
       providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([])]
-    })
-    .compileComponents();
+    }).compileComponents();
 
     fixture = TestBed.createComponent(ReminderItemComponent);
     component = fixture.componentInstance;

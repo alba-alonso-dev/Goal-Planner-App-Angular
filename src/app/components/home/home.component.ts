@@ -1,22 +1,16 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule],
   templateUrl: './home.component.html',
-  styleUrls: ['./home.component.css']
+  styleUrls: ['./home.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class HomeComponent {
-  currentYear = new Date().getFullYear();
-  
-  // Email para newsletter
-  newsletterEmail = '';
-  newsletterSubmitted = false;
-  
   // Features de la aplicación
   features = [
     {
@@ -78,7 +72,8 @@ export class HomeComponent {
       name: 'Ana García',
       role: 'Product Manager',
       avatar: 'AG',
-      content: '"Esta aplicación ha transformado completamente mi productividad. Puedo seguir todos mis objetivos y tareas diarias en un solo lugar."',
+      content:
+        '"Esta aplicación ha transformado completamente mi productividad. Puedo seguir todos mis objetivos y tareas diarias en un solo lugar."',
       rating: 5
     },
     {
@@ -86,7 +81,8 @@ export class HomeComponent {
       name: 'Carlos Rodríguez',
       role: 'Freelancer',
       avatar: 'CR',
-      content: '"Los recordatorios inteligentes me ayudan a nunca perder fechas límite. La interfaz es intuitiva y los gráficos son muy útiles."',
+      content:
+        '"Los recordatorios inteligentes me ayudan a nunca perder fechas límite. La interfaz es intuitiva y los gráficos son muy útiles."',
       rating: 5
     },
     {
@@ -131,7 +127,8 @@ export class HomeComponent {
   faqs = [
     {
       question: 'Is the app really free?',
-      answer: 'Yes! Our basic features are completely free. We offer premium plans with advanced features for power users.',
+      answer:
+        'Yes! Our basic features are completely free. We offer premium plans with advanced features for power users.',
       open: false
     },
     {
@@ -153,22 +150,6 @@ export class HomeComponent {
 
   toggleFaq(index: number) {
     this.faqs[index].open = !this.faqs[index].open;
-  }
-
-  subscribeNewsletter() {
-    if (this.newsletterEmail && this.validateEmail(this.newsletterEmail)) {
-      this.newsletterSubmitted = true;
-      this.newsletterEmail = '';
-      
-      setTimeout(() => {
-        this.newsletterSubmitted = false;
-      }, 3000);
-    }
-  }
-
-  validateEmail(email: string): boolean {
-    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return re.test(email);
   }
 
   getStarArray(rating: number): number[] {

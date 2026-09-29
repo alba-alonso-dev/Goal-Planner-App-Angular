@@ -1,41 +1,41 @@
 .modal-content {
-    border: none;
-    border-radius: 16px;
-    overflow: hidden;
+  border: none;
+  border-radius: 16px;
+  overflow: hidden;
 }
 
 .modal-header {
-    border-bottom: 1px solid #dee2e6;
-    background-color: #f8f9fa;
+  border-bottom: 1px solid #dee2e6;
+  background-color: #f8f9fa;
 }
 
 .modal-footer {
-    border-top: 1px solid #dee2e6;
-    background-color: #f8f9fa;
+  border-top: 1px solid #dee2e6;
+  background-color: #f8f9fa;
 }
 
 .card {
-    border-radius: 12px;
-    transition: transform 0.2s;
+  border-radius: 12px;
+  transition: transform 0.2s;
 }
 
 .card:hover {
-    transform: translateY(-2px);
+  transform: translateY(-2px);
 }
 
 .list-group-item {
-    border: 1px solid #dee2e6;
-    border-radius: 8px !important;
-    margin-bottom: 8px;
-    transition: all 0.2s;
+  border: 1px solid #dee2e6;
+  border-radius: 8px !important;
+  margin-bottom: 8px;
+  transition: all 0.2s;
 }
 
 .list-group-item:hover {
-    background-color: #f8f9fa;
-    transform: translateX(4px);
+  background-color: #f8f9fa;
+  transform: translateX(4px);
 }
 
 .progress {
-    border-radius: 20px;
-    background-color: #e9ecef;
+  border-radius: 20px;
+  background-color: #e9ecef;
 }

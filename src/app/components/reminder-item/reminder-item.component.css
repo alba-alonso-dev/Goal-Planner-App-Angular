@@ -1,36 +1,36 @@
 .hover-shadow {
-    transition: all 0.3s ease;
+  transition: all 0.3s ease;
 }
 
 .hover-shadow:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
 }
 
 .transition {
-    transition: all 0.3s ease;
+  transition: all 0.3s ease;
 }
 
 .card {
-    cursor: pointer;
+  cursor: pointer;
 }
 
 .border-success {
-    border-color: #28a745 !important;
+  border-color: #28a745 !important;
 }
 
 .border-danger {
-    border-color: #dc3545 !important;
+  border-color: #dc3545 !important;
 }
 
 .border-warning {
-    border-color: #ffc107 !important;
+  border-color: #ffc107 !important;
 }
 
 .border-info {
-    border-color: #17a2b8 !important;
+  border-color: #17a2b8 !important;
 }
 
 .border-primary {
-    border-color: #007bff !important;
+  border-color: #007bff !important;
 }

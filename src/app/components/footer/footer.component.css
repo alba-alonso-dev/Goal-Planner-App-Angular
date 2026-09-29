@@ -1,34 +1,34 @@
 .footer {
-    border-top: 1px solid #2c3e50;
+  border-top: 1px solid #2c3e50;
 }
 
 .footer a:hover {
-    color: #3498db !important;
-    transition: color 0.3s ease;
+  color: #3498db !important;
+  transition: color 0.3s ease;
 }
 
 .social-icon {
-    font-size: 1.2rem;
-    transition: color 0.3s ease;
+  font-size: 1.2rem;
+  transition: color 0.3s ease;
 }
 
 .social-icon:hover {
-    color: #3498db !important;
+  color: #3498db !important;
 }
 
 /* Estilo para el input del newsletter */
 .form-control:focus {
-    box-shadow: none;
-    border-color: #3498db;
+  box-shadow: none;
+  border-color: #3498db;
 }
 
 .hover-text-primary:hover {
-    color: var(--bs-primary) !important;
-    transition: color 0.2s ease;
+  color: var(--bs-primary) !important;
+  transition: color 0.2s ease;
 }
 
 /* Para los iconos también */
 .hover-text-primary i:hover {
-    color: var(--bs-primary) !important;
-    transition: color 0.2s ease;
+  color: var(--bs-primary) !important;
+  transition: color 0.2s ease;
 }

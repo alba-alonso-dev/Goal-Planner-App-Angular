@@ -1,7 +1,3 @@
-import { TaskResponse } from './task';
-import { GoalResponse } from './goal';
-import { ReminderResponse } from './reminder';
-
 export interface DashboardStats {
   // Tasks
   totalTasks: number;
@@ -13,14 +9,14 @@ export interface DashboardStats {
     weekly: number;
     monthly: number;
   };
-  
+
   // Goals
   totalGoals: number;
   completedGoals: number;
   activeGoals: number;
   overdueGoals: number;
   averageGoalProgress: number;
-  
+
   // Reminders
   totalReminders: number;
   acknowledgedReminders: number;
@@ -32,7 +28,7 @@ export interface DashboardStats {
     thisWeek: number;
     later: number;
   };
-  
+
   // Combined
   completionRate: number;
   totalItems: number;

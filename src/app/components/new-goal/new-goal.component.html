@@ -1,150 +1,148 @@
-<div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
-    <div class="modal-dialog modal-lg modal-dialog-scrollable">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title fw-bold">Create New Goal</h5>
-                <button type="button" class="btn-close" (click)="closeModal()" [disabled]="submitting" aria-label="Close"></button>
-            </div>
-            
-            <div class="modal-body">
-                <form [formGroup]="goalForm" (ngSubmit)="onSubmit()" novalidate>
-                    <div class="row">
-                        <!-- Columna izquierda - Información principal del goal -->
-                        <div class="col-7">
-                            <div class="mb-3">
-                                <label class="form-label fw-semibold">Goal Title</label>
-                                <input 
-                                    type="text" 
-                                    class="form-control" 
-                                    formControlName="goalName"
-                                    [class.is-invalid]="goalForm.get('goalName')?.invalid && goalForm.get('goalName')?.touched"
-                                    placeholder="Enter goal title">
-                                @if (goalForm.get('goalName')?.invalid && goalForm.get('goalName')?.touched) {
-                                    <div class="invalid-feedback">
-                                        Goal title is required (minimum 3 characters)
-                                    </div>
-                                }
-                            </div>
-                            
-                            <div class="row">
-                                <div class="col-6">
-                                    <div class="mb-3">
-                                        <label class="form-label fw-semibold">Start Date</label>
-                                        <input 
-                                            type="date" 
-                                            class="form-control" 
-                                            formControlName="startDate"
-                                            [class.is-invalid]="goalForm.get('startDate')?.invalid && goalForm.get('startDate')?.touched">
-                                        @if (goalForm.get('startDate')?.invalid && goalForm.get('startDate')?.touched) {
-                                            <div class="invalid-feedback">
-                                                Start date is required
-                                            </div>
-                                        }
-                                    </div>
-                                </div>
-                                <div class="col-6">
-                                    <div class="mb-3">
-                                        <label class="form-label fw-semibold">Target Date</label>
-                                        <input 
-                                            type="date" 
-                                            class="form-control" 
-                                            formControlName="endDate"
-                                            [class.is-invalid]="goalForm.get('endDate')?.invalid && goalForm.get('endDate')?.touched">
-                                        @if (goalForm.get('endDate')?.invalid && goalForm.get('endDate')?.touched) {
-                                            <div class="invalid-feedback">
-                                                Target date is required
-                                            </div>
-                                        }
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <label class="form-label fw-semibold">Description</label>
-                                <textarea 
-                                    class="form-control" 
-                                    formControlName="description"
-                                    rows="3"
-                                    placeholder="Describe your goal..."></textarea>
-                            </div>
-                        </div>
-                        
-                        <!-- Columna derecha - Milestones -->
-                        <div class="col-5" formArrayName="milestones">
-                            <label class="form-label fw-semibold">Milestones</label>
-                            
-                            @for (milestone of milestones.controls; track $index) {
-                                <div class="card mb-3" [formGroupName]="$index">
-                                    <div class="card-body">
-                                        <div class="d-flex justify-content-between align-items-center mb-2">
-                                            <h6 class="card-subtitle text-muted">Milestone {{$index + 1}}</h6>
-                                            <button 
-                                                type="button" 
-                                                class="btn btn-sm btn-outline-danger"
-                                                (click)="removeMilestone($index)">
-                                                <i class="fas fa-times"></i>
-                                            </button>
-                                        </div>
-                                        
-                                        <div class="mb-2">
-                                            <label class="form-label small">Title</label>
-                                            <input 
-                                                type="text" 
-                                                class="form-control form-control-sm" 
-                                                formControlName="milestoneName"
-                                                placeholder="Milestone title">
-                                        </div>
-                                        
-                                        <div class="mb-2">
-                                            <label class="form-label small">Target Date</label>
-                                            <input 
-                                                type="date" 
-                                                class="form-control form-control-sm" 
-                                                formControlName="targetDate">
-                                        </div>
-                                        
-                                        <div class="mb-2">
-                                            <label class="form-label small">Description</label>
-                                            <textarea 
-                                                class="form-control form-control-sm" 
-                                                formControlName="description"
-                                                rows="2"
-                                                placeholder="Milestone description..."></textarea>
-                                        </div>
-                                    </div>
-                                </div>
-                            }
-                            
-                            <div class="text-center">
-                                <button 
-                                    type="button" 
-                                    class="btn btn-outline-secondary btn-sm w-100"
-                                    (click)="addMilestone()">
-                                    <i class="fas fa-plus me-2"></i>Add Milestone
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </form>
-            </div>
-            
-         <div class="modal-footer">
-                <button type="button" class="btn btn-outline-secondary" (click)="closeModal()" [disabled]="submitting">
-                    Cancel
-                </button>
-                <button 
-                    type="button" 
-                    class="btn btn-primary" 
-                    (click)="onSubmit()"
-                    [disabled]="goalForm.invalid || submitting">
-                    @if (submitting) {
-                        <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                        Creating...
-                    } @else {
-                        <i class="fas fa-save me-2"></i>Create Goal
+<div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0, 0, 0, 0.5)">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold">Create New Goal</h5>
+        <button
+          type="button"
+          class="btn-close"
+          (click)="closeModal()"
+          [disabled]="submitting()"
+          aria-label="Close"
+        ></button>
+      </div>
+
+      <div class="modal-body">
+        <form [formGroup]="goalForm" (ngSubmit)="onSubmit()" novalidate>
+          <div class="row">
+            <!-- Columna izquierda - Información principal del goal -->
+            <div class="col-7">
+              <div class="mb-3">
+                <label class="form-label fw-semibold">Goal Title</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  formControlName="goalName"
+                  [class.is-invalid]="goalForm.get('goalName')?.invalid && goalForm.get('goalName')?.touched"
+                  placeholder="Enter goal title"
+                />
+                @if (goalForm.get('goalName')?.invalid && goalForm.get('goalName')?.touched) {
+                  <div class="invalid-feedback">Goal title is required (minimum 3 characters)</div>
+                }
+              </div>
+
+              <div class="row">
+                <div class="col-6">
+                  <div class="mb-3">
+                    <label class="form-label fw-semibold">Start Date</label>
+                    <input
+                      type="date"
+                      class="form-control"
+                      formControlName="startDate"
+                      [class.is-invalid]="goalForm.get('startDate')?.invalid && goalForm.get('startDate')?.touched"
+                    />
+                    @if (goalForm.get('startDate')?.invalid && goalForm.get('startDate')?.touched) {
+                      <div class="invalid-feedback">Start date is required</div>
                     }
-                </button>
+                  </div>
+                </div>
+                <div class="col-6">
+                  <div class="mb-3">
+                    <label class="form-label fw-semibold">Target Date</label>
+                    <input
+                      type="date"
+                      class="form-control"
+                      formControlName="endDate"
+                      [class.is-invalid]="goalForm.get('endDate')?.invalid && goalForm.get('endDate')?.touched"
+                    />
+                    @if (goalForm.get('endDate')?.invalid && goalForm.get('endDate')?.touched) {
+                      <div class="invalid-feedback">Target date is required</div>
+                    }
+                  </div>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label fw-semibold">Description</label>
+                <textarea
+                  class="form-control"
+                  formControlName="description"
+                  rows="3"
+                  placeholder="Describe your goal..."
+                ></textarea>
+              </div>
             </div>
-        </div>
+
+            <!-- Columna derecha - Milestones -->
+            <div class="col-5" formArrayName="milestones">
+              <label class="form-label fw-semibold">Milestones</label>
+
+              @for (milestone of milestones.controls; track $index) {
+                <div class="card mb-3" [formGroupName]="$index">
+                  <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                      <h6 class="card-subtitle text-muted">Milestone {{ $index + 1 }}</h6>
+                      <button type="button" class="btn btn-sm btn-outline-danger" (click)="removeMilestone($index)">
+                        <i class="fas fa-times"></i>
+                      </button>
+                    </div>
+
+                    <div class="mb-2">
+                      <label class="form-label small">Title</label>
+                      <input
+                        type="text"
+                        class="form-control form-control-sm"
+                        formControlName="milestoneName"
+                        placeholder="Milestone title"
+                      />
+                    </div>
+
+                    <div class="mb-2">
+                      <label class="form-label small">Target Date</label>
+                      <input type="date" class="form-control form-control-sm" formControlName="targetDate" />
+                    </div>
+
+                    <div class="mb-2">
+                      <label class="form-label small">Description</label>
+                      <textarea
+                        class="form-control form-control-sm"
+                        formControlName="description"
+                        rows="2"
+                        placeholder="Milestone description..."
+                      ></textarea>
+                    </div>
+                  </div>
+                </div>
+              }
+
+              <div class="text-center">
+                <button type="button" class="btn btn-outline-secondary btn-sm w-100" (click)="addMilestone()">
+                  <i class="fas fa-plus me-2"></i>Add Milestone
+                </button>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" (click)="closeModal()" [disabled]="submitting()">
+          Cancel
+        </button>
+        <button
+          type="button"
+          class="btn btn-primary"
+          (click)="onSubmit()"
+          [disabled]="goalForm.invalid || submitting()"
+        >
+          @if (submitting()) {
+            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+            Creating...
+          } @else {
+            <i class="fas fa-save me-2"></i>Create Goal
+          }
+        </button>
+      </div>
     </div>
+  </div>
 </div>

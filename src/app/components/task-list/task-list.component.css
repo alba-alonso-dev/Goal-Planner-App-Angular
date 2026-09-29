@@ -1,21 +1,21 @@
 .hover-shadow {
-    transition: all 0.3s ease;
+  transition: all 0.3s ease;
 }
 
 .hover-shadow:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
 }
 
 .list-group-item {
-    cursor: pointer;
-    transition: background-color 0.2s ease;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
 }
 
 .list-group-item:hover {
-    background-color: #f8f9fa;
+  background-color: #f8f9fa;
 }
 
 .form-check-input {
-    cursor: pointer;
+  cursor: pointer;
 }

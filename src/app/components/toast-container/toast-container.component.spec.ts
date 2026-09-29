@@ -13,8 +13,7 @@ describe('ToastContainerComponent', () => {
     await TestBed.configureTestingModule({
       imports: [ToastContainerComponent],
       providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([])]
-    })
-    .compileComponents();
+    }).compileComponents();
 
     fixture = TestBed.createComponent(ToastContainerComponent);
     component = fixture.componentInstance;

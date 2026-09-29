@@ -1,235 +1,246 @@
 <div class="container py-3">
-    <!-- Header -->
-    <div class="row mb-4">
-        <div class="col-md-8">
-            <h1 class="fw-bold">
-                <i class="fas fa-bell me-2"></i>
-                Reminders
-            </h1>
-            <p class="text-muted">Never miss important dates and tasks</p>
-        </div>
-        <div class="col-md-4 text-end">
-            <button class="btn btn-primary" (click)="openNewReminderModal()" [disabled]="loading">
-                <i class="fas fa-plus me-2"></i>
-                New Reminder
-            </button>
-        </div>
+  <!-- Header -->
+  <div class="row mb-4">
+    <div class="col-md-8">
+      <h1 class="fw-bold">
+        <i class="fas fa-bell me-2"></i>
+        Reminders
+      </h1>
+      <p class="text-muted">Never miss important dates and tasks</p>
     </div>
-
-    <!-- Stats Cards -->
-    <div class="row g-3 mb-4">
-        <div class="col-md-2 col-4">
-            <div class="card bg-primary text-white">
-                <div class="card-body text-center">
-                    <h6 class="card-title small">Total</h6>
-                    <h3 class="mb-0">{{stats().total}}</h3>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-2 col-4">
-            <div class="card bg-success text-white">
-                <div class="card-body text-center">
-                    <h6 class="card-title small">Done</h6>
-                    <h3 class="mb-0">{{stats().acknowledged}}</h3>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-2 col-4">
-            <div class="card bg-warning text-white">
-                <div class="card-body text-center">
-                    <h6 class="card-title small">Pending</h6>
-                    <h3 class="mb-0">{{stats().pending}}</h3>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-2 col-4">
-            <div class="card bg-danger text-white">
-                <div class="card-body text-center">
-                    <h6 class="card-title small">Overdue</h6>
-                    <h3 class="mb-0">{{stats().overdue}}</h3>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-2 col-4">
-            <div class="card bg-info text-white">
-                <div class="card-body text-center">
-                    <h6 class="card-title small">Today</h6>
-                    <h3 class="mb-0">{{stats().today}}</h3>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-2 col-4">
-            <div class="card bg-secondary text-white">
-                <div class="card-body text-center">
-                    <h6 class="card-title small">This Week</h6>
-                    <h3 class="mb-0">{{stats().thisWeek}}</h3>
-                </div>
-            </div>
-        </div>
+    <div class="col-md-4 text-end">
+      <button class="btn btn-primary" (click)="openNewReminderModal()" [disabled]="loading()">
+        <i class="fas fa-plus me-2"></i>
+        New Reminder
+      </button>
     </div>
+  </div>
 
-    <!-- Filters and Search -->
-    <div class="row mb-4 align-items-center">
-        <div class="col-md-6">
-            <div class="btn-group flex-wrap" role="group">
-                <button class="btn btn-sm" 
-                        [class.btn-primary]="filter() === 'all'" 
-                        [class.btn-outline-secondary]="filter() !== 'all'" 
-                        (click)="setFilter('all')">
-                    All <span class="badge bg-secondary ms-1">{{stats().total}}</span>
-                </button>
-                <button class="btn btn-sm" 
-                        [class.btn-warning]="filter() === 'pending'" 
-                        [class.btn-outline-secondary]="filter() !== 'pending'" 
-                        (click)="setFilter('pending')">
-                    Pending <span class="badge bg-secondary ms-1">{{stats().pending}}</span>
-                </button>
-                <button class="btn btn-sm" 
-                        [class.btn-success]="filter() === 'acknowledged'" 
-                        [class.btn-outline-secondary]="filter() !== 'acknowledged'" 
-                        (click)="setFilter('acknowledged')">
-                    Done <span class="badge bg-secondary ms-1">{{stats().acknowledged}}</span>
-                </button>
-                <button class="btn btn-sm" 
-                        [class.btn-danger]="filter() === 'overdue'" 
-                        [class.btn-outline-secondary]="filter() !== 'overdue'" 
-                        (click)="setFilter('overdue')">
-                    Overdue <span class="badge bg-secondary ms-1">{{stats().overdue}}</span>
-                </button>
-            </div>
+  <!-- Stats Cards -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-2 col-4">
+      <div class="card bg-primary text-white">
+        <div class="card-body text-center">
+          <h6 class="card-title small">Total</h6>
+          <h3 class="mb-0">{{ stats().total }}</h3>
         </div>
-        <div class="col-md-4">
-            <div class="input-group">
-                <span class="input-group-text bg-white border-end-0">
-                    <i class="fas fa-search text-muted"></i>
-                </span>
-                <input 
-                    type="text" 
-                    class="form-control border-start-0" 
-                    placeholder="Search reminders..." 
-                    (input)="setSearchTerm($any($event.target).value)">
-            </div>
-        </div>
-        <div class="col-md-2 text-end">
-            <button class="btn btn-outline-secondary me-2" (click)="toggleViewMode()" title="Toggle view">
-                @if (viewMode === 'grid') {
-                    <i class="fas fa-list"></i>
-                } @else {
-                    <i class="fas fa-th-large"></i>
-                }
-            </button>
-            @if (stats().acknowledged > 0) {
-                <button class="btn btn-outline-danger" (click)="archiveCompletedReminders()" title="Archive completed">
-                    <i class="fas fa-archive"></i>
-                </button>
-            }
-        </div>
+      </div>
     </div>
-
-    <!-- Loading -->
-    @if (loading) {
-        <div class="text-center py-5">
-            <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Loading...</span>
-            </div>
-            <p class="mt-2 text-muted">Loading reminders...</p>
+    <div class="col-md-2 col-4">
+      <div class="card bg-success text-white">
+        <div class="card-body text-center">
+          <h6 class="card-title small">Done</h6>
+          <h3 class="mb-0">{{ stats().acknowledged }}</h3>
         </div>
-    }
-
-    <!-- Error -->
-    @if (error) {
-        <div class="alert alert-danger" role="alert">
-            <div class="d-flex align-items-center">
-                <i class="fas fa-exclamation-triangle fa-2x me-3"></i>
-                <div class="flex-grow-1">
-                    <h5 class="alert-heading">Error loading reminders</h5>
-                    <p class="mb-0">{{error}}</p>
-                </div>
-                <button class="btn btn-outline-danger ms-3" (click)="retry()">
-                    <i class="fas fa-sync-alt me-2"></i>Retry
-                </button>
-            </div>
+      </div>
+    </div>
+    <div class="col-md-2 col-4">
+      <div class="card bg-warning text-white">
+        <div class="card-body text-center">
+          <h6 class="card-title small">Pending</h6>
+          <h3 class="mb-0">{{ stats().pending }}</h3>
         </div>
-    }
+      </div>
+    </div>
+    <div class="col-md-2 col-4">
+      <div class="card bg-danger text-white">
+        <div class="card-body text-center">
+          <h6 class="card-title small">Overdue</h6>
+          <h3 class="mb-0">{{ stats().overdue }}</h3>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-2 col-4">
+      <div class="card bg-info text-white">
+        <div class="card-body text-center">
+          <h6 class="card-title small">Today</h6>
+          <h3 class="mb-0">{{ stats().today }}</h3>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-2 col-4">
+      <div class="card bg-secondary text-white">
+        <div class="card-body text-center">
+          <h6 class="card-title small">This Week</h6>
+          <h3 class="mb-0">{{ stats().thisWeek }}</h3>
+        </div>
+      </div>
+    </div>
+  </div>
 
-    <!-- Reminders List -->
-    @if (!loading && !error) {
-        @if (filteredReminders().length === 0) {
-            <div class="text-center py-5">
-                <i class="fas fa-bell fa-3x text-muted mb-3"></i>
-                <h4 class="text-muted">No reminders found</h4>
-                <p class="text-muted">
-                    @if (filter() !== 'all') {
-                        Try changing the filter or
-                    }
-                    <a href="#" (click)="openNewReminderModal(); $event.preventDefault()">create a new reminder</a>
-                </p>
-            </div>
+  <!-- Filters and Search -->
+  <div class="row mb-4 align-items-center">
+    <div class="col-md-6">
+      <div class="btn-group flex-wrap" role="group">
+        <button
+          class="btn btn-sm"
+          [class.btn-primary]="filter() === 'all'"
+          [class.btn-outline-secondary]="filter() !== 'all'"
+          (click)="setFilter('all')"
+        >
+          All <span class="badge bg-secondary ms-1">{{ stats().total }}</span>
+        </button>
+        <button
+          class="btn btn-sm"
+          [class.btn-warning]="filter() === 'pending'"
+          [class.btn-outline-secondary]="filter() !== 'pending'"
+          (click)="setFilter('pending')"
+        >
+          Pending <span class="badge bg-secondary ms-1">{{ stats().pending }}</span>
+        </button>
+        <button
+          class="btn btn-sm"
+          [class.btn-success]="filter() === 'acknowledged'"
+          [class.btn-outline-secondary]="filter() !== 'acknowledged'"
+          (click)="setFilter('acknowledged')"
+        >
+          Done <span class="badge bg-secondary ms-1">{{ stats().acknowledged }}</span>
+        </button>
+        <button
+          class="btn btn-sm"
+          [class.btn-danger]="filter() === 'overdue'"
+          [class.btn-outline-secondary]="filter() !== 'overdue'"
+          (click)="setFilter('overdue')"
+        >
+          Overdue <span class="badge bg-secondary ms-1">{{ stats().overdue }}</span>
+        </button>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="input-group">
+        <span class="input-group-text bg-white border-end-0">
+          <i class="fas fa-search text-muted"></i>
+        </span>
+        <input
+          type="text"
+          class="form-control border-start-0"
+          placeholder="Search reminders..."
+          (input)="setSearchTerm($any($event.target).value)"
+        />
+      </div>
+    </div>
+    <div class="col-md-2 text-end">
+      <button class="btn btn-outline-secondary me-2" (click)="toggleViewMode()" title="Toggle view">
+        @if (viewMode() === 'grid') {
+          <i class="fas fa-list"></i>
         } @else {
-            @if (viewMode === 'grid') {
-                <!-- Grid view - 3 columnas sin agrupación -->
-                <div class="row g-3">
-                    @for (reminder of filteredReminders(); track reminder.reminderId) {
-                        <div class="col-12 col-md-6 col-lg-4">
-                            <app-reminder-item 
-                                [reminder]="reminder"
-                                (toggleAcknowledge)="toggleReminderAcknowledgement($event)"
-                                (viewDetails)="viewReminderDetails($event)"
-                                (delete)="deleteReminder($event)">
-                            </app-reminder-item>
-                        </div>
-                    }
-                </div>
-            } @else {
-                <!-- List view -->
-                <div class="list-group">
-                    @for (reminder of filteredReminders(); track reminder.reminderId) {
-                        <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center p-3"
-                             (click)="viewReminderDetails(reminder)">
-                            <div class="d-flex align-items-center flex-grow-1">
-                                <div class="me-3">
-                                    <i [class]="getReminderListIcon(reminder) + ' fa-2x'"></i>
-                                </div>
-                                <div class="flex-grow-1">
-                                    <h6 class="mb-1" [class.text-decoration-line-through]="reminder.isAcknowledged">
-                                        {{reminder.title}}
-                                    </h6>
-                                    <small class="text-muted">
-                                        {{reminder.reminderDateTime | date:'dd/MM/yyyy HH:mm'}}
-                                        @if (reminder.description) {
-                                            <span class="ms-2">• {{reminder.description | slice:0:30}}{{reminder.description.length > 30 ? '...' : ''}}</span>
-                                        }
-                                    </small>
-                                </div>
-                            </div>
-                            <div class="d-flex align-items-center">
-                                <span class="badge me-3" [class]="getListBadgeClass(reminder)">
-                                    {{getListBadgeText(reminder)}}
-                                </span>
-                                <i class="fas fa-chevron-right text-muted"></i>
-                            </div>
-                        </div>
-                    }
-                </div>
-            }
+          <i class="fas fa-th-large"></i>
         }
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  @if (loading()) {
+    <div class="text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <p class="mt-2 text-muted">Loading reminders...</p>
+    </div>
+  }
+
+  <!-- Error -->
+  @if (error()) {
+    <div class="alert alert-danger" role="alert">
+      <div class="d-flex align-items-center">
+        <i class="fas fa-exclamation-triangle fa-2x me-3"></i>
+        <div class="flex-grow-1">
+          <h5 class="alert-heading">Error loading reminders</h5>
+          <p class="mb-0">{{ error() }}</p>
+        </div>
+        <button class="btn btn-outline-danger ms-3" (click)="retry()"><i class="fas fa-sync-alt me-2"></i>Retry</button>
+      </div>
+    </div>
+  }
+
+  <!-- Reminders List -->
+  @if (!loading() && !error()) {
+    @if (filteredReminders().length === 0) {
+      <div class="text-center py-5">
+        <i class="fas fa-bell fa-3x text-muted mb-3"></i>
+        <h4 class="text-muted">No reminders found</h4>
+        <p class="text-muted">
+          @if (filter() !== 'all') {
+            Try changing the filter or
+          }
+          <a href="#" (click)="openNewReminderModal(); $event.preventDefault()">create a new reminder</a>
+        </p>
+      </div>
+    } @else {
+      @if (viewMode() === 'grid') {
+        <!-- Grid view - 3 columnas sin agrupación -->
+        <div class="row g-3">
+          @for (reminder of filteredReminders(); track reminder.reminderId) {
+            <div class="col-12 col-md-6 col-lg-4">
+              <app-reminder-item
+                [reminder]="reminder"
+                (toggleAcknowledge)="toggleReminderAcknowledgement($event)"
+                (viewDetails)="viewReminderDetails($event)"
+                (delete)="deleteReminder($event)"
+              >
+              </app-reminder-item>
+            </div>
+          }
+        </div>
+      } @else {
+        <!-- List view -->
+        <div class="list-group">
+          @for (reminder of filteredReminders(); track reminder.reminderId) {
+            <div
+              class="list-group-item list-group-item-action d-flex justify-content-between align-items-center p-3"
+              (click)="viewReminderDetails(reminder)"
+            >
+              <div class="d-flex align-items-center flex-grow-1">
+                <div class="me-3">
+                  <i [class]="getReminderListIcon(reminder) + ' fa-2x'"></i>
+                </div>
+                <div class="flex-grow-1">
+                  <h6 class="mb-1" [class.text-decoration-line-through]="reminder.isAcknowledged">
+                    {{ reminder.title }}
+                  </h6>
+                  <small class="text-muted">
+                    {{ reminder.reminderDateTime | date: 'dd/MM/yyyy HH:mm' }}
+                    @if (reminder.description) {
+                      <span class="ms-2"
+                        >• {{ reminder.description | slice: 0 : 30
+                        }}{{ reminder.description.length > 30 ? '...' : '' }}</span
+                      >
+                    }
+                  </small>
+                </div>
+              </div>
+              <div class="d-flex align-items-center">
+                <span class="badge me-3" [class]="getListBadgeClass(reminder)">
+                  {{ getListBadgeText(reminder) }}
+                </span>
+                <i class="fas fa-chevron-right text-muted"></i>
+              </div>
+            </div>
+          }
+        </div>
+      }
     }
+  }
 </div>
 
 <!-- New Reminder Modal -->
-@if (showNewReminderModal) {
-    <app-new-reminder 
-        (close)="closeNewReminderModal()"
-        (reminderCreated)="onReminderCreated($event)">
-    </app-new-reminder>
+@if (showNewReminderModal()) {
+  <app-new-reminder
+    [submitting]="creating()"
+    (closed)="closeNewReminderModal()"
+    (reminderCreated)="onReminderCreated($event)"
+  >
+  </app-new-reminder>
 }
 
 <!-- Reminder Details Modal -->
-@if (showDetailsModal && selectedReminder) {
-    <app-reminder-details 
-        [reminder]="selectedReminder"
-        (close)="closeDetailsModal()"
-        (reminderUpdated)="onReminderUpdated()"
-        (delete)="deleteReminder($event)">
-    </app-reminder-details>
+@if (showDetailsModal() && selectedReminder(); as selected) {
+  <app-reminder-details
+    [reminder]="selected"
+    (closed)="closeDetailsModal()"
+    (reminderUpdated)="onReminderUpdated()"
+    (delete)="deleteReminder($event)"
+  >
+  </app-reminder-details>
 }

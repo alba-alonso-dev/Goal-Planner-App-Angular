@@ -1,65 +1,71 @@
+@let goal = this.goal();
 <div class="card h-100 shadow-sm hover-shadow transition">
-    <div class="card-body">
-        <div class="d-flex justify-content-between align-items-start mb-2">
-            <h5 class="card-title fw-bold">{{goal.goalName}}</h5>  <!-- Cambiado de title a goalName -->
-            <span class="badge" [ngClass]="{
-                'bg-success': goal.progress >= 75,
-                'bg-primary': goal.progress >= 50 && goal.progress < 75,
-                'bg-warning': goal.progress >= 25 && goal.progress < 50,
-                'bg-danger': goal.progress < 25
-            }">
-                {{goal.progress || 0}}%
-            </span>
-        </div>
-        
-        <!-- Barra de progreso -->
-        <div class="progress mb-3" style="height: 8px;">
-            <div class="progress-bar" 
-                 [style.width.%]="goal.progress || 0" 
-                 [ngClass]="{
-                    'bg-success': (goal.progress || 0) >= 75,
-                    'bg-primary': (goal.progress || 0) >= 50 && (goal.progress || 0) < 75,
-                    'bg-warning': (goal.progress || 0) >= 25 && (goal.progress || 0) < 50,
-                    'bg-danger': (goal.progress || 0) < 25
-                 }"
-                 role="progressbar"
-                 [attr.aria-valuenow]="goal.progress || 0"
-                 aria-valuemin="0"
-                 aria-valuemax="100">
-            </div>
-        </div>
-        
-        <!-- Descripción corta si existe -->
-        @if (goal.description) {
-            <p class="card-text text-muted small mb-3">
-                {{goal.description | slice:0:80}}{{goal.description.length > 80 ? '...' : ''}}
-            </p>
-        }
-        
-        <!-- Fechas -->
-        <div class="d-flex justify-content-between text-muted small mb-2">
-            <span>
-                <i class="far fa-calendar-alt me-1"></i>
-                Inicio: {{goal.startDate | date:'dd/MM/yyyy'}}
-            </span>
-            <span>
-                <i class="far fa-calendar-check me-1"></i>
-                Fin: {{goal.endDate | date:'dd/MM/yyyy'}}
-            </span>
-        </div>
-        
-        <!-- Milestones count si existen -->
-        @if (goal.milestones && goal.milestones.length > 0) {
-            <div class="d-flex align-items-center text-muted small">
-                <i class="fas fa-flag-checkered me-1"></i>
-                <span>{{goal.milestones.length}} {{goal.milestones.length === 1 ? 'milestone' : 'milestones'}}</span>
-            </div>
-        }
+  <div class="card-body">
+    <div class="d-flex justify-content-between align-items-start mb-2">
+      <h5 class="card-title fw-bold">{{ goal.goalName }}</h5>
+      <!-- Cambiado de title a goalName -->
+      <span
+        class="badge"
+        [ngClass]="{
+          'bg-success': goal.progress >= 75,
+          'bg-primary': goal.progress >= 50 && goal.progress < 75,
+          'bg-warning': goal.progress >= 25 && goal.progress < 50,
+          'bg-danger': goal.progress < 25
+        }"
+      >
+        {{ goal.progress || 0 }}%
+      </span>
     </div>
-    
-    <div class="card-footer bg-transparent border-top-0">
-        <button class="btn btn-sm btn-outline-primary w-100" (click)="onViewDetails()">
-            <i class="fas fa-chevron-right me-2"></i>View Details
-        </button>
+
+    <!-- Barra de progreso -->
+    <div class="progress mb-3" style="height: 8px">
+      <div
+        class="progress-bar"
+        [style.width.%]="goal.progress || 0"
+        [ngClass]="{
+          'bg-success': (goal.progress || 0) >= 75,
+          'bg-primary': (goal.progress || 0) >= 50 && (goal.progress || 0) < 75,
+          'bg-warning': (goal.progress || 0) >= 25 && (goal.progress || 0) < 50,
+          'bg-danger': (goal.progress || 0) < 25
+        }"
+        role="progressbar"
+        [attr.aria-valuenow]="goal.progress || 0"
+        aria-valuemin="0"
+        aria-valuemax="100"
+      ></div>
     </div>
+
+    <!-- Descripción corta si existe -->
+    @if (goal.description) {
+      <p class="card-text text-muted small mb-3">
+        {{ goal.description | slice: 0 : 80 }}{{ goal.description.length > 80 ? '...' : '' }}
+      </p>
+    }
+
+    <!-- Fechas -->
+    <div class="d-flex justify-content-between text-muted small mb-2">
+      <span>
+        <i class="far fa-calendar-alt me-1"></i>
+        Inicio: {{ goal.startDate | date: 'dd/MM/yyyy' }}
+      </span>
+      <span>
+        <i class="far fa-calendar-check me-1"></i>
+        Fin: {{ goal.endDate | date: 'dd/MM/yyyy' }}
+      </span>
+    </div>
+
+    <!-- Milestones count si existen -->
+    @if (goal.milestones && goal.milestones.length > 0) {
+      <div class="d-flex align-items-center text-muted small">
+        <i class="fas fa-flag-checkered me-1"></i>
+        <span>{{ goal.milestones.length }} {{ goal.milestones.length === 1 ? 'milestone' : 'milestones' }}</span>
+      </div>
+    }
+  </div>
+
+  <div class="card-footer bg-transparent border-top-0">
+    <button class="btn btn-sm btn-outline-primary w-100" (click)="onViewDetails()">
+      <i class="fas fa-chevron-right me-2"></i>View Details
+    </button>
+  </div>
 </div>

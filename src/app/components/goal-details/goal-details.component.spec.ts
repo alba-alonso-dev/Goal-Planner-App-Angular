@@ -14,8 +14,7 @@ describe('GoalDetailsComponent', () => {
     await TestBed.configureTestingModule({
       imports: [GoalDetailsComponent],
       providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([])]
-    })
-    .compileComponents();
+    }).compileComponents();
 
     fixture = TestBed.createComponent(GoalDetailsComponent);
     component = fixture.componentInstance;

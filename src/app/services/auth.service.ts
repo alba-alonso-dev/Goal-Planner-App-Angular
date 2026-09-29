@@ -1,27 +1,67 @@
 // auth.service.ts
-import { Injectable, signal } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { tap } from 'rxjs';
+import { Observable, defer, tap, throwError } from 'rxjs';
 import { LoginData, RegisterData, User } from '../model/user';
+import { API_BASE_URL } from '../core/config/api.config';
+import { ApiError } from '../core/http/api-error';
+
+const STORAGE_KEY = 'user';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private baseUrl = 'https://api.freeprojectapi.com/api/GoalTracker';
-  
-  // Señal que almacena el usuario logueado (null si no lo está)
-  loggedUser = signal<User | null>(null);
+  private http = inject(HttpClient);
+  private apiUrl = inject(API_BASE_URL);
 
-  constructor(private http: HttpClient) {
-    // Al iniciar, recuperar usuario del localStorage (solo si existe)
-    this.loggedUser.set(this.readStoredUser());
+  // Señal que almacena el usuario logueado (null si no lo está)
+  private readonly _loggedUser = signal<User | null>(this.readStoredUser());
+  readonly loggedUser = this._loggedUser.asReadonly();
+
+  login(credentials: LoginData) {
+    return this.http.post<User>(`${this.apiUrl}/login`, credentials).pipe(tap(user => this.setSession(user)));
+  }
+
+  register(data: RegisterData) {
+    return this.http.post<User>(`${this.apiUrl}/register`, data).pipe(tap(user => this.setSession(user)));
+  }
+
+  logout() {
+    this._loggedUser.set(null);
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch {
+      // Storage no disponible
+    }
+  }
+
+  /**
+   * Ejecuta `request` con el usuario autenticado, o emite un `ApiError` 401 si no hay sesión.
+   * Cualquier excepción síncrona al construir la petición se emite como error del observable.
+   */
+  withUser<T>(request: (user: User) => Observable<T>): Observable<T> {
+    return defer(() => {
+      const user = this._loggedUser();
+      return user ? request(user) : throwError(() => new ApiError(401, 'User not authenticated'));
+    });
+  }
+
+  private setSession(user: User) {
+    // Nunca persistir la contraseña aunque la API la devuelva
+    const { password: _password, ...safeUser } = user as User & { password?: string };
+    this._loggedUser.set(safeUser);
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(safeUser));
+    } catch {
+      // Storage no disponible: la sesión dura lo que la pestaña
+    }
   }
 
   // Un valor corrupto o un storage no disponible no debe romper el arranque de la app
   private readStoredUser(): User | null {
     try {
-      const savedUser = localStorage.getItem('user');
+      const savedUser = localStorage.getItem(STORAGE_KEY);
       if (!savedUser) {
         return null;
       }
@@ -33,39 +73,10 @@ export class AuthService {
       // Ignorado: se trata como sesión inexistente
     }
     try {
-      localStorage.removeItem('user');
+      localStorage.removeItem(STORAGE_KEY);
     } catch {
       // Storage no disponible
     }
     return null;
-  }
-
-  login(credentials: LoginData) {
-    return this.http.post<User>(`${this.baseUrl}/login`, credentials) // Sin withCredentials
-      .pipe(
-        tap(user => {
-          const { password, ...safeUser } = user as any;
-          this.loggedUser.set(safeUser);
-          localStorage.setItem('user', JSON.stringify(safeUser));
-        })
-      );
-  }
-
-  register(data: RegisterData) {
-    return this.http.post<User>(`${this.baseUrl}/register`, data) // Sin withCredentials
-      .pipe(
-        tap(user => {
-          const { password, ...safeUser } = user as any;
-          this.loggedUser.set(safeUser);
-          localStorage.setItem('user', JSON.stringify(safeUser));
-        })
-      );
-  }
-
-  logout() {
-    // Opcional: llamar a un endpoint de logout si existe
-    // this.http.post(`${this.baseUrl}/logout`, {}, { withCredentials: true }).subscribe();
-    this.loggedUser.set(null);
-    localStorage.removeItem('user');
   }
 }

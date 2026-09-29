@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -6,7 +6,8 @@ import { GoalItemComponent } from '../goal-item/goal-item.component';
 import { NewGoalComponent } from '../new-goal/new-goal.component';
 import { GoalDetailsComponent } from '../goal-details/goal-details.component';
 import { GoalService } from '../../services/goal.service';
-import { GoalResponse } from '../../model/goal';
+import { GoalInput, GoalResponse } from '../../model/goal';
+import { ApiError } from '../../core/http/api-error';
 import { NotificationService } from '../../services/notification.service';
 
 type FilterType = 'all' | 'active' | 'completed' | 'overdue';
@@ -15,30 +16,31 @@ type FilterType = 'all' | 'active' | 'completed' | 'overdue';
   selector: 'app-goal-list',
   standalone: true,
   imports: [
-    CommonModule, 
-    RouterModule, 
-    FormsModule, 
+    CommonModule,
+    RouterModule,
+    FormsModule,
     ReactiveFormsModule,
     GoalItemComponent,
     NewGoalComponent,
     GoalDetailsComponent
   ],
   templateUrl: './goal-list.component.html',
-  styleUrls: ['./goal-list.component.css']
+  styleUrls: ['./goal-list.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class GoalListComponent implements OnInit {
   private goalService = inject(GoalService);
   private notificationService = inject(NotificationService);
-  
+
   // Signals para mejor reactividad
   private allGoals = signal<GoalResponse[]>([]);
   filter = signal<FilterType>('all');
   private searchTerm = signal('');
-  
+
   // Computed signals para los goals filtrados
   filteredGoals = computed(() => {
     let goals = this.allGoals();
-    
+
     // Aplicar filtro por estado
     switch (this.filter()) {
       case 'active':
@@ -53,19 +55,18 @@ export class GoalListComponent implements OnInit {
       default: // 'all'
         break;
     }
-    
+
     // Aplicar búsqueda por texto
     const search = this.searchTerm().toLowerCase();
     if (search) {
-      goals = goals.filter(g => 
-        g.goalName.toLowerCase().includes(search) || 
-        g.description?.toLowerCase().includes(search)
+      goals = goals.filter(
+        g => g.goalName.toLowerCase().includes(search) || g.description?.toLowerCase().includes(search)
       );
     }
-    
+
     return goals;
   });
-  
+
   // Estadísticas
   stats = computed(() => {
     const goals = this.allGoals();
@@ -77,29 +78,30 @@ export class GoalListComponent implements OnInit {
     };
   });
 
-  showNewGoalModal = false;
-  showDetailsModal = false;
-  selectedGoal: GoalResponse | null = null;
-  loading = false;
-  error: string | null = null;
-  viewMode: 'grid' | 'list' = 'grid'; // Para cambiar vista
+  readonly showNewGoalModal = signal(false);
+  readonly showDetailsModal = signal(false);
+  readonly selectedGoal = signal<GoalResponse | null>(null);
+  readonly loading = signal(false);
+  readonly creating = signal(false);
+  readonly error = signal<string | null>(null);
+  readonly viewMode = signal<'grid' | 'list'>('grid'); // Para cambiar vista
 
   ngOnInit() {
     this.loadGoals();
   }
 
   loadGoals() {
-    this.loading = true;
-    this.error = null;
-    
+    this.loading.set(true);
+    this.error.set(null);
+
     this.goalService.getAllGoalsByUser().subscribe({
-      next: (goals) => {
+      next: goals => {
         this.allGoals.set(goals);
-        this.loading = false;
+        this.loading.set(false);
       },
-      error: (error) => {
-        this.error = error.message;
-        this.loading = false;
+      error: (error: ApiError) => {
+        this.error.set(error.message);
+        this.loading.set(false);
         console.error('Error loading goals:', error);
       }
     });
@@ -114,7 +116,7 @@ export class GoalListComponent implements OnInit {
   }
 
   toggleViewMode() {
-    this.viewMode = this.viewMode === 'grid' ? 'list' : 'grid';
+    this.viewMode.update(mode => (mode === 'grid' ? 'list' : 'grid'));
   }
 
   isOverdue(goal: GoalResponse): boolean {
@@ -125,25 +127,27 @@ export class GoalListComponent implements OnInit {
   }
 
   openNewGoalModal() {
-    this.showNewGoalModal = true;
+    this.showNewGoalModal.set(true);
   }
 
   closeNewGoalModal() {
-    this.showNewGoalModal = false;
+    this.showNewGoalModal.set(false);
   }
 
-  onGoalCreated(goalData: any) {
-    this.loading = true;
-    
+  onGoalCreated(goalData: GoalInput) {
+    this.creating.set(true);
+
     this.goalService.createGoalWithMilestones(goalData).subscribe({
-      next: (response) => {
-        this.loadGoals();
+      next: () => {
+        this.creating.set(false);
         this.closeNewGoalModal();
+        this.loadGoals();
+        this.notificationService.success('Goal created successfully', 'Success');
       },
-      error: (error) => {
-        this.error = error.message;
-        this.loading = false;
-        console.error('Error creating goal:', error);
+      error: (error: ApiError) => {
+        // El modal sigue abierto para poder reintentar sin perder los datos
+        this.creating.set(false);
+        this.notificationService.error(error.message, 'Error creating goal');
       }
     });
   }
@@ -154,46 +158,28 @@ export class GoalListComponent implements OnInit {
 
   viewGoalDetails(goal: GoalResponse) {
     if (!goal.goalId) return;
-    
-    this.loading = true;
-    
+
+    this.loading.set(true);
+
     this.goalService.getGoalById(goal.goalId).subscribe({
-      next: (goalDetails) => {
-        this.selectedGoal = goalDetails;
-        this.showDetailsModal = true;
-        this.loading = false;
+      next: goalDetails => {
+        this.selectedGoal.set(goalDetails);
+        this.showDetailsModal.set(true);
+        this.loading.set(false);
       },
-      error: (error) => {
-        this.error = error.message;
-        this.loading = false;
-        console.error('Error loading goal details:', error);
+      error: (error: ApiError) => {
+        this.loading.set(false);
+        this.notificationService.error(error.message, 'Error loading goal details');
       }
     });
   }
 
   closeDetailsModal() {
-    this.showDetailsModal = false;
-    this.selectedGoal = null;
+    this.showDetailsModal.set(false);
+    this.selectedGoal.set(null);
   }
 
   retry() {
     this.loadGoals();
-  }
-
-  // Método para archivar/eliminar goals completados TODO
-  archiveCompletedGoals() {
-    const completedGoals = this.allGoals().filter(g => g.isAchieved);
-    
-    if (completedGoals.length === 0) {
-      this.notificationService.info('No completed goals to archive', 'Info');
-      return;
-    }
-    
-    if (confirm(`Are you sure you want to archive ${completedGoals.length} completed goal(s)?`)) {
-      const activeGoals = this.allGoals().filter(g => !g.isAchieved);
-      this.allGoals.set(activeGoals);
-      
-      this.notificationService.success(`Archived ${completedGoals.length} goals`, 'Success');
-    }
   }
 }

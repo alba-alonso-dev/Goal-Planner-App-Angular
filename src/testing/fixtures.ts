@@ -14,8 +14,20 @@ export const mockGoal: GoalResponse = {
   userId: 1,
   progress: 50,
   milestones: [
-    { milestoneId: 1, milestoneName: 'Signals', description: '', targetDate: '2026-03-01T00:00:00.000Z', isCompleted: true },
-    { milestoneId: 2, milestoneName: 'Router', description: '', targetDate: '2026-06-01T00:00:00.000Z', isCompleted: false }
+    {
+      milestoneId: 1,
+      milestoneName: 'Signals',
+      description: '',
+      targetDate: '2026-03-01T00:00:00.000Z',
+      isCompleted: true
+    },
+    {
+      milestoneId: 2,
+      milestoneName: 'Router',
+      description: '',
+      targetDate: '2026-06-01T00:00:00.000Z',
+      isCompleted: false
+    }
   ]
 };
 

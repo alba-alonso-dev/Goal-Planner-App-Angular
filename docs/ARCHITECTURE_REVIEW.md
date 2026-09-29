@@ -18,33 +18,33 @@ Goal Planner es una SPA en **Angular 19 (standalone components + signals)** que 
 
 **Riesgos principales (por orden de impacto)**
 
-| # | Riesgo | Severidad |
-|---|--------|-----------|
-| 1 | El **build de producción falla** (`ng build` excede el budget de 1 MB) **[verificado]** | 🔴 Crítico |
-| 2 | La **suite de tests no compila**; tras corregirlo, **20 de 29 tests fallan** por falta de providers **[verificado]** | 🔴 Crítico |
-| 3 | **Modelo de seguridad inexistente**: no hay token; la sesión es un objeto `User` en `localStorage` y la API filtra por `userId` en query string (IDOR) | 🔴 Crítico |
-| 4 | **Datos falsos en el dashboard**: la "actividad reciente" usa `Math.random()` como timestamp; las tareas "completadas" se fechan con `dueDate` | 🟠 Alto |
-| 5 | **Estado global incoherente**: `DashboardService` carga datos en su constructor (singleton) y no se invalida al cambiar de usuario / hacer logout | 🟠 Alto |
-| 6 | **Duplicación masiva** en servicios (URL base, `handleError`, `formatToISOString`, comprobación de usuario) | 🟡 Medio |
-| 7 | Configuración SSR huérfana, dependencias no usadas y 3 librerías de iconos | 🟡 Medio |
-| 8 | Funcionalidades "fantasma": archivar solo en memoria, filtros de periodo/fecha del dashboard que no hacen nada | 🟡 Medio |
+| #   | Riesgo                                                                                                                                                 | Severidad  |
+| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------- |
+| 1   | El **build de producción falla** (`ng build` excede el budget de 1 MB) **[verificado]**                                                                | 🔴 Crítico |
+| 2   | La **suite de tests no compila**; tras corregirlo, **20 de 29 tests fallan** por falta de providers **[verificado]**                                   | 🔴 Crítico |
+| 3   | **Modelo de seguridad inexistente**: no hay token; la sesión es un objeto `User` en `localStorage` y la API filtra por `userId` en query string (IDOR) | 🔴 Crítico |
+| 4   | **Datos falsos en el dashboard**: la "actividad reciente" usa `Math.random()` como timestamp; las tareas "completadas" se fechan con `dueDate`         | 🟠 Alto    |
+| 5   | **Estado global incoherente**: `DashboardService` carga datos en su constructor (singleton) y no se invalida al cambiar de usuario / hacer logout      | 🟠 Alto    |
+| 6   | **Duplicación masiva** en servicios (URL base, `handleError`, `formatToISOString`, comprobación de usuario)                                            | 🟡 Medio   |
+| 7   | Configuración SSR huérfana, dependencias no usadas y 3 librerías de iconos                                                                             | 🟡 Medio   |
+| 8   | Funcionalidades "fantasma": archivar solo en memoria, filtros de periodo/fecha del dashboard que no hacen nada                                         | 🟡 Medio   |
 
 ---
 
 ## 2. Inventario técnico
 
-| Aspecto | Estado actual |
-|---|---|
-| Framework | Angular 19.2, standalone, zone.js |
-| Estado | Signals locales en componentes + servicios `providedIn: 'root'` |
-| HTTP | `HttpClient` sin interceptores |
-| UI | Bootstrap 5.3 (CSS), Bootstrap Icons (CDN), Font Awesome 4 (npm) **y** Font Awesome 6 (CDN) |
-| Gráficas | Chart.js 4 (`registerables` completos) |
-| Notificaciones | `NotificationService` propio **y** `ngx-toastr` configurado pero sin uso |
-| Tests | Karma + Jasmine, sólo specs autogeneradas "should create" |
-| CI/CD | Ninguno |
-| Lint/format | Ninguno (sólo `.editorconfig`) |
-| Tamaño | ~6.700 líneas en componentes, ~1.300 en servicios, 23 componentes, 6 servicios |
+| Aspecto        | Estado actual                                                                               |
+| -------------- | ------------------------------------------------------------------------------------------- |
+| Framework      | Angular 19.2, standalone, zone.js                                                           |
+| Estado         | Signals locales en componentes + servicios `providedIn: 'root'`                             |
+| HTTP           | `HttpClient` sin interceptores                                                              |
+| UI             | Bootstrap 5.3 (CSS), Bootstrap Icons (CDN), Font Awesome 4 (npm) **y** Font Awesome 6 (CDN) |
+| Gráficas       | Chart.js 4 (`registerables` completos)                                                      |
+| Notificaciones | `NotificationService` propio **y** `ngx-toastr` configurado pero sin uso                    |
+| Tests          | Karma + Jasmine, sólo specs autogeneradas "should create"                                   |
+| CI/CD          | Ninguno                                                                                     |
+| Lint/format    | Ninguno (sólo `.editorconfig`)                                                              |
+| Tamaño         | ~6.700 líneas en componentes, ~1.300 en servicios, 23 componentes, 6 servicios              |
 
 ### Métricas de calidad observadas
 
@@ -68,11 +68,13 @@ Goal Planner es una SPA en **Angular 19 (standalone components + signals)** que 
 ```
 
 Causas:
+
 - Todas las rutas se cargan de forma **eager** en `app.routes.ts` → Chart.js y todos los componentes van al bundle inicial.
 - `Chart.register(...registerables)` registra **todos** los tipos de gráfica aunque solo se usan `line`, `doughnut` y `bar`.
 - CSS duplicado: Bootstrap completo + Font Awesome 4 empaquetados, más Font Awesome 6 y Bootstrap Icons por CDN.
 
 **Propuesta**
+
 1. Lazy loading con `loadComponent` en todas las rutas protegidas (el dashboard, con Chart.js, sale del bundle inicial).
 2. Registrar solo los controladores/escala/elementos usados de Chart.js (tree-shaking).
 3. Unificar en **una** librería de iconos (Bootstrap Icons ya encaja con Bootstrap) y eliminar `font-awesome@4` y el CDN de FA6.
@@ -81,11 +83,13 @@ Causas:
 ### 3.2 Testing 🔴
 
 **Estado [verificado]:**
+
 - `ng test` no llega a ejecutarse: `auth.guard.spec.ts` no compila (`TS2554: Expected 0 arguments, but got 2`) porque `authGuard` se declaró como `() => ...` en lugar de `CanActivateFn`.
 - Parcheando ese error, se ejecutan 29 specs y **fallan 20**: todas por `NullInjectorError` (falta `provideHttpClient()`/`provideHttpClientTesting()` y `provideRouter([])` en los `TestBed`).
 - No hay ni un solo test de comportamiento: toda la lógica de negocio (progreso de goals, cálculo de vencimientos, agrupación de recordatorios, estadísticas) está sin cubrir.
 
 **Propuesta**
+
 - Tipar el guard como `CanActivateFn` y añadir providers de test estándar.
 - Extraer la lógica de fechas/estadísticas a **funciones puras** (ver 3.5) y testearlas con tablas de casos (bordes de medianoche, zonas horarias, listas vacías).
 - Tests de servicios con `HttpTestingController`; tests de componentes con harnesses / Testing Library.
@@ -100,6 +104,7 @@ Causas:
 5. `JSON.parse` de `localStorage` sin validación ni `try/catch`: un valor corrupto rompe el arranque de la app.
 
 **Propuesta**
+
 - Backend propio (o BaaS) con **JWT/OIDC**; el `userId` debe derivarse del token en servidor, nunca del cliente.
 - `HttpInterceptor` funcional para adjuntar el token, gestionar 401 (logout + redirect) y centralizar errores.
 - Guardar como mucho el token (idealmente cookie `HttpOnly` + `SameSite`), no el perfil.
@@ -115,7 +120,7 @@ Causas:
 - `DashboardService.getRecentTasks()` hace `this.tasks().sort(...)`: **muta el array del signal** en sitio.
 - Suscripciones manuales sin `takeUntilDestroyed`.
 
-**Propuesta: *store* por feature basado en signals**
+**Propuesta: _store_ por feature basado en signals**
 
 ```ts
 @Injectable({ providedIn: 'root' })
@@ -125,8 +130,10 @@ export class TaskStore {
   readonly tasks = this._tasks.asReadonly();
   readonly stats = computed(() => computeTaskStats(this._tasks(), new Date()));
 
-  load = rxMethod<void>(/* ... */);           // o resource()/httpResource() de Angular 19+
-  toggle(task: Task) { /* optimista + rollback */ }
+  load = rxMethod<void>(/* ... */); // o resource()/httpResource() de Angular 19+
+  toggle(task: Task) {
+    /* optimista + rollback */
+  }
 }
 ```
 
@@ -148,6 +155,7 @@ export class TaskStore {
 - Locale mezclado: textos en inglés, errores en español, fechas con `'es-ES'` hardcodeado.
 
 **Propuesta**
+
 - Mover estas reglas a un módulo `domain/` de **funciones puras** (`isOverdue(task, now)`, `bucketReminders(reminders, now)`, `goalProgress(goal)`), con `now` inyectable para testear.
 - Calcular derivados en `computed` a partir de un signal `now` que avanza cada minuto, no en el mapeo HTTP.
 - Usar `date-fns`/`Temporal` para aritmética de fechas locales.
@@ -207,22 +215,42 @@ features/
 ## 4. Hoja de ruta propuesta
 
 ### Fase 0 — Estabilizar (1–2 días) ✅ completada en la rama `fase0`
+
 - [x] Lazy loading de rutas + Chart.js tree-shaken → `ng build` en verde (bundle inicial 1,03 MB → 613 kB; transferencia 220 kB → 124 kB).
 - [x] `authGuard: CanActivateFn` y providers de test → `ng test` en verde (33/33, incluidos tests reales del guard y de la restauración de sesión).
 - [x] Eliminar dependencias muertas (`ngx-toastr`, `aos`, `font-awesome@4`, `@types/chart.js`, `@types/express`, `@angular/animations`) y la config SSR huérfana.
 - [x] Eliminar `console.log` (incluidos los volcados de payloads); lectura de `localStorage` tolerante a valores corruptos.
-- [x] Pipeline de **GitHub Actions**: `npm ci` → test (ChromeHeadless) → build. *(El paso de lint se añadirá con ESLint en la Fase 1.)*
+- [x] Pipeline de **GitHub Actions**: `npm ci` → test (ChromeHeadless) → build. _(El paso de lint se añadirá con ESLint en la Fase 1.)_
 - Pendiente de fases siguientes: bajar el bundle inicial por debajo del aviso de 500 kB (Bootstrap SCSS parcial) y unificar las librerías de iconos (FA6 + Bootstrap Icons por CDN).
 
-### Fase 1 — Fundamentos (1–2 semanas)
-- [ ] `environment.ts` + `API_BASE_URL` token.
-- [ ] Interceptores de error/auth; un único `ApiError`.
-- [ ] Unificar helpers de fecha/errores en `shared/`.
-- [ ] ESLint + Prettier + lint-staged.
-- [ ] `OnPush` + `input()/output()` en todos los componentes.
-- [ ] Quitar datos simulados del dashboard y funciones sin implementar.
+### Fase 1 — Fundamentos (1–2 semanas) ✅ completada en la rama `fase1`
+
+- [x] `environment.ts` / `environment.development.ts` + token `API_BASE_URL` (antes la URL estaba copiada en 4 servicios con dos formatos).
+- [x] `errorInterceptor` + `ApiError` únicos (logout y redirección en 401). Eliminadas las tres copias de `handleError`. `AuthService.withUser()` centraliza la comprobación de sesión. _(No hay interceptor de auth porque la API no usa token; llegará con el backend de la Fase 3.)_
+- [x] `shared/utils/date.ts` con tests: fechas en hora local, `toApiDate` falla ante fechas inválidas en lugar de usar "hoy".
+- [x] ESLint (angular-eslint + typescript-eslint, regla que exige `OnPush`) + Prettier + husky/lint-staged; lint y `format:check` en la CI.
+- [x] `OnPush` + `input()`/`output()` en los 20 componentes (incluido `AppComponent`); estado asíncrono en signals; usos de `any` en código de producción: 45 → 0; formularios reactivos tipados en `new-*` y `*-details`.
+- [x] Dashboard sin datos simulados; eliminados los filtros de periodo/fecha y el "archivar" que solo ocultaba en memoria.
+- [x] Tipos de entrada (`TaskInput`, `ReminderInput`, `GoalInput`) en lugar de `any` en los servicios.
+- Pendiente (pasa a fases siguientes): bundle inicial por debajo de 500 kB (Bootstrap SCSS parcial), unificar iconos y resolver los 41 avisos de accesibilidad que reporta el lint.
+
+**Bugs adicionales encontrados y corregidos durante la Fase 1** (verificados en navegador con Playwright y la API simulada):
+
+| Bug                                                                                                     | Impacto                                                         |
+| ------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
+| `toggleReminderAcknowledgement` y `deleteReminder` de la lista de recordatorios eran métodos vacíos     | Marcar o borrar un recordatorio desde la lista no hacía nada    |
+| La plantilla del login nunca mostraba `errorMessage` ni el estado de carga                              | Un login fallido no daba ningún feedback                        |
+| El campo "móvil" del registro tenía el placeholder "Confirm Password"                                   | Formulario de registro confuso                                  |
+| Las gráficas se creaban con `setTimeout(500)` antes de que existieran los `<canvas>`                    | Con una API lenta (1,5 s) no se dibujaba ninguna gráfica (0/3)  |
+| El formulario de edición de recordatorios mostraba la hora en UTC en un `datetime-local`                | Guardar sin tocar nada desplazaba la hora según el huso horario |
+| Fechas `YYYY-MM-DD` interpretadas como medianoche UTC                                                   | En husos al oeste de UTC las fechas se mostraban un día antes   |
+| Tras un error al crear, el modal `new-*` se quedaba con el spinner y la lista se sustituía por el error | Había que recargar la página                                    |
+| `getAllGoalsByUser` lanzaba una suscripción huérfana que mutaba objetos ya emitidos                     | El progreso de los goals podía no actualizarse en pantalla      |
+| `toggleTaskCompletion` hacía GET + PUT por cada clic                                                    | Doble latencia                                                  |
+| `DashboardService` cargaba datos en su constructor y el componente otra vez                             | Cada visita lanzaba las peticiones dos veces                    |
 
 ### Fase 2 — Arquitectura por features (2–4 semanas)
+
 - [ ] Estructura `core/ shared/ features/` con rutas lazy por feature.
 - [ ] Stores por agregado basados en signals (o NgRx SignalStore); dashboard derivado de ellos.
 - [ ] Lógica de dominio en funciones puras con tests unitarios exhaustivos.
@@ -230,6 +258,7 @@ features/
 - [ ] Actualizaciones optimistas y eliminación del patrón "recargar todo".
 
 ### Fase 3 — Producto y plataforma
+
 - [ ] Backend propio con autenticación real (JWT/OIDC) y autorización por propietario.
 - [ ] i18n (es/en) y `LOCALE_ID`.
 - [ ] Accesibilidad (diálogos, foco, contraste) y tests e2e con Playwright.

@@ -13,8 +13,7 @@ describe('NewGoalComponent', () => {
     await TestBed.configureTestingModule({
       imports: [NewGoalComponent],
       providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([])]
-    })
-    .compileComponents();
+    }).compileComponents();
 
     fixture = TestBed.createComponent(NewGoalComponent);
     component = fixture.componentInstance;
