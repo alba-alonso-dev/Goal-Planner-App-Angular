@@ -1,6 +1,6 @@
-import { GoalResponse } from '../app/model/goal';
-import { ReminderResponse } from '../app/model/reminder';
-import { TaskResponse } from '../app/model/task';
+import { GoalResponse } from '../app/features/goals/goal.model';
+import { ReminderResponse } from '../app/features/reminders/reminder.model';
+import { TaskResponse } from '../app/features/tasks/task.model';
 
 // Datos de prueba compartidos por los specs de componentes con inputs obligatorios
 
