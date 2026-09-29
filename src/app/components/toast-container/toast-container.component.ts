@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NotificationService } from '../../services/notification.service';
 
@@ -32,7 +32,8 @@ import { NotificationService } from '../../services/notification.service';
         </div>
       }
     </div>
-  `
+  `,
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ToastContainerComponent {
   notificationService = inject(NotificationService);

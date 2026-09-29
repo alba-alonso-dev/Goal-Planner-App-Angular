@@ -1,5 +1,4 @@
-<!-- div class="modal" tabindex="-1" [style.display]="visible ? 'block' : 'none'" (click)="onBackdropClick($event)" -->
-<div class="modal" tabindex="-1" [style.display]="visible ? 'block' : 'none'">
+<div class="modal" tabindex="-1" [style.display]="visible() ? 'block' : 'none'">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-body p-4">
@@ -8,7 +7,14 @@
                     <button type="button" class="btn-close position-absolute top-0 end-0 m-3" 
                         (click)="closeModal()" data-bs-dismiss="modal"></button>
                 </div>
-                
+
+                @if (errorMessage(); as message) {
+                    <div class="alert alert-danger py-2" role="alert">{{ message }}</div>
+                }
+                @if (successMessage(); as message) {
+                    <div class="alert alert-success py-2" role="status">{{ message }}</div>
+                }
+
                 @if (showLogin()) {
                     <form id="loginForm" class="needs-validation">
                         <div class="mb-3">
@@ -17,7 +23,12 @@
                         <div class="mb-3">
                             <input type="password" class="form-control" name="password" [(ngModel)]="loginObj.password" placeholder="Password" required>
                         </div>
-                        <button type="button" (click)="onLogin()" class="btn btn-primary w-100 mb-3">Login</button>
+                        <button type="button" (click)="onLogin()" class="btn btn-primary w-100 mb-3" [disabled]="isLoading()">
+                            @if (isLoading()) {
+                                <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+                            }
+                            Login
+                        </button>
                         <p class="text-center">
                             Don't have an account? 
                             <a id="showSignup" class="text-decoration-none" (click)="toggleForm()">Sign Up</a>
@@ -35,19 +46,20 @@
                             <input type="password" name="password"  [(ngModel)]="registerObj.password" class="form-control" placeholder="Password" required>
                         </div>
                         <div class="mb-3">
-                            <input type="text" name="mobileNo" [(ngModel)]="registerObj.mobileNo"  class="form-control" placeholder="Confirm Password" required>
+                            <input type="tel" name="mobileNo" [(ngModel)]="registerObj.mobileNo" class="form-control" placeholder="Mobile number" required>
                         </div>
-                        <button type="button" class="btn btn-primary w-100 mb-3" (click)="onRegister()">Sign Up</button>
+                        <button type="button" class="btn btn-primary w-100 mb-3" (click)="onRegister()" [disabled]="isLoading()">
+                            @if (isLoading()) {
+                                <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+                            }
+                            Sign Up
+                        </button>
                         <p class="text-center">
                             Already have an account? 
                             <a   id="showLogin" class="text-decoration-none" (click)="toggleForm()">Login</a>
                         </p>
                     </form>
                 }
-               
-
-                <!-- Signup Form (Hidden by default) -->
-               
             </div>
         </div>
     </div>

@@ -1,28 +1,29 @@
+@let reminder = this.reminder();
 <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title fw-bold">
-                    @if (editMode) {
+                    @if (editMode()) {
                         <i class="fas fa-edit me-2"></i>Edit Reminder
                     } @else {
                         <i class="fas fa-bell me-2"></i>Reminder Details
                     }
                 </h5>
-                <button type="button" class="btn-close" (click)="closeModal()" [disabled]="submitting" aria-label="Close"></button>
+                <button type="button" class="btn-close" (click)="closeModal()" [disabled]="submitting()" aria-label="Close"></button>
             </div>
             
             <div class="modal-body">
                 <!-- Error message -->
-                @if (error) {
+                @if (error()) {
                     <div class="alert alert-danger alert-dismissible fade show" role="alert">
                         <i class="fas fa-exclamation-triangle me-2"></i>
-                        {{error}}
-                        <button type="button" class="btn-close" (click)="error = null"></button>
+                        {{error()}}
+                        <button type="button" class="btn-close" (click)="error.set(null)"></button>
                     </div>
                 }
 
-                @if (editMode) {
+                @if (editMode()) {
                     <!-- EDIT MODE -->
                     <form [formGroup]="editForm">
                         <!-- Title -->
@@ -146,20 +147,20 @@
             </div>
             
             <div class="modal-footer">
-                @if (editMode) {
+                @if (editMode()) {
                     <button 
                         type="button" 
                         class="btn btn-outline-secondary" 
                         (click)="toggleEditMode()"
-                        [disabled]="submitting">
+                        [disabled]="submitting()">
                         Cancel
                     </button>
                     <button 
                         type="button" 
                         class="btn btn-primary" 
                         (click)="saveChanges()"
-                        [disabled]="editForm.invalid || submitting">
-                        @if (submitting) {
+                        [disabled]="editForm.invalid || submitting()">
+                        @if (submitting()) {
                             <span class="spinner-border spinner-border-sm me-2"></span>
                             Saving...
                         } @else {
@@ -171,7 +172,7 @@
                         type="button" 
                         class="btn btn-outline-success" 
                         (click)="toggleAcknowledgement()"
-                        [disabled]="submitting">
+                        [disabled]="submitting()">
                         @if (reminder.isAcknowledged) {
                             <i class="fas fa-undo me-2"></i>Mark Unacknowledged
                         } @else {

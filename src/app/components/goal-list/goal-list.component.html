@@ -9,7 +9,7 @@
             <p class="text-muted">Manage and track your goals</p>
         </div>
         <div class="col-md-4 text-end">
-            <button class="btn btn-primary" (click)="openNewGoalModal()" [disabled]="loading">
+            <button class="btn btn-primary" (click)="openNewGoalModal()" [disabled]="loading()">
                 <i class="fas fa-plus me-2"></i>
                 New Goal
             </button>
@@ -99,22 +99,17 @@
         </div>
         <div class="col-md-2 text-end">
             <button class="btn btn-outline-secondary me-2" (click)="toggleViewMode()" title="Toggle view">
-                @if (viewMode === 'grid') {
+                @if (viewMode() === 'grid') {
                     <i class="fas fa-list"></i>
                 } @else {
                     <i class="fas fa-th-large"></i>
                 }
             </button>
-            @if (stats().completed > 0) {
-                <button class="btn btn-outline-danger" (click)="archiveCompletedGoals()" title="Archive completed">
-                    <i class="fas fa-archive"></i>
-                </button>
-            }
         </div>
     </div>
 
     <!-- Loading indicator -->
-    @if (loading) {
+    @if (loading()) {
         <div class="text-center py-5">
             <div class="spinner-border text-primary" role="status">
                 <span class="visually-hidden">Loading...</span>
@@ -124,13 +119,13 @@
     }
     
     <!-- Error message -->
-    @if (error) {
+    @if (error()) {
         <div class="alert alert-danger" role="alert">
             <div class="d-flex align-items-center">
                 <i class="fas fa-exclamation-triangle fa-2x me-3"></i>
                 <div class="flex-grow-1">
                     <h5 class="alert-heading">Error loading goals</h5>
-                    <p class="mb-0">{{error}}</p>
+                    <p class="mb-0">{{error()}}</p>
                 </div>
                 <button class="btn btn-outline-danger ms-3" (click)="retry()">
                     <i class="fas fa-sync-alt me-2"></i>Retry
@@ -140,7 +135,7 @@
     }
     
     <!-- Lista de goals -->
-    @if (!loading && !error) {
+    @if (!loading() && !error()) {
         @if (filteredGoals().length === 0) {
             <div class="text-center py-5">
                 <i class="fas fa-bullseye fa-3x text-muted mb-3"></i>
@@ -153,7 +148,7 @@
                 </p>
             </div>
         } @else {
-            @if (viewMode === 'grid') {
+            @if (viewMode() === 'grid') {
                 <div class="row g-4">
                     @for (goal of filteredGoals(); track goal.goalId) {
                         <div class="col-12 col-md-6 col-lg-4">
@@ -213,17 +208,18 @@
 </div>
 
 <!-- Modal para crear nuevo goal -->
-@if (showNewGoalModal) {
-    <app-new-goal 
+@if (showNewGoalModal()) {
+    <app-new-goal
+        [submitting]="creating()"
         (close)="closeNewGoalModal()"
         (goalCreated)="onGoalCreated($event)">
     </app-new-goal>
 }
 
 <!-- Modal para ver detalles del goal -->
-@if (showDetailsModal && selectedGoal) {
+@if (showDetailsModal() && selectedGoal(); as selected) {
     <app-goal-details 
-        [goal]="selectedGoal"
+        [goal]="selected"
         (close)="closeDetailsModal()"
         (goalUpdated)="onGoalUpdated()"> 
     </app-goal-details>

@@ -1,9 +1,10 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TaskService } from '../../services/task.service';
-import { TaskResponse, TaskStats } from '../../model/task';
+import { TaskInput, TaskResponse } from '../../model/task';
+import { ApiError } from '../../core/http/api-error';
 import { NewTaskComponent } from '../new-task/new-task.component';
 import { TaskItemComponent } from '../task-item/task-item.component';
 import { NotificationService } from '../../services/notification.service';
@@ -23,7 +24,8 @@ type TaskFilter = 'all' | 'pending' | 'completed' | 'overdue';
     TaskDetailsComponent
   ],
   templateUrl: './task-list.component.html',
-  styleUrls: ['./task-list.component.css']
+  styleUrls: ['./task-list.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TaskListComponent implements OnInit {
   private taskService = inject(TaskService);
@@ -96,11 +98,12 @@ export class TaskListComponent implements OnInit {
   });
 
   // UI State
-  showNewTaskModal = false;
-  showDetailsModal = false;
-  selectedTask: TaskResponse | null = null;
-  loading = false;
-  error: string | null = null;
+  readonly showNewTaskModal = signal(false);
+  readonly showDetailsModal = signal(false);
+  readonly selectedTask = signal<TaskResponse | null>(null);
+  readonly loading = signal(false);
+  readonly creating = signal(false);
+  readonly error = signal<string | null>(null);
 
   // Colapsar/expandir secciones
   collapsedSections = signal({
@@ -114,17 +117,17 @@ export class TaskListComponent implements OnInit {
   }
 
   loadTasks() {
-    this.loading = true;
-    this.error = null;
+    this.loading.set(true);
+    this.error.set(null);
 
     this.taskService.getAllTasksByUser().subscribe({
       next: (tasks) => {
         this.allTasks.set(tasks);
-        this.loading = false;
+        this.loading.set(false);
       },
-      error: (error) => {
-        this.error = error.message;
-        this.loading = false;
+      error: (error: ApiError) => {
+        this.error.set(error.message);
+        this.loading.set(false);
         console.error('Error loading tasks:', error);
       }
     });
@@ -139,26 +142,27 @@ export class TaskListComponent implements OnInit {
   }
 
   openNewTaskModal() {
-    this.showNewTaskModal = true;
+    this.showNewTaskModal.set(true);
   }
 
   closeNewTaskModal() {
-    this.showNewTaskModal = false;
+    this.showNewTaskModal.set(false);
   }
 
-  onTaskCreated(taskData: any) {
-    this.loading = true;
+  onTaskCreated(taskData: TaskInput) {
+    this.creating.set(true);
 
     this.taskService.createTask(taskData).subscribe({
-      next: (response) => {
-        this.loadTasks();
+      next: () => {
+        this.creating.set(false);
         this.closeNewTaskModal();
+        this.loadTasks();
         this.notificationService.success('Task created successfully', 'Success');
       },
-      error: (error) => {
-        this.error = error.message;
-        this.loading = false;
-        console.error('Error creating task:', error);
+      error: (error: ApiError) => {
+        // El modal sigue abierto para poder reintentar sin perder los datos
+        this.creating.set(false);
+        this.notificationService.error(error.message, 'Error creating task');
       }
     });
   }
@@ -181,13 +185,13 @@ export class TaskListComponent implements OnInit {
   }
 
   viewTaskDetails(task: TaskResponse) {
-    this.selectedTask = task;
-    this.showDetailsModal = true;
+    this.selectedTask.set(task);
+    this.showDetailsModal.set(true);
   }
 
   closeDetailsModal() {
-    this.showDetailsModal = false;
-    this.selectedTask = null;
+    this.showDetailsModal.set(false);
+    this.selectedTask.set(null);
   }
 
   deleteTask(taskId: number) {

@@ -1,22 +1,16 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule],
   templateUrl: './home.component.html',
-  styleUrls: ['./home.component.css']
+  styleUrls: ['./home.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class HomeComponent {
-  currentYear = new Date().getFullYear();
-  
-  // Email para newsletter
-  newsletterEmail = '';
-  newsletterSubmitted = false;
-  
   // Features de la aplicación
   features = [
     {
@@ -153,22 +147,6 @@ export class HomeComponent {
 
   toggleFaq(index: number) {
     this.faqs[index].open = !this.faqs[index].open;
-  }
-
-  subscribeNewsletter() {
-    if (this.newsletterEmail && this.validateEmail(this.newsletterEmail)) {
-      this.newsletterSubmitted = true;
-      this.newsletterEmail = '';
-      
-      setTimeout(() => {
-        this.newsletterSubmitted = false;
-      }, 3000);
-    }
-  }
-
-  validateEmail(email: string): boolean {
-    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return re.test(email);
   }
 
   getStarArray(rating: number): number[] {

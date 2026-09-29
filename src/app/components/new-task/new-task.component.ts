@@ -1,102 +1,67 @@
-import { Component, EventEmitter, Output, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, output } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { toDateInputValue } from '../../shared/utils/date';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { merge } from 'rxjs';
+import { TaskInput, TaskResponse } from '../../model/task';
+import { addDays, toDateInputValue } from '../../shared/utils/date';
+
+type Frequency = TaskResponse['frequency'];
 
 @Component({
   selector: 'app-new-task',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './new-task.component.html',
-  styleUrls: ['./new-task.component.css']
+  styleUrls: ['./new-task.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class NewTaskComponent {
-  @Output() close = new EventEmitter<void>();
-  @Output() taskCreated = new EventEmitter<any>();
+  /** Lo controla el padre: true mientras se guarda la tarea. */
+  readonly submitting = input(false);
+  readonly close = output<void>();
+  readonly taskCreated = output<TaskInput>();
 
-  private fb = inject(FormBuilder);
-  
-  taskForm: FormGroup;
-  submitting = false;
+  private fb = inject(FormBuilder).nonNullable;
 
-  frequencies = [
+  readonly frequencies: { value: Frequency; label: string }[] = [
     { value: 'Daily', label: 'Daily' },
     { value: 'Weekly', label: 'Weekly' },
     { value: 'Monthly', label: 'Monthly' }
   ];
 
+  readonly taskForm = this.fb.group({
+    taskName: ['', [Validators.required, Validators.minLength(3)]],
+    frequency: ['Daily' as Frequency, Validators.required],
+    startDate: [toDateInputValue(), Validators.required],
+    dueDate: [toDateInputValue(addDays(new Date(), 7)), Validators.required],
+    description: ['']
+  });
+
   constructor() {
-    const today = new Date();
-    const nextWeek = new Date();
-    nextWeek.setDate(today.getDate() + 7);
-
-    this.taskForm = this.fb.group({
-      taskName: ['', [Validators.required, Validators.minLength(3)]],
-      frequency: ['Daily', Validators.required],
-      startDate: [toDateInputValue(today), Validators.required],
-      dueDate: [toDateInputValue(nextWeek), Validators.required],
-      description: ['']
-    });
-
-    this.setupDateValidation();
-  }
-
-  private setupDateValidation() {
-    this.taskForm.get('dueDate')?.valueChanges.subscribe(() => {
-      this.validateDates();
-    });
-    this.taskForm.get('startDate')?.valueChanges.subscribe(() => {
-      this.validateDates();
-    });
+    merge(this.taskForm.controls.startDate.valueChanges, this.taskForm.controls.dueDate.valueChanges)
+      .pipe(takeUntilDestroyed())
+      .subscribe(() => this.validateDates());
   }
 
   private validateDates() {
-    const start = this.taskForm.get('startDate')?.value;
-    const due = this.taskForm.get('dueDate')?.value;
-    
-    if (start && due) {
-      const startDate = new Date(start);
-      const dueDate = new Date(due);
-      
-      if (dueDate < startDate) {
-        this.taskForm.get('dueDate')?.setErrors({ 
-          ...this.taskForm.get('dueDate')?.errors, 
-          dueDateBeforeStart: true 
-        });
-      } else {
-        const errors = this.taskForm.get('dueDate')?.errors;
-        if (errors) {
-          delete errors['dueDateBeforeStart'];
-          if (Object.keys(errors).length === 0) {
-            this.taskForm.get('dueDate')?.setErrors(null);
-          } else {
-            this.taskForm.get('dueDate')?.setErrors(errors);
-          }
-        }
-      }
+    const { startDate, dueDate } = this.taskForm.getRawValue();
+    const dueControl = this.taskForm.controls.dueDate;
+    if (!startDate || !dueDate) return;
+
+    if (new Date(dueDate) < new Date(startDate)) {
+      dueControl.setErrors({ ...dueControl.errors, dueDateBeforeStart: true });
+    } else if (dueControl.errors?.['dueDateBeforeStart']) {
+      const { dueDateBeforeStart: _removed, ...otherErrors } = dueControl.errors;
+      dueControl.setErrors(Object.keys(otherErrors).length ? otherErrors : null);
     }
   }
 
   onSubmit() {
     if (this.taskForm.valid) {
-      this.submitting = true;
-      
-      const formValue = this.taskForm.value;
-      
-      const taskData = {
-        taskName: formValue.taskName,
-        description: formValue.description,
-        frequency: formValue.frequency,
-        startDate: formValue.startDate,
-        dueDate: formValue.dueDate
-      };
-
-      this.taskCreated.emit(taskData);
+      this.taskCreated.emit(this.taskForm.getRawValue());
     } else {
-      Object.keys(this.taskForm.controls).forEach(key => {
-        const control = this.taskForm.get(key);
-        control?.markAsTouched();
-      });
+      this.taskForm.markAllAsTouched();
     }
   }
 

@@ -1,87 +1,83 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject, input, linkedSignal, output, signal, untracked } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
+import { merge } from 'rxjs';
 import { TaskResponse } from '../../model/task';
 import { TaskService } from '../../services/task.service';
-import { AuthService } from '../../services/auth.service';
+import { ApiError } from '../../core/http/api-error';
 import { toDateInputValue } from '../../shared/utils/date';
+
+type Frequency = TaskResponse['frequency'];
 
 @Component({
   selector: 'app-task-details',
   standalone: true,
   imports: [CommonModule, FormsModule, ReactiveFormsModule],
   templateUrl: './task-details.component.html',
-  styleUrls: ['./task-details.component.css']
+  styleUrls: ['./task-details.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class TaskDetailsComponent implements OnInit, OnChanges {
-  @Input() task!: TaskResponse;
-  @Output() close = new EventEmitter<void>();
-  @Output() taskUpdated = new EventEmitter<void>();
-  @Output() delete = new EventEmitter<number>();
+export class TaskDetailsComponent {
+  readonly taskInput = input.required<TaskResponse>({ alias: 'task' });
+  readonly close = output<void>();
+  readonly taskUpdated = output<void>();
+  readonly delete = output<number>();
 
   private fb = inject(FormBuilder);
   private taskService = inject(TaskService);
-  private authService = inject(AuthService);
 
-  editMode = false;
-  editForm!: FormGroup;
-  submitting = false;
-  error: string | null = null;
+  // Copia local de la tarea: parte del input y se sustituye tras guardar cambios
+  readonly task = linkedSignal(() => this.taskInput());
 
-  frequencies = [
+  readonly editMode = signal(false);
+  readonly submitting = signal(false);
+  readonly error = signal<string | null>(null);
+
+  readonly frequencies: { value: Frequency; label: string }[] = [
     { value: 'Daily', label: 'Daily' },
     { value: 'Weekly', label: 'Weekly' },
     { value: 'Monthly', label: 'Monthly' }
   ];
 
-  ngOnInit() {
-    this.initForm();
-  }
+  readonly editForm = this.fb.nonNullable.group({
+    taskName: ['', [Validators.required, Validators.minLength(3)]],
+    description: [''],
+    frequency: ['Daily' as Frequency, Validators.required],
+    startDate: ['', Validators.required],
+    dueDate: ['', Validators.required],
+    isCompleted: [false]
+  });
 
-  ngOnChanges(changes: SimpleChanges) {
-    if (changes['task'] && !changes['task'].firstChange) {
-      this.initForm();
-    }
-  }
-
-  initForm() {
-    if (!this.task) return;
-
-    this.editForm = this.fb.group({
-      taskName: [this.task.taskName, [Validators.required, Validators.minLength(3)]],
-      description: [this.task.description || ''],
-      frequency: [this.task.frequency, Validators.required],
-      startDate: [this.formatDateForInput(this.task.startDate), Validators.required],
-      dueDate: [this.formatDateForInput(this.task.dueDate), Validators.required],
-      isCompleted: [this.task.isCompleted]
+  constructor() {
+    // Rellenar el formulario cada vez que cambia la tarea (input o recarga tras guardar)
+    effect(() => {
+      const task = this.task();
+      untracked(() => this.initForm(task));
     });
 
-    this.setupDateValidation();
+    merge(this.editForm.controls.startDate.valueChanges, this.editForm.controls.dueDate.valueChanges)
+      .pipe(takeUntilDestroyed())
+      .subscribe(() => this.validateDates());
   }
 
-  private setupDateValidation() {
-    this.editForm.get('dueDate')?.valueChanges.subscribe(() => {
-      this.validateDates();
-    });
-    this.editForm.get('startDate')?.valueChanges.subscribe(() => {
-      this.validateDates();
+  private initForm(task: TaskResponse) {
+    this.editForm.reset({
+      taskName: task.taskName,
+      description: task.description || '',
+      frequency: task.frequency,
+      startDate: this.formatDateForInput(task.startDate),
+      dueDate: this.formatDateForInput(task.dueDate),
+      isCompleted: task.isCompleted
     });
   }
 
   private validateDates() {
-    const start = this.editForm.get('startDate')?.value;
-    const due = this.editForm.get('dueDate')?.value;
-    
-    if (start && due) {
-      const startDate = new Date(start);
-      const dueDate = new Date(due);
-      
-      if (dueDate < startDate) {
-        this.editForm.get('dueDate')?.setErrors({ 
-          ...this.editForm.get('dueDate')?.errors, 
-          dueDateBeforeStart: true 
-        });
-      }
+    const { startDate, dueDate } = this.editForm.getRawValue();
+    const dueControl = this.editForm.controls.dueDate;
+
+    if (startDate && dueDate && new Date(dueDate) < new Date(startDate)) {
+      dueControl.setErrors({ ...dueControl.errors, dueDateBeforeStart: true });
     }
   }
 
@@ -95,80 +91,64 @@ export class TaskDetailsComponent implements OnInit, OnChanges {
   }
 
   toggleEditMode() {
-    this.editMode = !this.editMode;
-    this.error = null;
-    if (!this.editMode) {
-      this.initForm();
+    this.editMode.update(value => !value);
+    this.error.set(null);
+    if (!this.editMode()) {
+      this.initForm(this.task());
     }
   }
 
   toggleCompletion() {
-    this.submitting = true;
-    this.taskService.toggleTaskCompletion(this.task).subscribe({
+    this.submitting.set(true);
+    this.taskService.toggleTaskCompletion(this.task()).subscribe({
       next: () => {
-        this.submitting = false;
+        this.submitting.set(false);
         this.taskUpdated.emit();
         this.loadUpdatedTask();
       },
-      error: (error) => {
-        this.error = error.message || 'Error updating task';
-        this.submitting = false;
+      error: (error: ApiError) => {
+        this.error.set(error.message || 'Error updating task');
+        this.submitting.set(false);
       }
     });
   }
 
   saveChanges() {
-    if (this.editForm.valid) {
-      this.submitting = true;
-      this.error = null;
+    if (!this.editForm.valid) {
+      this.editForm.markAllAsTouched();
+      return;
+    }
 
-      const formValue = this.editForm.value;
-      
-      const updatedTask = {
-        taskName: formValue.taskName,
-        description: formValue.description,
-        frequency: formValue.frequency,
-        startDate: new Date(formValue.startDate).toISOString(),
-        dueDate: new Date(formValue.dueDate).toISOString(),
-        isCompleted: formValue.isCompleted,
-        createdDate: this.task.createdDate
-      };
+    this.submitting.set(true);
+    this.error.set(null);
 
-      this.taskService.updateTask(this.task.taskId, updatedTask).subscribe({
-        next: (response) => {
-          this.submitting = false;
-          this.editMode = false;
+    this.taskService
+      .updateTask(this.task().taskId, { ...this.editForm.getRawValue(), createdDate: this.task().createdDate })
+      .subscribe({
+        next: () => {
+          this.submitting.set(false);
+          this.editMode.set(false);
           this.taskUpdated.emit();
           this.loadUpdatedTask();
         },
-        error: (error) => {
-          this.error = error.message || 'Error updating task';
-          this.submitting = false;
+        error: (error: ApiError) => {
+          this.error.set(error.message || 'Error updating task');
+          this.submitting.set(false);
         }
       });
-    } else {
-      Object.keys(this.editForm.controls).forEach(key => {
-        this.editForm.get(key)?.markAsTouched();
-      });
-    }
   }
 
   deleteTask() {
-    if (confirm(`Are you sure you want to delete "${this.task.taskName}"?`)) {
-      this.delete.emit(this.task.taskId);
+    if (confirm(`Are you sure you want to delete "${this.task().taskName}"?`)) {
+      this.delete.emit(this.task().taskId);
       this.closeModal();
     }
   }
 
   private loadUpdatedTask() {
-    this.taskService.getTaskById(this.task.taskId).subscribe({
-      next: (updatedTask) => {
-        this.task = updatedTask;
-        this.initForm();
-      },
-      error: (error) => {
-        console.error('Error loading updated task:', error);
-      }
+    this.taskService.getTaskById(this.task().taskId).subscribe({
+      next: updatedTask => this.task.set(updatedTask),
+      error: error => console.error('Error loading updated task:', error)
     });
   }
 
@@ -177,7 +157,7 @@ export class TaskDetailsComponent implements OnInit, OnChanges {
   }
 
   getFrequencyIconClass(): string {
-    switch(this.task.frequency) {
+    switch (this.task().frequency) {
       case 'Daily':
         return 'fas fa-sun text-warning';
       case 'Weekly':
@@ -190,27 +170,30 @@ export class TaskDetailsComponent implements OnInit, OnChanges {
   }
 
   getStatusClass(): string {
-    if (this.task.isCompleted) return 'text-success';
-    if (this.task.isOverdue) return 'text-danger';
+    const task = this.task();
+    if (task.isCompleted) return 'text-success';
+    if (task.isOverdue) return 'text-danger';
     return 'text-warning';
   }
 
   getStatusText(): string {
-    if (this.task.isCompleted) return 'Completed';
-    if (this.task.isOverdue) return 'Overdue';
+    const task = this.task();
+    if (task.isCompleted) return 'Completed';
+    if (task.isOverdue) return 'Overdue';
     return 'Pending';
   }
 
   getDaysRemainingText(): string {
-    if (this.task.isCompleted) return 'Completed';
-    if (!this.task.daysRemaining) return 'No due date';
-    
-    if (this.task.daysRemaining > 0) {
-      return `${this.task.daysRemaining} day${this.task.daysRemaining !== 1 ? 's' : ''} remaining`;
-    } else if (this.task.daysRemaining === 0) {
+    const { isCompleted, daysRemaining } = this.task();
+    if (isCompleted) return 'Completed';
+    if (daysRemaining === undefined || daysRemaining === null) return 'No due date';
+
+    if (daysRemaining > 0) {
+      return `${daysRemaining} day${daysRemaining !== 1 ? 's' : ''} remaining`;
+    } else if (daysRemaining === 0) {
       return 'Due today';
     } else {
-      return `Overdue by ${Math.abs(this.task.daysRemaining)} day${Math.abs(this.task.daysRemaining) !== 1 ? 's' : ''}`;
+      return `Overdue by ${Math.abs(daysRemaining)} day${Math.abs(daysRemaining) !== 1 ? 's' : ''}`;
     }
   }
 }

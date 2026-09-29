@@ -1,6 +1,8 @@
-import { Component, EventEmitter, Output, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, output } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ReminderInput } from '../../model/reminder';
 import { toDateTimeInputValue } from '../../shared/utils/date';
 
 @Component({
@@ -8,81 +10,52 @@ import { toDateTimeInputValue } from '../../shared/utils/date';
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './new-reminder.component.html',
-  styleUrls: ['./new-reminder.component.css']
+  styleUrls: ['./new-reminder.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class NewReminderComponent {
-  @Output() close = new EventEmitter<void>();
-  @Output() reminderCreated = new EventEmitter<any>();
+  /** Lo controla el padre: true mientras se guarda el recordatorio. */
+  readonly submitting = input(false);
+  readonly close = output<void>();
+  readonly reminderCreated = output<ReminderInput>();
 
-  private fb = inject(FormBuilder);
-  
-  reminderForm: FormGroup;
-  submitting = false;
+  private fb = inject(FormBuilder).nonNullable;
+
+  readonly reminderForm = this.fb.group({
+    title: ['', [Validators.required, Validators.minLength(3)]],
+    description: [''],
+    reminderDateTime: [toDateTimeInputValue(this.nextHour()), Validators.required]
+  });
 
   constructor() {
-    const now = new Date();
-    const nextHour = new Date(now);
-    nextHour.setHours(now.getHours() + 1);
-
-    this.reminderForm = this.fb.group({
-      title: ['', [Validators.required, Validators.minLength(3)]],
-      description: [''],
-      reminderDateTime: [toDateTimeInputValue(nextHour), Validators.required]
-    });
-
-    this.setupDateTimeValidation();
+    this.reminderForm.controls.reminderDateTime.valueChanges
+      .pipe(takeUntilDestroyed())
+      .subscribe(() => this.validateDateTime());
   }
 
-  private setupDateTimeValidation() {
-    this.reminderForm.get('reminderDateTime')?.valueChanges.subscribe(() => {
-      this.validateDateTime();
-    });
+  private nextHour(): Date {
+    const date = new Date();
+    date.setHours(date.getHours() + 1);
+    return date;
   }
 
   private validateDateTime() {
-    const reminderDateTime = this.reminderForm.get('reminderDateTime')?.value;
-    
-    if (reminderDateTime) {
-      const reminderDate = new Date(reminderDateTime);
-      const now = new Date();
-      
-      if (reminderDate < now) {
-        this.reminderForm.get('reminderDateTime')?.setErrors({ 
-          ...this.reminderForm.get('reminderDateTime')?.errors, 
-          pastDate: true 
-        });
-      } else {
-        const errors = this.reminderForm.get('reminderDateTime')?.errors;
-        if (errors) {
-          delete errors['pastDate'];
-          if (Object.keys(errors).length === 0) {
-            this.reminderForm.get('reminderDateTime')?.setErrors(null);
-          } else {
-            this.reminderForm.get('reminderDateTime')?.setErrors(errors);
-          }
-        }
-      }
+    const control = this.reminderForm.controls.reminderDateTime;
+    if (!control.value) return;
+
+    if (new Date(control.value) < new Date()) {
+      control.setErrors({ ...control.errors, pastDate: true });
+    } else if (control.errors?.['pastDate']) {
+      const { pastDate: _removed, ...otherErrors } = control.errors;
+      control.setErrors(Object.keys(otherErrors).length ? otherErrors : null);
     }
   }
 
   onSubmit() {
     if (this.reminderForm.valid) {
-      this.submitting = true;
-      
-      const formValue = this.reminderForm.value;
-      
-      const reminderData = {
-        title: formValue.title,
-        description: formValue.description,
-        reminderDateTime: formValue.reminderDateTime
-      };
-
-      this.reminderCreated.emit(reminderData);
+      this.reminderCreated.emit(this.reminderForm.getRawValue());
     } else {
-      Object.keys(this.reminderForm.controls).forEach(key => {
-        const control = this.reminderForm.get(key);
-        control?.markAsTouched();
-      });
+      this.reminderForm.markAllAsTouched();
     }
   }
 

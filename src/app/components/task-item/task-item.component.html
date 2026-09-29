@@ -1,3 +1,4 @@
+@let task = this.task();
 <div class="card h-100 shadow-sm hover-shadow transition" 
      [class.border-success]="task.isCompleted"
      [class.border-danger]="!task.isCompleted && task.isOverdue">

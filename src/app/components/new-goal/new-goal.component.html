@@ -3,7 +3,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title fw-bold">Create New Goal</h5>
-                <button type="button" class="btn-close" (click)="closeModal()" [disabled]="submitting" aria-label="Close"></button>
+                <button type="button" class="btn-close" (click)="closeModal()" [disabled]="submitting()" aria-label="Close"></button>
             </div>
             
             <div class="modal-body">
@@ -129,15 +129,15 @@
             </div>
             
          <div class="modal-footer">
-                <button type="button" class="btn btn-outline-secondary" (click)="closeModal()" [disabled]="submitting">
+                <button type="button" class="btn btn-outline-secondary" (click)="closeModal()" [disabled]="submitting()">
                     Cancel
                 </button>
                 <button 
                     type="button" 
                     class="btn btn-primary" 
                     (click)="onSubmit()"
-                    [disabled]="goalForm.invalid || submitting">
-                    @if (submitting) {
+                    [disabled]="goalForm.invalid || submitting()">
+                    @if (submitting()) {
                         <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
                         Creating...
                     } @else {

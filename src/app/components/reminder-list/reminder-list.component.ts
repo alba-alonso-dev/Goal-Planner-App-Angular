@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -6,7 +6,8 @@ import { ReminderItemComponent } from '../reminder-item/reminder-item.component'
 import { NewReminderComponent } from '../new-reminder/new-reminder.component';
 import { ReminderDetailsComponent } from '../reminder-details/reminder-details.component';
 import { ReminderService } from '../../services/reminder.service';
-import { ReminderResponse } from '../../model/reminder';
+import { ReminderInput, ReminderResponse } from '../../model/reminder';
+import { ApiError } from '../../core/http/api-error';
 import { NotificationService } from '../../services/notification.service';
 
 type FilterType = 'all' | 'pending' | 'acknowledged' | 'overdue';
@@ -24,7 +25,8 @@ type FilterType = 'all' | 'pending' | 'acknowledged' | 'overdue';
     ReminderDetailsComponent
   ],
   templateUrl: './reminder-list.component.html',
-  styleUrls: ['./reminder-list.component.css']
+  styleUrls: ['./reminder-list.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ReminderListComponent implements OnInit {
   private reminderService = inject(ReminderService);
@@ -101,29 +103,30 @@ export class ReminderListComponent implements OnInit {
     };
   });
 
-  showNewReminderModal = false;
-  showDetailsModal = false;
-  selectedReminder: ReminderResponse | null = null;
-  loading = false;
-  error: string | null = null;
-  viewMode: 'grid' | 'list' = 'grid'; // Para cambiar vista
+  readonly showNewReminderModal = signal(false);
+  readonly showDetailsModal = signal(false);
+  readonly selectedReminder = signal<ReminderResponse | null>(null);
+  readonly loading = signal(false);
+  readonly creating = signal(false);
+  readonly error = signal<string | null>(null);
+  readonly viewMode = signal<'grid' | 'list'>('grid'); // Para cambiar vista
 
   ngOnInit() {
     this.loadReminders();
   }
 
   loadReminders() {
-    this.loading = true;
-    this.error = null;
+    this.loading.set(true);
+    this.error.set(null);
     
     this.reminderService.getAllRemindersByUser().subscribe({
       next: (reminders) => {
         this.allReminders.set(reminders);
-        this.loading = false;
+        this.loading.set(false);
       },
-      error: (error) => {
-        this.error = error.message;
-        this.loading = false;
+      error: (error: ApiError) => {
+        this.error.set(error.message);
+        this.loading.set(false);
         console.error('Error loading reminders:', error);
       }
     });
@@ -138,29 +141,31 @@ export class ReminderListComponent implements OnInit {
   }
 
   toggleViewMode() {
-    this.viewMode = this.viewMode === 'grid' ? 'list' : 'grid';
+    this.viewMode.update(mode => (mode === 'grid' ? 'list' : 'grid'));
   }
 
   openNewReminderModal() {
-    this.showNewReminderModal = true;
+    this.showNewReminderModal.set(true);
   }
 
   closeNewReminderModal() {
-    this.showNewReminderModal = false;
+    this.showNewReminderModal.set(false);
   }
 
-  onReminderCreated(reminderData: any) {
-    this.loading = true;
-    
+  onReminderCreated(reminderData: ReminderInput) {
+    this.creating.set(true);
+
     this.reminderService.createReminder(reminderData).subscribe({
-      next: (response) => {
-        this.loadReminders();
+      next: () => {
+        this.creating.set(false);
         this.closeNewReminderModal();
+        this.loadReminders();
+        this.notificationService.success('Reminder created successfully', 'Success');
       },
-      error: (error) => {
-        this.error = error.message;
-        this.loading = false;
-        console.error('Error creating reminder:', error);
+      error: (error: ApiError) => {
+        // El modal sigue abierto para poder reintentar sin perder los datos
+        this.creating.set(false);
+        this.notificationService.error(error.message, 'Error creating reminder');
       }
     });
   }
@@ -172,54 +177,45 @@ export class ReminderListComponent implements OnInit {
   viewReminderDetails(reminder: ReminderResponse) {
     if (!reminder.reminderId) return;
     
-    this.loading = true;
+    this.loading.set(true);
     
     this.reminderService.getReminderById(reminder.reminderId).subscribe({
       next: (reminderDetails) => {
-        this.selectedReminder = reminderDetails;
-        this.showDetailsModal = true;
-        this.loading = false;
+        this.selectedReminder.set(reminderDetails);
+        this.showDetailsModal.set(true);
+        this.loading.set(false);
       },
-      error: (error) => {
-        this.error = error.message;
-        this.loading = false;
-        console.error('Error loading reminder details:', error);
+      error: (error: ApiError) => {
+        this.loading.set(false);
+        this.notificationService.error(error.message, 'Error loading reminder details');
       }
     });
   }
 
   closeDetailsModal() {
-    this.showDetailsModal = false;
-    this.selectedReminder = null;
+    this.showDetailsModal.set(false);
+    this.selectedReminder.set(null);
   }
 
   toggleReminderAcknowledgement(reminder: ReminderResponse) {
-    // Lógica para cambiar el estado de acknowledged
+    this.reminderService.toggleReminderAcknowledgement(reminder).subscribe({
+      next: () => this.loadReminders(),
+      error: (error: ApiError) => this.notificationService.error(error.message, 'Error updating reminder')
+    });
   }
 
   deleteReminder(reminderId: number) {
-    // Lógica para eliminar reminder
+    this.reminderService.deleteReminder(reminderId).subscribe({
+      next: () => {
+        this.loadReminders();
+        this.notificationService.success('Reminder deleted successfully', 'Success');
+      },
+      error: (error: ApiError) => this.notificationService.error(error.message, 'Error deleting reminder')
+    });
   }
 
   retry() {
     this.loadReminders();
-  }
-
-  // Método para archivar/eliminar reminders completados
-  archiveCompletedReminders() {
-    const completedReminders = this.allReminders().filter(r => r.isAcknowledged);
-    
-    if (completedReminders.length === 0) {
-      this.notificationService.info('No completed reminders to archive', 'Info');
-      return;
-    }
-    
-    if (confirm(`Are you sure you want to archive ${completedReminders.length} completed reminder(s)?`)) {
-      const activeReminders = this.allReminders().filter(r => !r.isAcknowledged);
-      this.allReminders.set(activeReminders);
-      
-      this.notificationService.success(`Archived ${completedReminders.length} reminders`, 'Success');
-    }
   }
 
   // Métodos auxiliares para la vista de lista
@@ -246,45 +242,4 @@ export class ReminderListComponent implements OnInit {
     if (reminder.isTomorrow) return 'Tomorrow';
     return 'Upcoming';
   }
-
-  // En el componente, agregamos una nueva señal computada para los reminders agrupados
-groupedReminders = computed(() => {
-  const reminders = this.filteredReminders();
-  const groups: { [key: string]: ReminderResponse[] } = {
-    'today': [],
-    'tomorrow': [],
-    'thisWeek': [],
-    'later': []
-  };
-  
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  
-  const tomorrow = new Date(today);
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  
-  const weekEnd = new Date(today);
-  weekEnd.setDate(today.getDate() + 7);
-  
-  reminders.forEach(reminder => {
-    const rDate = new Date(reminder.reminderDateTime);
-    rDate.setHours(0, 0, 0, 0);
-    
-    if (reminder.isAcknowledged) {
-      // Los completados los dejamos aparte
-      if (!groups['completed']) groups['completed'] = [];
-      groups['completed'].push(reminder);
-    } else if (rDate.getTime() === today.getTime()) {
-      groups['today'].push(reminder);
-    } else if (rDate.getTime() === tomorrow.getTime()) {
-      groups['tomorrow'].push(reminder);
-    } else if (rDate >= today && rDate <= weekEnd) {
-      groups['thisWeek'].push(reminder);
-    } else {
-      groups['later'].push(reminder);
-    }
-  });
-  
-  return groups;
-});
 }

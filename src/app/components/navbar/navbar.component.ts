@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { LoginModalComponent } from "../login-modal/login-modal.component";
 import { AuthService } from '../../services/auth.service';
 import { RouterModule } from '@angular/router';
@@ -8,25 +8,26 @@ import { Router } from '@angular/router';
   selector: 'app-navbar',
   imports: [LoginModalComponent, RouterModule],
   templateUrl: './navbar.component.html',
-  styleUrl: './navbar.component.css'
+  styleUrl: './navbar.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class NavbarComponent {
-  modalVisible = false;
+  // Exponemos el servicio para leer la señal de usuario en la plantilla
+  readonly authService = inject(AuthService);
+  private router = inject(Router);
 
-  // Inyectamos el servicio y exponemos la señal de usuario
-  constructor(public authService: AuthService, private router: Router) {}
+  readonly modalVisible = signal(false);
 
   openModal() {
-    this.modalVisible = true;
+    this.modalVisible.set(true);
   }
 
   closeModal() {
-    this.modalVisible = false;
+    this.modalVisible.set(false);
   }
 
   logout() {
     this.authService.logout();
-    // Opcional: redirigir al home TODO
     this.router.navigate(['/home']);
   }
 }

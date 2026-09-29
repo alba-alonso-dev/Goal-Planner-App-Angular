@@ -1,18 +1,20 @@
-import { Component, EventEmitter, HostListener, Input, Output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';  
 import { AuthService } from '../../services/auth.service';
 import { LoginData, RegisterData } from '../../model/user';
 import { Router } from '@angular/router';
+import { ApiError } from '../../core/http/api-error';
 
 @Component({
   selector: 'app-login-modal',
   imports: [FormsModule],
   templateUrl: './login-modal.component.html',
-  styleUrls: ['./login-modal.component.css']
+  styleUrls: ['./login-modal.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class LoginModalComponent {
-  @Input() visible: boolean = false;
-  @Output() close = new EventEmitter<void>();
+  readonly visible = input(false);
+  readonly close = output<void>();
 
   // Signal para alternar entre login (true) y registro (false)
   showLogin = signal<boolean>(true);
@@ -36,7 +38,8 @@ export class LoginModalComponent {
   successMessage = signal<string | null>(null);
   isLoading = signal<boolean>(false);
   
-  constructor(private authService: AuthService, private router: Router) {}
+  private authService = inject(AuthService);
+  private router = inject(Router);
 
   // Cierra el modal (emite el evento al padre)
   closeModal() {
@@ -65,7 +68,7 @@ export class LoginModalComponent {
         this.closeModal(); // Cierra el modal
         this.router.navigate(['/dashboard']); // Navega al dashboard
       },
-      error: (err) => {
+      error: (err: ApiError) => {
         this.isLoading.set(false);
         this.errorMessage.set(err.serverMessage || 'Error al iniciar sesión. Inténtalo de nuevo.');
         console.error('Login error', err);
@@ -97,7 +100,7 @@ export class LoginModalComponent {
             this.closeModal(); // Cierra el modal
             this.router.navigate(['/dashboard']); // Navega al dashboard
           },
-          error: (loginErr) => {
+          error: (loginErr: ApiError) => {
             this.isLoading.set(false);
             // Si el login automático falla, redirigir a login manual
             this.errorMessage.set('Registro exitoso. Por favor, inicia sesión.');
@@ -106,7 +109,7 @@ export class LoginModalComponent {
           }
         });
       },
-      error: (err) => {
+      error: (err: ApiError) => {
         this.isLoading.set(false);
         this.errorMessage.set(err.serverMessage || 'Error al registrarse. Inténtalo de nuevo.');
         console.error('Register error', err);

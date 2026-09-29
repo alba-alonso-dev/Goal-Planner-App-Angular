@@ -1,4 +1,4 @@
-import { Component, Input, EventEmitter, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TaskResponse } from '../../model/task';
 
@@ -7,27 +7,28 @@ import { TaskResponse } from '../../model/task';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './task-item.component.html',
-  styleUrls: ['./task-item.component.css']
+  styleUrls: ['./task-item.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TaskItemComponent {
-  @Input() task!: TaskResponse;
-  @Output() toggleCompletion = new EventEmitter<TaskResponse>();
-  @Output() viewDetails = new EventEmitter<TaskResponse>();
-  @Output() delete = new EventEmitter<number>();
+  readonly task = input.required<TaskResponse>();
+  readonly toggleCompletion = output<TaskResponse>();
+  readonly viewDetails = output<TaskResponse>();
+  readonly delete = output<number>();
 
   onToggleComplete(event: Event) {
     event.stopPropagation();
-    this.toggleCompletion.emit(this.task);
+    this.toggleCompletion.emit(this.task());
   }
 
   onViewDetails() {
-    this.viewDetails.emit(this.task);
+    this.viewDetails.emit(this.task());
   }
 
   onDelete(event: Event) {
     event.stopPropagation();
-    if (confirm(`Are you sure you want to delete "${this.task.taskName}"?`)) {
-      this.delete.emit(this.task.taskId);
+    if (confirm(`Are you sure you want to delete "${this.task().taskName}"?`)) {
+      this.delete.emit(this.task().taskId);
     }
   }
 
@@ -41,14 +42,14 @@ export class TaskItemComponent {
   }
 
   getStatusClass(): string {
-    if (this.task.isCompleted) return 'text-success';
-    if (this.task.isOverdue) return 'text-danger';
+    if (this.task().isCompleted) return 'text-success';
+    if (this.task().isOverdue) return 'text-danger';
     return 'text-warning';
   }
 
   getStatusText(): string {
-    if (this.task.isCompleted) return 'Completed';
-    if (this.task.isOverdue) return 'Overdue';
+    if (this.task().isCompleted) return 'Completed';
+    if (this.task().isOverdue) return 'Overdue';
     return 'Pending';
   }
 
