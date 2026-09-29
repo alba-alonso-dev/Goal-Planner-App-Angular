@@ -78,7 +78,14 @@ $utilities: map-remove(
 
 // 3. Componentes usados
 @import 'bootstrap/scss/tables';
-@import 'bootstrap/scss/forms';
+// forms: sin form-range ni floating-labels, que no se usan
+@import 'bootstrap/scss/forms/labels';
+@import 'bootstrap/scss/forms/form-text';
+@import 'bootstrap/scss/forms/form-control';
+@import 'bootstrap/scss/forms/form-select';
+@import 'bootstrap/scss/forms/form-check';
+@import 'bootstrap/scss/forms/input-group';
+@import 'bootstrap/scss/forms/validation';
 @import 'bootstrap/scss/buttons';
 @import 'bootstrap/scss/transitions';
 @import 'bootstrap/scss/button-group';
