@@ -92,12 +92,12 @@ export class ReminderService {
   private transformReminderResponse(reminder: ReminderResponse): ReminderResponse {
     const now = new Date();
     const reminderDate = new Date(reminder.reminderDateTime);
-    
+
     // Calcular tiempo restante
     const diffTime = reminderDate.getTime() - now.getTime();
     const diffHours = Math.floor(diffTime / (1000 * 60 * 60));
     const diffMinutes = Math.floor((diffTime % (1000 * 60 * 60)) / (1000 * 60));
-    
+
     let timeRemaining = '';
     if (diffTime < 0) {
       timeRemaining = 'Overdue';
@@ -115,10 +115,10 @@ export class ReminderService {
     // Verificar si es hoy, mañana, etc.
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    
+
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
-    
+
     const reminderDateOnly = new Date(reminderDate);
     reminderDateOnly.setHours(0, 0, 0, 0);
 
@@ -155,13 +155,12 @@ export class ReminderService {
    * Obtener estadísticas de reminders
    */
   getReminderStats(reminders: ReminderResponse[]): ReminderStats {
-    const now = new Date();
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    
+
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
-    
+
     const nextWeek = new Date(today);
     nextWeek.setDate(nextWeek.getDate() + 7);
 

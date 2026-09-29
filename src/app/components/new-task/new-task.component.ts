@@ -19,7 +19,7 @@ type Frequency = TaskResponse['frequency'];
 export class NewTaskComponent {
   /** Lo controla el padre: true mientras se guarda la tarea. */
   readonly submitting = input(false);
-  readonly close = output<void>();
+  readonly closed = output<void>();
   readonly taskCreated = output<TaskInput>();
 
   private fb = inject(FormBuilder).nonNullable;
@@ -66,6 +66,6 @@ export class NewTaskComponent {
   }
 
   closeModal() {
-    this.close.emit();
+    this.closed.emit();
   }
 }

@@ -1,204 +1,187 @@
-@let reminder = this.reminder();
-<div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title fw-bold">
-                    @if (editMode()) {
-                        <i class="fas fa-edit me-2"></i>Edit Reminder
-                    } @else {
-                        <i class="fas fa-bell me-2"></i>Reminder Details
-                    }
-                </h5>
-                <button type="button" class="btn-close" (click)="closeModal()" [disabled]="submitting()" aria-label="Close"></button>
+@let reminder = this.currentReminder();
+<div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0, 0, 0, 0.5)">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold">
+          @if (editMode()) {
+            <i class="fas fa-edit me-2"></i>Edit Reminder
+          } @else {
+            <i class="fas fa-bell me-2"></i>Reminder Details
+          }
+        </h5>
+        <button
+          type="button"
+          class="btn-close"
+          (click)="closeModal()"
+          [disabled]="submitting()"
+          aria-label="Close"
+        ></button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Error message -->
+        @if (error()) {
+          <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            {{ error() }}
+            <button type="button" class="btn-close" (click)="error.set(null)"></button>
+          </div>
+        }
+
+        @if (editMode()) {
+          <!-- EDIT MODE -->
+          <form [formGroup]="editForm">
+            <!-- Title -->
+            <div class="mb-3">
+              <label class="form-label fw-semibold"> Title <span class="text-danger">*</span> </label>
+              <input
+                type="text"
+                class="form-control"
+                formControlName="title"
+                [class.is-invalid]="editForm.get('title')?.invalid && editForm.get('title')?.touched"
+              />
+              @if (editForm.get('title')?.invalid && editForm.get('title')?.touched) {
+                <div class="invalid-feedback">Title is required (minimum 3 characters)</div>
+              }
             </div>
-            
-            <div class="modal-body">
-                <!-- Error message -->
-                @if (error()) {
-                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                        <i class="fas fa-exclamation-triangle me-2"></i>
-                        {{error()}}
-                        <button type="button" class="btn-close" (click)="error.set(null)"></button>
-                    </div>
-                }
 
-                @if (editMode()) {
-                    <!-- EDIT MODE -->
-                    <form [formGroup]="editForm">
-                        <!-- Title -->
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold">
-                                Title <span class="text-danger">*</span>
-                            </label>
-                            <input 
-                                type="text" 
-                                class="form-control" 
-                                formControlName="title"
-                                [class.is-invalid]="editForm.get('title')?.invalid && editForm.get('title')?.touched">
-                            @if (editForm.get('title')?.invalid && editForm.get('title')?.touched) {
-                                <div class="invalid-feedback">
-                                    Title is required (minimum 3 characters)
-                                </div>
-                            }
-                        </div>
-
-                        <!-- Date & Time -->
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold">
-                                Date & Time <span class="text-danger">*</span>
-                            </label>
-                            <input 
-                                type="datetime-local" 
-                                class="form-control" 
-                                formControlName="reminderDateTime"
-                                [class.is-invalid]="editForm.get('reminderDateTime')?.errors && editForm.get('reminderDateTime')?.touched">
-                            @if (editForm.get('reminderDateTime')?.hasError('required') && editForm.get('reminderDateTime')?.touched) {
-                                <div class="invalid-feedback">
-                                    Date and time are required
-                                </div>
-                            }
-                            @if (editForm.get('reminderDateTime')?.hasError('pastDate')) {
-                                <div class="invalid-feedback">
-                                    Reminder cannot be in the past
-                                </div>
-                            }
-                        </div>
-
-                        <!-- Description -->
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold">Description</label>
-                            <textarea 
-                                class="form-control" 
-                                formControlName="description"
-                                rows="4"></textarea>
-                        </div>
-
-                        <!-- Acknowledged Checkbox -->
-                        <div class="mb-3">
-                            <div class="form-check">
-                                <input 
-                                    type="checkbox" 
-                                    class="form-check-input" 
-                                    id="isAcknowledged"
-                                    formControlName="isAcknowledged">
-                                <label class="form-check-label" for="isAcknowledged">
-                                    Reminder acknowledged
-                                </label>
-                            </div>
-                        </div>
-                    </form>
-                } @else {
-                    <!-- VIEW MODE -->
-                    <div class="text-center mb-4">
-                        <div class="display-1 mb-3">
-                            <i [class]="getStatusIcon()"></i>
-                        </div>
-                        <h3 class="fw-bold">{{reminder.title}}</h3>
-                        <span class="badge fs-6 mt-2" [class]="getStatusClass()">
-                            <i class="fas fa-circle me-1" style="font-size: 8px;"></i>
-                            {{getStatusText()}}
-                        </span>
-                    </div>
-
-                    <!-- Details Grid -->
-                    <div class="row g-3 mb-4">
-                        <div class="col-12">
-                            <div class="card bg-light border-0">
-                                <div class="card-body">
-                                    <div class="d-flex align-items-center">
-                                        <i class="far fa-calendar-alt fa-2x text-primary me-3"></i>
-                                        <div>
-                                            <h6 class="text-muted mb-1">Date & Time</h6>
-                                            <p class="h5 mb-0">{{reminder.formattedDateTime || (reminder.reminderDateTime | date:'fullDate')}} a las {{reminder.reminderDateTime | date:'shortTime'}}</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        @if (reminder.timeRemaining && !reminder.isAcknowledged) {
-                            <div class="col-12">
-                                <div class="card bg-light border-0">
-                                    <div class="card-body">
-                                        <div class="d-flex align-items-center">
-                                            <i class="fas fa-hourglass-half fa-2x text-primary me-3"></i>
-                                            <div>
-                                                <h6 class="text-muted mb-1">Time Remaining</h6>
-                                                <p class="h5 mb-0" [class.text-danger]="reminder.isOverdue">
-                                                    {{reminder.timeRemaining}}
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        }
-                    </div>
-
-                    <!-- Description -->
-                    @if (reminder.description) {
-                        <div class="mb-4">
-                            <h6 class="fw-semibold mb-2">Description</h6>
-                            <p class="text-muted">{{reminder.description}}</p>
-                        </div>
-                    }
-                }
+            <!-- Date & Time -->
+            <div class="mb-3">
+              <label class="form-label fw-semibold"> Date & Time <span class="text-danger">*</span> </label>
+              <input
+                type="datetime-local"
+                class="form-control"
+                formControlName="reminderDateTime"
+                [class.is-invalid]="
+                  editForm.get('reminderDateTime')?.errors && editForm.get('reminderDateTime')?.touched
+                "
+              />
+              @if (
+                editForm.get('reminderDateTime')?.hasError('required') && editForm.get('reminderDateTime')?.touched
+              ) {
+                <div class="invalid-feedback">Date and time are required</div>
+              }
+              @if (editForm.get('reminderDateTime')?.hasError('pastDate')) {
+                <div class="invalid-feedback">Reminder cannot be in the past</div>
+              }
             </div>
-            
-            <div class="modal-footer">
-                @if (editMode()) {
-                    <button 
-                        type="button" 
-                        class="btn btn-outline-secondary" 
-                        (click)="toggleEditMode()"
-                        [disabled]="submitting()">
-                        Cancel
-                    </button>
-                    <button 
-                        type="button" 
-                        class="btn btn-primary" 
-                        (click)="saveChanges()"
-                        [disabled]="editForm.invalid || submitting()">
-                        @if (submitting()) {
-                            <span class="spinner-border spinner-border-sm me-2"></span>
-                            Saving...
-                        } @else {
-                            <i class="fas fa-save me-2"></i>Save Changes
-                        }
-                    </button>
-                } @else {
-                    <button 
-                        type="button" 
-                        class="btn btn-outline-success" 
-                        (click)="toggleAcknowledgement()"
-                        [disabled]="submitting()">
-                        @if (reminder.isAcknowledged) {
-                            <i class="fas fa-undo me-2"></i>Mark Unacknowledged
-                        } @else {
-                            <i class="fas fa-check me-2"></i>Mark Acknowledged
-                        }
-                    </button>
-                    <button 
-                        type="button" 
-                        class="btn btn-outline-primary" 
-                        (click)="toggleEditMode()">
-                        <i class="fas fa-edit me-2"></i>Edit
-                    </button>
-                    <button 
-                        type="button" 
-                        class="btn btn-outline-danger" 
-                        (click)="deleteReminder()">
-                        <i class="fas fa-trash me-2"></i>Delete
-                    </button>
-                    <button 
-                        type="button" 
-                        class="btn btn-primary" 
-                        (click)="closeModal()">
-                        Close
-                    </button>
-                }
+
+            <!-- Description -->
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Description</label>
+              <textarea class="form-control" formControlName="description" rows="4"></textarea>
             </div>
-        </div>
+
+            <!-- Acknowledged Checkbox -->
+            <div class="mb-3">
+              <div class="form-check">
+                <input type="checkbox" class="form-check-input" id="isAcknowledged" formControlName="isAcknowledged" />
+                <label class="form-check-label" for="isAcknowledged"> Reminder acknowledged </label>
+              </div>
+            </div>
+          </form>
+        } @else {
+          <!-- VIEW MODE -->
+          <div class="text-center mb-4">
+            <div class="display-1 mb-3">
+              <i [class]="getStatusIcon()"></i>
+            </div>
+            <h3 class="fw-bold">{{ reminder.title }}</h3>
+            <span class="badge fs-6 mt-2" [class]="getStatusClass()">
+              <i class="fas fa-circle me-1" style="font-size: 8px"></i>
+              {{ getStatusText() }}
+            </span>
+          </div>
+
+          <!-- Details Grid -->
+          <div class="row g-3 mb-4">
+            <div class="col-12">
+              <div class="card bg-light border-0">
+                <div class="card-body">
+                  <div class="d-flex align-items-center">
+                    <i class="far fa-calendar-alt fa-2x text-primary me-3"></i>
+                    <div>
+                      <h6 class="text-muted mb-1">Date & Time</h6>
+                      <p class="h5 mb-0">
+                        {{ reminder.formattedDateTime || (reminder.reminderDateTime | date: 'fullDate') }} a las
+                        {{ reminder.reminderDateTime | date: 'shortTime' }}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            @if (reminder.timeRemaining && !reminder.isAcknowledged) {
+              <div class="col-12">
+                <div class="card bg-light border-0">
+                  <div class="card-body">
+                    <div class="d-flex align-items-center">
+                      <i class="fas fa-hourglass-half fa-2x text-primary me-3"></i>
+                      <div>
+                        <h6 class="text-muted mb-1">Time Remaining</h6>
+                        <p class="h5 mb-0" [class.text-danger]="reminder.isOverdue">
+                          {{ reminder.timeRemaining }}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+
+          <!-- Description -->
+          @if (reminder.description) {
+            <div class="mb-4">
+              <h6 class="fw-semibold mb-2">Description</h6>
+              <p class="text-muted">{{ reminder.description }}</p>
+            </div>
+          }
+        }
+      </div>
+
+      <div class="modal-footer">
+        @if (editMode()) {
+          <button type="button" class="btn btn-outline-secondary" (click)="toggleEditMode()" [disabled]="submitting()">
+            Cancel
+          </button>
+          <button
+            type="button"
+            class="btn btn-primary"
+            (click)="saveChanges()"
+            [disabled]="editForm.invalid || submitting()"
+          >
+            @if (submitting()) {
+              <span class="spinner-border spinner-border-sm me-2"></span>
+              Saving...
+            } @else {
+              <i class="fas fa-save me-2"></i>Save Changes
+            }
+          </button>
+        } @else {
+          <button
+            type="button"
+            class="btn btn-outline-success"
+            (click)="toggleAcknowledgement()"
+            [disabled]="submitting()"
+          >
+            @if (reminder.isAcknowledged) {
+              <i class="fas fa-undo me-2"></i>Mark Unacknowledged
+            } @else {
+              <i class="fas fa-check me-2"></i>Mark Acknowledged
+            }
+          </button>
+          <button type="button" class="btn btn-outline-primary" (click)="toggleEditMode()">
+            <i class="fas fa-edit me-2"></i>Edit
+          </button>
+          <button type="button" class="btn btn-outline-danger" (click)="deleteReminder()">
+            <i class="fas fa-trash me-2"></i>Delete
+          </button>
+          <button type="button" class="btn btn-primary" (click)="closeModal()">Close</button>
+        }
+      </div>
     </div>
+  </div>
 </div>

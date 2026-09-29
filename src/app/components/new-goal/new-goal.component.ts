@@ -23,7 +23,7 @@ type MilestoneForm = FormGroup<{
 export class NewGoalComponent {
   /** Lo controla el padre: true mientras se guarda el goal. */
   readonly submitting = input(false);
-  readonly close = output<void>();
+  readonly closed = output<void>();
   readonly goalCreated = output<GoalInput>();
 
   private fb = inject(FormBuilder).nonNullable;
@@ -93,6 +93,6 @@ export class NewGoalComponent {
   }
 
   closeModal() {
-    this.close.emit();
+    this.closed.emit();
   }
 }

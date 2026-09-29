@@ -21,7 +21,7 @@ export class DashboardService {
   tasks = signal<TaskResponse[]>([]);
   goals = signal<GoalResponse[]>([]);
   reminders = signal<ReminderResponse[]>([]);
-  
+
   loading = signal<boolean>(false);
   error = signal<string | null>(null);
 
@@ -36,7 +36,7 @@ export class DashboardService {
     const completedTasks = tasks.filter(t => t.isCompleted).length;
     const pendingTasks = tasks.filter(t => !t.isCompleted && !t.isOverdue).length;
     const overdueTasks = tasks.filter(t => !t.isCompleted && t.isOverdue).length;
-    
+
     const tasksByFrequency = {
       daily: tasks.filter(t => t.frequency === 'Daily').length,
       weekly: tasks.filter(t => t.frequency === 'Weekly').length,
@@ -48,10 +48,9 @@ export class DashboardService {
     const completedGoals = goals.filter(g => g.isAchieved).length;
     const activeGoals = goals.filter(g => !g.isAchieved && !this.isGoalOverdue(g)).length;
     const overdueGoals = goals.filter(g => !g.isAchieved && this.isGoalOverdue(g)).length;
-    
-    const averageGoalProgress = goals.length > 0 
-      ? Math.round(goals.reduce((sum, g) => sum + (g.progress || 0), 0) / goals.length)
-      : 0;
+
+    const averageGoalProgress =
+      goals.length > 0 ? Math.round(goals.reduce((sum, g) => sum + (g.progress || 0), 0) / goals.length) : 0;
 
     // Reminders stats
     const totalReminders = reminders.length;
@@ -62,10 +61,10 @@ export class DashboardService {
     const now = new Date();
     const today = new Date(now);
     today.setHours(0, 0, 0, 0);
-    
+
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
-    
+
     const nextWeek = new Date(today);
     nextWeek.setDate(nextWeek.getDate() + 7);
 
@@ -85,9 +84,12 @@ export class DashboardService {
       thisWeek: reminders.filter(r => {
         if (r.isAcknowledged) return false;
         const rDate = new Date(r.reminderDateTime);
-        return rDate >= today && rDate <= nextWeek && 
-               rDate.getTime() !== today.getTime() && 
-               rDate.getTime() !== tomorrow.getTime();
+        return (
+          rDate >= today &&
+          rDate <= nextWeek &&
+          rDate.getTime() !== today.getTime() &&
+          rDate.getTime() !== tomorrow.getTime()
+        );
       }).length,
       later: reminders.filter(r => {
         if (r.isAcknowledged) return false;
@@ -100,7 +102,7 @@ export class DashboardService {
     const totalItems = totalTasks + totalGoals + totalReminders;
     const activeItems = pendingTasks + activeGoals + pendingReminders;
     const overdueItems = overdueTasks + overdueGoals + overdueReminders;
-    
+
     const completedItems = completedTasks + completedGoals + acknowledgedReminders;
     const completionRate = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
 
@@ -110,19 +112,19 @@ export class DashboardService {
       pendingTasks,
       overdueTasks,
       tasksByFrequency,
-      
+
       totalGoals,
       completedGoals,
       activeGoals,
       overdueGoals,
       averageGoalProgress,
-      
+
       totalReminders,
       acknowledgedReminders,
       pendingReminders,
       overdueReminders,
       remindersByTime,
-      
+
       completionRate,
       totalItems,
       activeItems,
@@ -192,7 +194,7 @@ export class DashboardService {
         this.reminders.set(reminders);
         this.loading.set(false);
       },
-      error: (err) => {
+      error: err => {
         console.error('Dashboard error:', err);
         this.error.set(err.message || 'Error loading dashboard data');
         this.loading.set(false);
@@ -244,7 +246,7 @@ export class DashboardService {
   // Goal Chart Data
   getGoalProgressChartData(): ChartData {
     const goals = this.goals();
-    
+
     const completed = goals.filter(g => g.isAchieved).length;
     const inProgress = goals.filter(g => !g.isAchieved && (g.progress || 0) > 0 && (g.progress || 0) < 100).length;
     const notStarted = goals.filter(g => !g.isAchieved && (g.progress || 0) === 0).length;
@@ -256,7 +258,7 @@ export class DashboardService {
         {
           label: 'Goals',
           data: [completed, inProgress, notStarted, overdue],
-          backgroundColor: ['#28a745', '#ffc107', '#6c757d', '#dc3545'],
+          backgroundColor: ['#28a745', '#ffc107', '#6c757d', '#dc3545']
         }
       ]
     };
@@ -268,10 +270,10 @@ export class DashboardService {
     const now = new Date();
     const today = new Date(now);
     today.setHours(0, 0, 0, 0);
-    
+
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
-    
+
     const nextWeek = new Date(today);
     nextWeek.setDate(nextWeek.getDate() + 7);
 
@@ -307,14 +309,14 @@ export class DashboardService {
         {
           label: 'Upcoming Reminders',
           data: [today_count, tomorrow_count, thisWeek_count, later_count],
-          backgroundColor: ['#ffc107', '#17a2b8', '#007bff', '#6c757d'],
+          backgroundColor: ['#ffc107', '#17a2b8', '#007bff', '#6c757d']
         }
       ]
     };
   }
 
   // Recent tasks for table
-  getRecentTasks(limit: number = 5): TaskResponse[] {
+  getRecentTasks(limit = 5): TaskResponse[] {
     // Copia antes de ordenar: sort() muta el array del signal
     return [...this.tasks()]
       .sort((a, b) => new Date(b.dueDate).getTime() - new Date(a.dueDate).getTime())

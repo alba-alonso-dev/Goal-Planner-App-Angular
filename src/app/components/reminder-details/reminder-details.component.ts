@@ -1,4 +1,14 @@
-import { ChangeDetectionStrategy, Component, effect, inject, input, linkedSignal, output, signal, untracked } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  effect,
+  inject,
+  input,
+  linkedSignal,
+  output,
+  signal,
+  untracked
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
@@ -16,8 +26,8 @@ import { toDateTimeInputValue } from '../../shared/utils/date';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ReminderDetailsComponent {
-  readonly reminderInput = input.required<ReminderResponse>({ alias: 'reminder' });
-  readonly close = output<void>();
+  readonly reminder = input.required<ReminderResponse>();
+  readonly closed = output<void>();
   readonly reminderUpdated = output<void>();
   readonly delete = output<number>();
 
@@ -25,7 +35,7 @@ export class ReminderDetailsComponent {
   private reminderService = inject(ReminderService);
 
   // Copia local del recordatorio: parte del input y se sustituye tras guardar cambios
-  readonly reminder = linkedSignal(() => this.reminderInput());
+  readonly currentReminder = linkedSignal(() => this.reminder());
 
   readonly editMode = signal(false);
   readonly submitting = signal(false);
@@ -41,7 +51,7 @@ export class ReminderDetailsComponent {
   constructor() {
     // Rellenar el formulario cada vez que cambia el recordatorio (input o recarga tras guardar)
     effect(() => {
-      const reminder = this.reminder();
+      const reminder = this.currentReminder();
       untracked(() => this.initForm(reminder));
     });
 
@@ -79,13 +89,13 @@ export class ReminderDetailsComponent {
     this.editMode.update(value => !value);
     this.error.set(null);
     if (!this.editMode()) {
-      this.initForm(this.reminder());
+      this.initForm(this.currentReminder());
     }
   }
 
   toggleAcknowledgement() {
     this.submitting.set(true);
-    this.reminderService.toggleReminderAcknowledgement(this.reminder()).subscribe({
+    this.reminderService.toggleReminderAcknowledgement(this.currentReminder()).subscribe({
       next: () => {
         this.submitting.set(false);
         this.reminderUpdated.emit();
@@ -107,7 +117,7 @@ export class ReminderDetailsComponent {
     this.submitting.set(true);
     this.error.set(null);
 
-    this.reminderService.updateReminder(this.reminder().reminderId, this.editForm.getRawValue()).subscribe({
+    this.reminderService.updateReminder(this.currentReminder().reminderId, this.editForm.getRawValue()).subscribe({
       next: () => {
         this.submitting.set(false);
         this.editMode.set(false);
@@ -122,25 +132,25 @@ export class ReminderDetailsComponent {
   }
 
   deleteReminder() {
-    if (confirm(`Are you sure you want to delete "${this.reminder().title}"?`)) {
-      this.delete.emit(this.reminder().reminderId);
+    if (confirm(`Are you sure you want to delete "${this.currentReminder().title}"?`)) {
+      this.delete.emit(this.currentReminder().reminderId);
       this.closeModal();
     }
   }
 
   private loadUpdatedReminder() {
-    this.reminderService.getReminderById(this.reminder().reminderId).subscribe({
-      next: updatedReminder => this.reminder.set(updatedReminder),
+    this.reminderService.getReminderById(this.currentReminder().reminderId).subscribe({
+      next: updatedReminder => this.currentReminder.set(updatedReminder),
       error: error => console.error('Error loading updated reminder:', error)
     });
   }
 
   closeModal() {
-    this.close.emit();
+    this.closed.emit();
   }
 
   getStatusIcon(): string {
-    const reminder = this.reminder();
+    const reminder = this.currentReminder();
     if (reminder.isAcknowledged) return 'fas fa-check-circle text-success';
     if (reminder.isOverdue) return 'fas fa-exclamation-circle text-danger';
     if (reminder.isToday) return 'fas fa-bell text-warning';
@@ -149,7 +159,7 @@ export class ReminderDetailsComponent {
   }
 
   getStatusText(): string {
-    const reminder = this.reminder();
+    const reminder = this.currentReminder();
     if (reminder.isAcknowledged) return 'Acknowledged';
     if (reminder.isOverdue) return 'Overdue';
     if (reminder.isToday) return 'Today';
@@ -158,7 +168,7 @@ export class ReminderDetailsComponent {
   }
 
   getStatusClass(): string {
-    const reminder = this.reminder();
+    const reminder = this.currentReminder();
     if (reminder.isAcknowledged) return 'bg-success';
     if (reminder.isOverdue) return 'bg-danger';
     if (reminder.isToday) return 'bg-warning';

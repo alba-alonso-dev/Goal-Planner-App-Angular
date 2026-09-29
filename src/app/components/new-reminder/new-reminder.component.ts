@@ -16,7 +16,7 @@ import { toDateTimeInputValue } from '../../shared/utils/date';
 export class NewReminderComponent {
   /** Lo controla el padre: true mientras se guarda el recordatorio. */
   readonly submitting = input(false);
-  readonly close = output<void>();
+  readonly closed = output<void>();
   readonly reminderCreated = output<ReminderInput>();
 
   private fb = inject(FormBuilder).nonNullable;
@@ -60,6 +60,6 @@ export class NewReminderComponent {
   }
 
   closeModal() {
-    this.close.emit();
+    this.closed.emit();
   }
 }

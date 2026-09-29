@@ -1,4 +1,14 @@
-import { ChangeDetectionStrategy, Component, effect, inject, input, linkedSignal, output, signal, untracked } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  effect,
+  inject,
+  input,
+  linkedSignal,
+  output,
+  signal,
+  untracked
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormArray, FormGroup, Validators } from '@angular/forms';
 import { GoalResponse, MilestoneInput, MilestoneResponse } from '../../model/goal';
@@ -15,15 +25,15 @@ import { toDateInputValue } from '../../shared/utils/date';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class GoalDetailsComponent {
-  readonly goalInput = input.required<GoalResponse>({ alias: 'goal' });
-  readonly close = output<void>();
+  readonly goal = input.required<GoalResponse>();
+  readonly closed = output<void>();
   readonly goalUpdated = output<void>();
 
   private fb = inject(FormBuilder);
   private goalService = inject(GoalService);
 
   // Copia local del goal: parte del input y se sustituye tras guardar cambios
-  readonly goal = linkedSignal(() => this.goalInput());
+  readonly currentGoal = linkedSignal(() => this.goal());
 
   readonly editMode = signal(false);
   readonly submitting = signal(false);
@@ -42,7 +52,7 @@ export class GoalDetailsComponent {
   constructor() {
     // Rellenar el formulario cada vez que cambia el goal (input o recarga tras guardar)
     effect(() => {
-      const goal = this.goal();
+      const goal = this.currentGoal();
       untracked(() => this.initForm(goal));
     });
   }
@@ -108,7 +118,7 @@ export class GoalDetailsComponent {
     this.error.set(null);
     if (!this.editMode()) {
       // Si cancelamos, revertimos los cambios
-      this.initForm(this.goal());
+      this.initForm(this.currentGoal());
     }
   }
 
@@ -138,7 +148,7 @@ export class GoalDetailsComponent {
     const formValue = this.editForm.getRawValue();
 
     this.goalService
-      .updateGoalWithMilestones(this.goal().goalId, {
+      .updateGoalWithMilestones(this.currentGoal().goalId, {
         goalName: formValue.goalName ?? '',
         description: formValue.description ?? '',
         startDate: formValue.startDate ?? '',
@@ -162,17 +172,17 @@ export class GoalDetailsComponent {
   }
 
   private loadUpdatedGoal() {
-    this.goalService.getGoalById(this.goal().goalId).subscribe({
-      next: updatedGoal => this.goal.set(updatedGoal),
+    this.goalService.getGoalById(this.currentGoal().goalId).subscribe({
+      next: updatedGoal => this.currentGoal.set(updatedGoal),
       error: error => console.error('Error loading updated goal:', error)
     });
   }
 
   closeModal() {
-    this.close.emit();
+    this.closed.emit();
   }
 
-  getProgressColor(progress: number = 0): string {
+  getProgressColor(progress = 0): string {
     if (progress >= 75) return 'success';
     if (progress >= 50) return 'primary';
     if (progress >= 25) return 'warning';
@@ -180,7 +190,7 @@ export class GoalDetailsComponent {
   }
 
   getDaysRemaining(): number {
-    const endDate = this.goal().endDate;
+    const endDate = this.currentGoal().endDate;
     if (!endDate) return 0;
     const diffTime = new Date(endDate).getTime() - Date.now();
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24));

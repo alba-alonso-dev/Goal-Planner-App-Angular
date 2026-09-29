@@ -1,226 +1,227 @@
 <div class="container py-3">
-    <!-- Header con estadísticas -->
-    <div class="row mb-4">
-        <div class="col-md-8">
-            <h1 class="fw-bold">
-                <i class="fas fa-bullseye me-2"></i>
-                Goals
-            </h1>
-            <p class="text-muted">Manage and track your goals</p>
-        </div>
-        <div class="col-md-4 text-end">
-            <button class="btn btn-primary" (click)="openNewGoalModal()" [disabled]="loading()">
-                <i class="fas fa-plus me-2"></i>
-                New Goal
-            </button>
-        </div>
+  <!-- Header con estadísticas -->
+  <div class="row mb-4">
+    <div class="col-md-8">
+      <h1 class="fw-bold">
+        <i class="fas fa-bullseye me-2"></i>
+        Goals
+      </h1>
+      <p class="text-muted">Manage and track your goals</p>
     </div>
-
-    <!-- Stats Cards -->
-    <div class="row g-3 mb-4">
-        <div class="col-md-3 col-6">
-            <div class="card bg-primary text-white">
-                <div class="card-body">
-                    <h6 class="card-title">Total Goals</h6>
-                    <h2 class="mb-0">{{stats().total}}</h2>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3 col-6">
-            <div class="card bg-success text-white">
-                <div class="card-body">
-                    <h6 class="card-title">Completed</h6>
-                    <h2 class="mb-0">{{stats().completed}}</h2>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3 col-6">
-            <div class="card bg-info text-white">
-                <div class="card-body">
-                    <h6 class="card-title">Active</h6>
-                    <h2 class="mb-0">{{stats().active}}</h2>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3 col-6">
-            <div class="card bg-warning text-white">
-                <div class="card-body">
-                    <h6 class="card-title">Overdue</h6>
-                    <h2 class="mb-0">{{stats().overdue}}</h2>
-                </div>
-            </div>
-        </div>
+    <div class="col-md-4 text-end">
+      <button class="btn btn-primary" (click)="openNewGoalModal()" [disabled]="loading()">
+        <i class="fas fa-plus me-2"></i>
+        New Goal
+      </button>
     </div>
+  </div>
 
-    <!-- Filtros y búsqueda -->
-    <div class="row mb-4 align-items-center">
-        <div class="col-md-6">
-           <div class="btn-group" role="group">
-                <button class="btn" 
-                        [class.btn-primary]="filter() === 'all'" 
-                        [class.btn-outline-secondary]="filter() !== 'all'" 
-                        (click)="setFilter('all')">
-                    All <span class="badge bg-secondary ms-1">{{stats().total}}</span>
-                </button>
-
-                <button class="btn" 
-                        [class.btn-warning]="filter() === 'active'" 
-                        [class.btn-outline-secondary]="filter() !== 'active'" 
-                        (click)="setFilter('active')">
-                    Active <span class="badge bg-secondary ms-1">{{stats().active}}</span>
-                </button>
-
-                <button class="btn" 
-                        [class.btn-success]="filter() === 'completed'" 
-                        [class.btn-outline-secondary]="filter() !== 'completed'" 
-                        (click)="setFilter('completed')">
-                    Completed <span class="badge bg-secondary ms-1">{{stats().completed}}</span>
-                </button>
-
-                <button class="btn" 
-                        [class.btn-danger]="filter() === 'overdue'" 
-                        [class.btn-outline-secondary]="filter() !== 'overdue'" 
-                        (click)="setFilter('overdue')">
-                    Overdue <span class="badge bg-secondary ms-1">{{stats().overdue}}</span>
-                </button>
-            </div>
+  <!-- Stats Cards -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-3 col-6">
+      <div class="card bg-primary text-white">
+        <div class="card-body">
+          <h6 class="card-title">Total Goals</h6>
+          <h2 class="mb-0">{{ stats().total }}</h2>
         </div>
-        <div class="col-md-4">
-            <div class="input-group">
-                <span class="input-group-text bg-white border-end-0">
-                    <i class="fas fa-search text-muted"></i>
-                </span>
-                <input 
-                    type="text" 
-                    class="form-control border-start-0" 
-                    placeholder="Search goals..." 
-                    (input)="setSearchTerm($any($event.target).value)">
-            </div>
-        </div>
-        <div class="col-md-2 text-end">
-            <button class="btn btn-outline-secondary me-2" (click)="toggleViewMode()" title="Toggle view">
-                @if (viewMode() === 'grid') {
-                    <i class="fas fa-list"></i>
-                } @else {
-                    <i class="fas fa-th-large"></i>
-                }
-            </button>
-        </div>
+      </div>
     </div>
+    <div class="col-md-3 col-6">
+      <div class="card bg-success text-white">
+        <div class="card-body">
+          <h6 class="card-title">Completed</h6>
+          <h2 class="mb-0">{{ stats().completed }}</h2>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 col-6">
+      <div class="card bg-info text-white">
+        <div class="card-body">
+          <h6 class="card-title">Active</h6>
+          <h2 class="mb-0">{{ stats().active }}</h2>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 col-6">
+      <div class="card bg-warning text-white">
+        <div class="card-body">
+          <h6 class="card-title">Overdue</h6>
+          <h2 class="mb-0">{{ stats().overdue }}</h2>
+        </div>
+      </div>
+    </div>
+  </div>
 
-    <!-- Loading indicator -->
-    @if (loading()) {
-        <div class="text-center py-5">
-            <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Loading...</span>
-            </div>
-            <p class="mt-2 text-muted">Loading goals...</p>
-        </div>
-    }
-    
-    <!-- Error message -->
-    @if (error()) {
-        <div class="alert alert-danger" role="alert">
-            <div class="d-flex align-items-center">
-                <i class="fas fa-exclamation-triangle fa-2x me-3"></i>
-                <div class="flex-grow-1">
-                    <h5 class="alert-heading">Error loading goals</h5>
-                    <p class="mb-0">{{error()}}</p>
-                </div>
-                <button class="btn btn-outline-danger ms-3" (click)="retry()">
-                    <i class="fas fa-sync-alt me-2"></i>Retry
-                </button>
-            </div>
-        </div>
-    }
-    
-    <!-- Lista de goals -->
-    @if (!loading() && !error()) {
-        @if (filteredGoals().length === 0) {
-            <div class="text-center py-5">
-                <i class="fas fa-bullseye fa-3x text-muted mb-3"></i>
-                <h4 class="text-muted">No goals found</h4>
-                <p class="text-muted">
-                    @if (filter() !== 'all') {
-                        Try changing the filter or
-                    }
-                    <a href="#" (click)="openNewGoalModal(); $event.preventDefault()">create a new goal</a>
-                </p>
-            </div>
+  <!-- Filtros y búsqueda -->
+  <div class="row mb-4 align-items-center">
+    <div class="col-md-6">
+      <div class="btn-group" role="group">
+        <button
+          class="btn"
+          [class.btn-primary]="filter() === 'all'"
+          [class.btn-outline-secondary]="filter() !== 'all'"
+          (click)="setFilter('all')"
+        >
+          All <span class="badge bg-secondary ms-1">{{ stats().total }}</span>
+        </button>
+
+        <button
+          class="btn"
+          [class.btn-warning]="filter() === 'active'"
+          [class.btn-outline-secondary]="filter() !== 'active'"
+          (click)="setFilter('active')"
+        >
+          Active <span class="badge bg-secondary ms-1">{{ stats().active }}</span>
+        </button>
+
+        <button
+          class="btn"
+          [class.btn-success]="filter() === 'completed'"
+          [class.btn-outline-secondary]="filter() !== 'completed'"
+          (click)="setFilter('completed')"
+        >
+          Completed <span class="badge bg-secondary ms-1">{{ stats().completed }}</span>
+        </button>
+
+        <button
+          class="btn"
+          [class.btn-danger]="filter() === 'overdue'"
+          [class.btn-outline-secondary]="filter() !== 'overdue'"
+          (click)="setFilter('overdue')"
+        >
+          Overdue <span class="badge bg-secondary ms-1">{{ stats().overdue }}</span>
+        </button>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="input-group">
+        <span class="input-group-text bg-white border-end-0">
+          <i class="fas fa-search text-muted"></i>
+        </span>
+        <input
+          type="text"
+          class="form-control border-start-0"
+          placeholder="Search goals..."
+          (input)="setSearchTerm($any($event.target).value)"
+        />
+      </div>
+    </div>
+    <div class="col-md-2 text-end">
+      <button class="btn btn-outline-secondary me-2" (click)="toggleViewMode()" title="Toggle view">
+        @if (viewMode() === 'grid') {
+          <i class="fas fa-list"></i>
         } @else {
-            @if (viewMode() === 'grid') {
-                <div class="row g-4">
-                    @for (goal of filteredGoals(); track goal.goalId) {
-                        <div class="col-12 col-md-6 col-lg-4">
-                            <app-goal-item 
-                                [goal]="goal"
-                                (viewDetails)="viewGoalDetails($event)">
-                            </app-goal-item>
-                        </div>
-                    }
-                </div>
-            } @else {
-                <!-- Vista de lista -->
-                <div class="list-group">
-                    @for (goal of filteredGoals(); track goal.goalId) {
-                        <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
-                             (click)="viewGoalDetails(goal)">
-                            <div class="d-flex align-items-center flex-grow-1">
-                                <div class="me-3">
-                                    @if (goal.isAchieved) {
-                                        <i class="fas fa-check-circle text-success fa-2x"></i>
-                                    } @else if (isOverdue(goal)) {
-                                        <i class="fas fa-exclamation-triangle text-warning fa-2x"></i>
-                                    } @else {
-                                        <i class="fas fa-circle-notch text-primary fa-2x"></i>
-                                    }
-                                </div>
-                                <div class="flex-grow-1">
-                                    <h6 class="mb-1">{{goal.goalName}}</h6>
-                                    <small class="text-muted">
-                                        {{goal.startDate | date:'dd/MM/yyyy'}} - {{goal.endDate | date:'dd/MM/yyyy'}}
-                                    </small>
-                                </div>
-                            </div>
-                            <div class="d-flex align-items-center">
-                                <div class="me-3 text-end" style="min-width: 100px;">
-                                    <div class="progress" style="height: 8px; width: 100px;">
-                                        <div class="progress-bar" 
-                                             [style.width.%]="goal.progress"
-                                             [ngClass]="{
-                                                'bg-success': goal.progress >= 75,
-                                                'bg-primary': goal.progress >= 50 && goal.progress < 75,
-                                                'bg-warning': goal.progress >= 25 && goal.progress < 50,
-                                                'bg-danger': goal.progress < 25
-                                             }">
-                                        </div>
-                                    </div>
-                                    <small class="text-muted">{{goal.progress}}%</small>
-                                </div>
-                                <i class="fas fa-chevron-right text-muted"></i>
-                            </div>
-                        </div>
-                    }
-                </div>
-            }
+          <i class="fas fa-th-large"></i>
         }
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading indicator -->
+  @if (loading()) {
+    <div class="text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <p class="mt-2 text-muted">Loading goals...</p>
+    </div>
+  }
+
+  <!-- Error message -->
+  @if (error()) {
+    <div class="alert alert-danger" role="alert">
+      <div class="d-flex align-items-center">
+        <i class="fas fa-exclamation-triangle fa-2x me-3"></i>
+        <div class="flex-grow-1">
+          <h5 class="alert-heading">Error loading goals</h5>
+          <p class="mb-0">{{ error() }}</p>
+        </div>
+        <button class="btn btn-outline-danger ms-3" (click)="retry()"><i class="fas fa-sync-alt me-2"></i>Retry</button>
+      </div>
+    </div>
+  }
+
+  <!-- Lista de goals -->
+  @if (!loading() && !error()) {
+    @if (filteredGoals().length === 0) {
+      <div class="text-center py-5">
+        <i class="fas fa-bullseye fa-3x text-muted mb-3"></i>
+        <h4 class="text-muted">No goals found</h4>
+        <p class="text-muted">
+          @if (filter() !== 'all') {
+            Try changing the filter or
+          }
+          <a href="#" (click)="openNewGoalModal(); $event.preventDefault()">create a new goal</a>
+        </p>
+      </div>
+    } @else {
+      @if (viewMode() === 'grid') {
+        <div class="row g-4">
+          @for (goal of filteredGoals(); track goal.goalId) {
+            <div class="col-12 col-md-6 col-lg-4">
+              <app-goal-item [goal]="goal" (viewDetails)="viewGoalDetails($event)"> </app-goal-item>
+            </div>
+          }
+        </div>
+      } @else {
+        <!-- Vista de lista -->
+        <div class="list-group">
+          @for (goal of filteredGoals(); track goal.goalId) {
+            <div
+              class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+              (click)="viewGoalDetails(goal)"
+            >
+              <div class="d-flex align-items-center flex-grow-1">
+                <div class="me-3">
+                  @if (goal.isAchieved) {
+                    <i class="fas fa-check-circle text-success fa-2x"></i>
+                  } @else if (isOverdue(goal)) {
+                    <i class="fas fa-exclamation-triangle text-warning fa-2x"></i>
+                  } @else {
+                    <i class="fas fa-circle-notch text-primary fa-2x"></i>
+                  }
+                </div>
+                <div class="flex-grow-1">
+                  <h6 class="mb-1">{{ goal.goalName }}</h6>
+                  <small class="text-muted">
+                    {{ goal.startDate | date: 'dd/MM/yyyy' }} - {{ goal.endDate | date: 'dd/MM/yyyy' }}
+                  </small>
+                </div>
+              </div>
+              <div class="d-flex align-items-center">
+                <div class="me-3 text-end" style="min-width: 100px">
+                  <div class="progress" style="height: 8px; width: 100px">
+                    <div
+                      class="progress-bar"
+                      [style.width.%]="goal.progress"
+                      [ngClass]="{
+                        'bg-success': goal.progress >= 75,
+                        'bg-primary': goal.progress >= 50 && goal.progress < 75,
+                        'bg-warning': goal.progress >= 25 && goal.progress < 50,
+                        'bg-danger': goal.progress < 25
+                      }"
+                    ></div>
+                  </div>
+                  <small class="text-muted">{{ goal.progress }}%</small>
+                </div>
+                <i class="fas fa-chevron-right text-muted"></i>
+              </div>
+            </div>
+          }
+        </div>
+      }
     }
+  }
 </div>
 
 <!-- Modal para crear nuevo goal -->
 @if (showNewGoalModal()) {
-    <app-new-goal
-        [submitting]="creating()"
-        (close)="closeNewGoalModal()"
-        (goalCreated)="onGoalCreated($event)">
-    </app-new-goal>
+  <app-new-goal [submitting]="creating()" (closed)="closeNewGoalModal()" (goalCreated)="onGoalCreated($event)">
+  </app-new-goal>
 }
 
 <!-- Modal para ver detalles del goal -->
 @if (showDetailsModal() && selectedGoal(); as selected) {
-    <app-goal-details 
-        [goal]="selected"
-        (close)="closeDetailsModal()"
-        (goalUpdated)="onGoalUpdated()"> 
-    </app-goal-details>
+  <app-goal-details [goal]="selected" (closed)="closeDetailsModal()" (goalUpdated)="onGoalUpdated()">
+  </app-goal-details>
 }

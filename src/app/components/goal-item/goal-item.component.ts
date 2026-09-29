@@ -20,7 +20,7 @@ export class GoalItemComponent {
     this.viewDetails.emit(this.goal());
   }
 
-  getProgressColor(progress: number = 0): string {
+  getProgressColor(progress = 0): string {
     if (progress >= 75) return 'success';
     if (progress >= 50) return 'primary';
     if (progress >= 25) return 'warning';

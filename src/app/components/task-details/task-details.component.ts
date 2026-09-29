@@ -1,4 +1,14 @@
-import { ChangeDetectionStrategy, Component, effect, inject, input, linkedSignal, output, signal, untracked } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  effect,
+  inject,
+  input,
+  linkedSignal,
+  output,
+  signal,
+  untracked
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
@@ -19,8 +29,8 @@ type Frequency = TaskResponse['frequency'];
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TaskDetailsComponent {
-  readonly taskInput = input.required<TaskResponse>({ alias: 'task' });
-  readonly close = output<void>();
+  readonly task = input.required<TaskResponse>();
+  readonly closed = output<void>();
   readonly taskUpdated = output<void>();
   readonly delete = output<number>();
 
@@ -28,7 +38,7 @@ export class TaskDetailsComponent {
   private taskService = inject(TaskService);
 
   // Copia local de la tarea: parte del input y se sustituye tras guardar cambios
-  readonly task = linkedSignal(() => this.taskInput());
+  readonly currentTask = linkedSignal(() => this.task());
 
   readonly editMode = signal(false);
   readonly submitting = signal(false);
@@ -52,7 +62,7 @@ export class TaskDetailsComponent {
   constructor() {
     // Rellenar el formulario cada vez que cambia la tarea (input o recarga tras guardar)
     effect(() => {
-      const task = this.task();
+      const task = this.currentTask();
       untracked(() => this.initForm(task));
     });
 
@@ -94,13 +104,13 @@ export class TaskDetailsComponent {
     this.editMode.update(value => !value);
     this.error.set(null);
     if (!this.editMode()) {
-      this.initForm(this.task());
+      this.initForm(this.currentTask());
     }
   }
 
   toggleCompletion() {
     this.submitting.set(true);
-    this.taskService.toggleTaskCompletion(this.task()).subscribe({
+    this.taskService.toggleTaskCompletion(this.currentTask()).subscribe({
       next: () => {
         this.submitting.set(false);
         this.taskUpdated.emit();
@@ -123,7 +133,10 @@ export class TaskDetailsComponent {
     this.error.set(null);
 
     this.taskService
-      .updateTask(this.task().taskId, { ...this.editForm.getRawValue(), createdDate: this.task().createdDate })
+      .updateTask(this.currentTask().taskId, {
+        ...this.editForm.getRawValue(),
+        createdDate: this.currentTask().createdDate
+      })
       .subscribe({
         next: () => {
           this.submitting.set(false);
@@ -139,25 +152,25 @@ export class TaskDetailsComponent {
   }
 
   deleteTask() {
-    if (confirm(`Are you sure you want to delete "${this.task().taskName}"?`)) {
-      this.delete.emit(this.task().taskId);
+    if (confirm(`Are you sure you want to delete "${this.currentTask().taskName}"?`)) {
+      this.delete.emit(this.currentTask().taskId);
       this.closeModal();
     }
   }
 
   private loadUpdatedTask() {
-    this.taskService.getTaskById(this.task().taskId).subscribe({
-      next: updatedTask => this.task.set(updatedTask),
+    this.taskService.getTaskById(this.currentTask().taskId).subscribe({
+      next: updatedTask => this.currentTask.set(updatedTask),
       error: error => console.error('Error loading updated task:', error)
     });
   }
 
   closeModal() {
-    this.close.emit();
+    this.closed.emit();
   }
 
   getFrequencyIconClass(): string {
-    switch (this.task().frequency) {
+    switch (this.currentTask().frequency) {
       case 'Daily':
         return 'fas fa-sun text-warning';
       case 'Weekly':
@@ -170,21 +183,21 @@ export class TaskDetailsComponent {
   }
 
   getStatusClass(): string {
-    const task = this.task();
+    const task = this.currentTask();
     if (task.isCompleted) return 'text-success';
     if (task.isOverdue) return 'text-danger';
     return 'text-warning';
   }
 
   getStatusText(): string {
-    const task = this.task();
+    const task = this.currentTask();
     if (task.isCompleted) return 'Completed';
     if (task.isOverdue) return 'Overdue';
     return 'Pending';
   }
 
   getDaysRemainingText(): string {
-    const { isCompleted, daysRemaining } = this.task();
+    const { isCompleted, daysRemaining } = this.currentTask();
     if (isCompleted) return 'Completed';
     if (daysRemaining === undefined || daysRemaining === null) return 'No due date';
 

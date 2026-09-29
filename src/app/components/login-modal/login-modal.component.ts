@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject, input, output, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';  
+import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { LoginData, RegisterData } from '../../model/user';
 import { Router } from '@angular/router';
@@ -14,7 +14,7 @@ import { ApiError } from '../../core/http/api-error';
 })
 export class LoginModalComponent {
   readonly visible = input(false);
-  readonly close = output<void>();
+  readonly closed = output<void>();
 
   // Signal para alternar entre login (true) y registro (false)
   showLogin = signal<boolean>(true);
@@ -37,13 +37,13 @@ export class LoginModalComponent {
   errorMessage = signal<string | null>(null);
   successMessage = signal<string | null>(null);
   isLoading = signal<boolean>(false);
-  
+
   private authService = inject(AuthService);
   private router = inject(Router);
 
   // Cierra el modal (emite el evento al padre)
   closeModal() {
-    this.close.emit();
+    this.closed.emit();
     // Limpiar mensajes al cerrar
     this.errorMessage.set(null);
     this.successMessage.set(null);
@@ -61,9 +61,9 @@ export class LoginModalComponent {
   onLogin() {
     this.isLoading.set(true);
     this.errorMessage.set(null);
-    
+
     this.authService.login(this.loginObj).subscribe({
-      next: (response) => {
+      next: () => {
         this.isLoading.set(false);
         this.closeModal(); // Cierra el modal
         this.router.navigate(['/dashboard']); // Navega al dashboard
@@ -81,21 +81,20 @@ export class LoginModalComponent {
     this.isLoading.set(true);
     this.errorMessage.set(null);
     this.successMessage.set(null);
-    
+
     this.authService.register(this.registerObj).subscribe({
-      next: (response) => {
-        
+      next: () => {
         // Después del registro exitoso, hacer login automático
         this.successMessage.set('Registro exitoso. Iniciando sesión...');
-        
+
         // Usar las mismas credenciales para login automático
         const loginData: LoginData = {
           emailId: this.registerObj.emailId,
           password: this.registerObj.password
         };
-        
+
         this.authService.login(loginData).subscribe({
-          next: (loginResponse) => {
+          next: () => {
             this.isLoading.set(false);
             this.closeModal(); // Cierra el modal
             this.router.navigate(['/dashboard']); // Navega al dashboard
