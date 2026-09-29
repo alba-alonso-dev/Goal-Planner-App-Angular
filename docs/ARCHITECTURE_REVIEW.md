@@ -229,7 +229,7 @@ features/
 - [x] `errorInterceptor` + `ApiError` únicos (logout y redirección en 401). Eliminadas las tres copias de `handleError`. `AuthService.withUser()` centraliza la comprobación de sesión. _(No hay interceptor de auth porque la API no usa token; llegará con el backend de la Fase 3.)_
 - [x] `shared/utils/date.ts` con tests: fechas en hora local, `toApiDate` falla ante fechas inválidas en lugar de usar "hoy".
 - [x] ESLint (angular-eslint + typescript-eslint, regla que exige `OnPush`) + Prettier + husky/lint-staged; lint y `format:check` en la CI.
-- [x] `OnPush` + `input()`/`output()` en los 19 componentes; estado asíncrono en signals; formularios reactivos tipados en `new-*` y `*-details`.
+- [x] `OnPush` + `input()`/`output()` en los 20 componentes (incluido `AppComponent`); estado asíncrono en signals; usos de `any` en código de producción: 45 → 0; formularios reactivos tipados en `new-*` y `*-details`.
 - [x] Dashboard sin datos simulados; eliminados los filtros de periodo/fecha y el "archivar" que solo ocultaba en memoria.
 - [x] Tipos de entrada (`TaskInput`, `ReminderInput`, `GoalInput`) en lugar de `any` en los servicios.
 - Pendiente (pasa a fases siguientes): bundle inicial por debajo de 500 kB (Bootstrap SCSS parcial), unificar iconos y resolver los 41 avisos de accesibilidad que reporta el lint.
