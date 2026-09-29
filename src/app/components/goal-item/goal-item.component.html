@@ -45,11 +45,11 @@
     <!-- Fechas -->
     <div class="d-flex justify-content-between text-muted small mb-2">
       <span>
-        <i class="far fa-calendar-alt me-1"></i>
+        <i class="bi bi-calendar3 me-1"></i>
         Inicio: {{ goal.startDate | date: 'dd/MM/yyyy' }}
       </span>
       <span>
-        <i class="far fa-calendar-check me-1"></i>
+        <i class="bi bi-calendar-check me-1"></i>
         Fin: {{ goal.endDate | date: 'dd/MM/yyyy' }}
       </span>
     </div>
@@ -57,7 +57,7 @@
     <!-- Milestones count si existen -->
     @if (goal.milestones && goal.milestones.length > 0) {
       <div class="d-flex align-items-center text-muted small">
-        <i class="fas fa-flag-checkered me-1"></i>
+        <i class="bi bi-flag-fill me-1"></i>
         <span>{{ goal.milestones.length }} {{ goal.milestones.length === 1 ? 'milestone' : 'milestones' }}</span>
       </div>
     }
@@ -65,7 +65,7 @@
 
   <div class="card-footer bg-transparent border-top-0">
     <button class="btn btn-sm btn-outline-primary w-100" (click)="onViewDetails()">
-      <i class="fas fa-chevron-right me-2"></i>View Details
+      <i class="bi bi-chevron-right me-2"></i>View Details
     </button>
   </div>
 </div>

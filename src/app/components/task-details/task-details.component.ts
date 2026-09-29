@@ -172,13 +172,13 @@ export class TaskDetailsComponent {
   getFrequencyIconClass(): string {
     switch (this.currentTask().frequency) {
       case 'Daily':
-        return 'fas fa-sun text-warning';
+        return 'bi bi-sun-fill text-warning';
       case 'Weekly':
-        return 'fas fa-calendar-week text-info';
+        return 'bi bi-calendar-week text-info';
       case 'Monthly':
-        return 'fas fa-calendar-alt text-success';
+        return 'bi bi-calendar3 text-success';
       default:
-        return 'fas fa-tasks text-primary';
+        return 'bi bi-list-check text-primary';
     }
   }
 

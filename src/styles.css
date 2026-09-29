@@ -251,3 +251,18 @@ body {
   background-color: #dcfce7;
   color: #22c55e;
 }
+
+/* Tamaños de icono (equivalentes a los de Font Awesome que se usaban antes) */
+.icon-lg {
+  font-size: 1.3333em;
+  line-height: 0.75em;
+  vertical-align: -0.0667em;
+}
+
+.icon-2x {
+  font-size: 2em;
+}
+
+.icon-3x {
+  font-size: 3em;
+}

@@ -27,7 +27,7 @@
   @if (error()) {
     <div class="alert alert-danger" role="alert">
       <div class="d-flex align-items-center">
-        <i class="bi bi-exclamation-triangle-fill fa-2x me-3"></i>
+        <i class="bi bi-exclamation-triangle-fill icon-2x me-3"></i>
         <div class="flex-grow-1">
           <h5 class="alert-heading">Error loading dashboard</h5>
           <p class="mb-0">{{ error() }}</p>
@@ -61,7 +61,7 @@
                 </div>
               </div>
               <div class="stats-icon">
-                <i class="bi bi-list-task fa-2x"></i>
+                <i class="bi bi-list-task icon-2x"></i>
               </div>
             </div>
             <div class="mt-3 small">
@@ -98,7 +98,7 @@
                 </div>
               </div>
               <div class="stats-icon">
-                <i class="bi bi-bullseye fa-2x"></i>
+                <i class="bi bi-bullseye icon-2x"></i>
               </div>
             </div>
             <div class="mt-3">
@@ -135,7 +135,7 @@
                 </div>
               </div>
               <div class="stats-icon">
-                <i class="bi bi-bell fa-2x"></i>
+                <i class="bi bi-bell icon-2x"></i>
               </div>
             </div>
             <div class="mt-3 small">
@@ -169,7 +169,7 @@
                 </div>
               </div>
               <div class="stats-icon">
-                <i class="bi bi-graph-up fa-2x"></i>
+                <i class="bi bi-graph-up icon-2x"></i>
               </div>
             </div>
             <div class="mt-3">
@@ -259,7 +259,7 @@
                   } @empty {
                     <tr>
                       <td colspan="5" class="text-center py-4">
-                        <i class="bi bi-inbox fa-2x d-block mb-2 text-muted"></i>
+                        <i class="bi bi-inbox icon-2x d-block mb-2 text-muted"></i>
                         <span class="text-muted">No tasks found</span>
                       </td>
                     </tr>
@@ -292,7 +292,7 @@
                   <div class="d-flex w-100 justify-content-between align-items-center">
                     <div class="d-flex align-items-center">
                       <div class="activity-icon me-3">
-                        <i [class]="activity.icon + ' fa-lg ' + activity.color"></i>
+                        <i [class]="activity.icon + ' icon-lg ' + activity.color"></i>
                       </div>
                       <div>
                         <h6 class="mb-1">
@@ -309,7 +309,7 @@
                 </div>
               } @empty {
                 <div class="text-center py-4">
-                  <i class="bi bi-check2-circle fa-2x d-block mb-2 text-success"></i>
+                  <i class="bi bi-check2-circle icon-2x d-block mb-2 text-success"></i>
                   <span class="text-muted">Nothing overdue</span>
                 </div>
               }

@@ -18,8 +18,9 @@
             <!-- Columna izquierda - Información principal del goal -->
             <div class="col-7">
               <div class="mb-3">
-                <label class="form-label fw-semibold">Goal Title</label>
+                <label class="form-label fw-semibold" for="new-goal-goalName">Goal Title</label>
                 <input
+                  id="new-goal-goalName"
                   type="text"
                   class="form-control"
                   formControlName="goalName"
@@ -34,8 +35,9 @@
               <div class="row">
                 <div class="col-6">
                   <div class="mb-3">
-                    <label class="form-label fw-semibold">Start Date</label>
+                    <label class="form-label fw-semibold" for="new-goal-startDate">Start Date</label>
                     <input
+                      id="new-goal-startDate"
                       type="date"
                       class="form-control"
                       formControlName="startDate"
@@ -48,8 +50,9 @@
                 </div>
                 <div class="col-6">
                   <div class="mb-3">
-                    <label class="form-label fw-semibold">Target Date</label>
+                    <label class="form-label fw-semibold" for="new-goal-endDate">Target Date</label>
                     <input
+                      id="new-goal-endDate"
                       type="date"
                       class="form-control"
                       formControlName="endDate"
@@ -63,8 +66,9 @@
               </div>
 
               <div class="mb-3">
-                <label class="form-label fw-semibold">Description</label>
+                <label class="form-label fw-semibold" for="new-goal-description">Description</label>
                 <textarea
+                  id="new-goal-description"
                   class="form-control"
                   formControlName="description"
                   rows="3"
@@ -75,21 +79,29 @@
 
             <!-- Columna derecha - Milestones -->
             <div class="col-5" formArrayName="milestones">
-              <label class="form-label fw-semibold">Milestones</label>
+              <span class="form-label fw-semibold d-block">Milestones</span>
 
               @for (milestone of milestones.controls; track $index) {
                 <div class="card mb-3" [formGroupName]="$index">
                   <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-2">
                       <h6 class="card-subtitle text-muted">Milestone {{ $index + 1 }}</h6>
-                      <button type="button" class="btn btn-sm btn-outline-danger" (click)="removeMilestone($index)">
-                        <i class="fas fa-times"></i>
+                      <button
+                        type="button"
+                        class="btn btn-sm btn-outline-danger"
+                        aria-label="Remove milestone"
+                        (click)="removeMilestone($index)"
+                      >
+                        <i class="bi bi-x-lg"></i>
                       </button>
                     </div>
 
                     <div class="mb-2">
-                      <label class="form-label small">Title</label>
+                      <label class="form-label small" [for]="'new-goal-milestone-' + $index + '-milestoneName'"
+                        >Title</label
+                      >
                       <input
+                        [id]="'new-goal-milestone-' + $index + '-milestoneName'"
                         type="text"
                         class="form-control form-control-sm"
                         formControlName="milestoneName"
@@ -98,13 +110,23 @@
                     </div>
 
                     <div class="mb-2">
-                      <label class="form-label small">Target Date</label>
-                      <input type="date" class="form-control form-control-sm" formControlName="targetDate" />
+                      <label class="form-label small" [for]="'new-goal-milestone-' + $index + '-targetDate'"
+                        >Target Date</label
+                      >
+                      <input
+                        [id]="'new-goal-milestone-' + $index + '-targetDate'"
+                        type="date"
+                        class="form-control form-control-sm"
+                        formControlName="targetDate"
+                      />
                     </div>
 
                     <div class="mb-2">
-                      <label class="form-label small">Description</label>
+                      <label class="form-label small" [for]="'new-goal-milestone-' + $index + '-description'"
+                        >Description</label
+                      >
                       <textarea
+                        [id]="'new-goal-milestone-' + $index + '-description'"
                         class="form-control form-control-sm"
                         formControlName="description"
                         rows="2"
@@ -117,7 +139,7 @@
 
               <div class="text-center">
                 <button type="button" class="btn btn-outline-secondary btn-sm w-100" (click)="addMilestone()">
-                  <i class="fas fa-plus me-2"></i>Add Milestone
+                  <i class="bi bi-plus-lg me-2"></i>Add Milestone
                 </button>
               </div>
             </div>
@@ -139,7 +161,7 @@
             <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
             Creating...
           } @else {
-            <i class="fas fa-save me-2"></i>Create Goal
+            <i class="bi bi-floppy me-2"></i>Create Goal
           }
         </button>
       </div>

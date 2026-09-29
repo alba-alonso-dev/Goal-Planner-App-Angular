@@ -23,9 +23,9 @@
         <!-- Error message -->
         @if (error()) {
           <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <i class="fas fa-exclamation-triangle me-2"></i>
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
             {{ error() }}
-            <button type="button" class="btn-close" (click)="error.set(null)"></button>
+            <button aria-label="Close" type="button" class="btn-close" (click)="error.set(null)"></button>
           </div>
         }
 
@@ -62,7 +62,7 @@
               <div class="col-md-4">
                 <div class="card bg-light border-0">
                   <div class="card-body text-center">
-                    <i class="far fa-calendar-alt fa-2x text-primary mb-2"></i>
+                    <i class="bi bi-calendar3 icon-2x text-primary mb-2"></i>
                     <h6 class="text-muted mb-1">Start Date</h6>
                     <input
                       type="date"
@@ -76,7 +76,7 @@
               <div class="col-md-4">
                 <div class="card bg-light border-0">
                   <div class="card-body text-center">
-                    <i class="far fa-calendar-check fa-2x text-primary mb-2"></i>
+                    <i class="bi bi-calendar-check icon-2x text-primary mb-2"></i>
                     <h6 class="text-muted mb-1">Target Date</h6>
                     <input
                       type="date"
@@ -90,7 +90,7 @@
               <div class="col-md-4">
                 <div class="card bg-light border-0">
                   <div class="card-body text-center">
-                    <i class="far fa-clock fa-2x text-primary mb-2"></i>
+                    <i class="bi bi-clock icon-2x text-primary mb-2"></i>
                     <h6 class="text-muted mb-1">Days Remaining</h6>
                     <p class="h5 mb-0" [ngClass]="{ 'text-danger': getDaysRemaining() < 0 }">
                       {{ getDaysRemaining() >= 0 ? getDaysRemaining() + ' days' : 'Overdue' }}
@@ -119,7 +119,7 @@
               <div class="d-flex justify-content-between align-items-center mb-3">
                 <h5 class="fw-semibold mb-0">Milestones</h5>
                 <button type="button" class="btn btn-sm btn-outline-primary" (click)="addNewMilestone()">
-                  <i class="fas fa-plus me-2"></i>Add Milestone
+                  <i class="bi bi-plus-lg me-2"></i>Add Milestone
                 </button>
               </div>
 
@@ -147,9 +147,10 @@
                             <button
                               type="button"
                               class="btn btn-sm btn-outline-danger"
+                              aria-label="Remove milestone"
                               (click)="removeMilestone($index)"
                             >
-                              <i class="fas fa-trash"></i>
+                              <i class="bi bi-trash"></i>
                             </button>
                           </div>
                           <div class="col-12">
@@ -168,7 +169,7 @@
                   <div class="text-center py-4">
                     <p class="text-muted mb-0">No milestones yet</p>
                     <button type="button" class="btn btn-sm btn-outline-primary mt-2" (click)="addNewMilestone()">
-                      <i class="fas fa-plus me-2"></i>Add your first milestone
+                      <i class="bi bi-plus-lg me-2"></i>Add your first milestone
                     </button>
                   </div>
                 }
@@ -201,7 +202,7 @@
             <div class="col-md-4">
               <div class="card bg-light border-0">
                 <div class="card-body text-center">
-                  <i class="far fa-calendar-alt fa-2x text-primary mb-2"></i>
+                  <i class="bi bi-calendar3 icon-2x text-primary mb-2"></i>
                   <h6 class="text-muted mb-1">Start Date</h6>
                   <p class="h5 mb-0">{{ goal.startDate | date: 'fullDate' }}</p>
                 </div>
@@ -210,7 +211,7 @@
             <div class="col-md-4">
               <div class="card bg-light border-0">
                 <div class="card-body text-center">
-                  <i class="far fa-calendar-check fa-2x text-primary mb-2"></i>
+                  <i class="bi bi-calendar-check icon-2x text-primary mb-2"></i>
                   <h6 class="text-muted mb-1">Target Date</h6>
                   <p class="h5 mb-0">{{ goal.endDate | date: 'fullDate' }}</p>
                 </div>
@@ -219,7 +220,7 @@
             <div class="col-md-4">
               <div class="card bg-light border-0">
                 <div class="card-body text-center">
-                  <i class="far fa-clock fa-2x text-primary mb-2"></i>
+                  <i class="bi bi-clock icon-2x text-primary mb-2"></i>
                   <h6 class="text-muted mb-1">Days Remaining</h6>
                   <p class="h5 mb-0" [ngClass]="{ 'text-danger': getDaysRemaining() < 0 }">
                     {{ getDaysRemaining() >= 0 ? getDaysRemaining() + ' days' : 'Overdue' }}
@@ -245,13 +246,17 @@
                 @for (milestone of goal.milestones; track milestone.milestoneId; let i = $index) {
                   <div
                     class="list-group-item list-group-item-action d-flex align-items-center"
+                    role="button"
+                    tabindex="0"
                     (click)="toggleMilestoneCompletion(i)"
+                    (keydown.enter)="toggleMilestoneCompletion(i)"
+                    (keydown.space)="$event.preventDefault(); toggleMilestoneCompletion(i)"
                   >
                     <div class="me-3">
                       @if (milestone.isCompleted) {
-                        <i class="fas fa-check-circle text-success fa-lg"></i>
+                        <i class="bi bi-check-circle-fill text-success icon-lg"></i>
                       } @else {
-                        <i class="far fa-circle text-muted fa-lg"></i>
+                        <i class="bi bi-circle text-muted icon-lg"></i>
                       }
                     </div>
                     <div class="flex-grow-1">
@@ -260,7 +265,7 @@
                           {{ milestone.milestoneName }}
                         </h6>
                         <small class="text-muted">
-                          <i class="far fa-calendar-alt me-1"></i>
+                          <i class="bi bi-calendar3 me-1"></i>
                           {{ milestone.targetDate | date: 'dd/MM/yyyy' }}
                         </small>
                       </div>
@@ -293,12 +298,12 @@
               <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
               Saving...
             } @else {
-              <i class="fas fa-save me-2"></i>Save Changes
+              <i class="bi bi-floppy me-2"></i>Save Changes
             }
           </button>
         } @else {
           <button type="button" class="btn btn-outline-primary" (click)="toggleEditMode()">
-            <i class="fas fa-edit me-2"></i>Edit Goal
+            <i class="bi bi-pencil-square me-2"></i>Edit Goal
           </button>
           <button type="button" class="btn btn-primary" (click)="closeModal()">Close</button>
         }

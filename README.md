@@ -27,7 +27,7 @@ Construida con **Angular 19** (standalone components + signals), Bootstrap 5 y C
 | --------- | ----------------------------------------------------------------------------- |
 | Framework | Angular 19.2 · standalone components · signals · control flow (`@if`, `@for`) |
 | Lenguaje  | TypeScript 5.7 (`strict`, `strictTemplates`)                                  |
-| UI        | Bootstrap 5.3, Bootstrap Icons y Font Awesome 6 (CDN)                         |
+| UI        | Bootstrap 5.3 (SCSS a medida) y Bootstrap Icons (npm, solo los iconos usados) |
 | Gráficas  | Chart.js 4                                                                    |
 | HTTP      | `HttpClient` + RxJS 7.8                                                       |
 | Tests     | Karma + Jasmine · CI con GitHub Actions                                       |
@@ -54,21 +54,22 @@ La aplicación usa directamente la API pública, así que no hace falta levantar
 
 ### Scripts
 
-| Comando           | Descripción                                                      |
-| ----------------- | ---------------------------------------------------------------- |
-| `npm start`       | Servidor de desarrollo con recarga en caliente (`ng serve`).     |
-| `npm run build`   | Build de producción en `dist/goal-planer/`.                      |
-| `npm run watch`   | Build de desarrollo en modo watch.                               |
-| `npm test`        | Tests unitarios con Karma (Chrome, modo watch).                  |
-| `npm run test:ci` | Tests en Chrome headless, una sola ejecución (el que usa la CI). |
-| `npm run lint`    | ESLint (TypeScript, plantillas y accesibilidad).                 |
-| `npm run format`  | Formatea el código con Prettier (`format:check` solo comprueba). |
+| Comando           | Descripción                                                                                     |
+| ----------------- | ----------------------------------------------------------------------------------------------- |
+| `npm start`       | Servidor de desarrollo con recarga en caliente (`ng serve`).                                    |
+| `npm run build`   | Build de producción en `dist/goal-planer/`.                                                     |
+| `npm run watch`   | Build de desarrollo en modo watch.                                                              |
+| `npm test`        | Tests unitarios con Karma (Chrome, modo watch).                                                 |
+| `npm run test:ci` | Tests en Chrome headless, una sola ejecución (el que usa la CI).                                |
+| `npm run lint`    | ESLint (TypeScript, plantillas y accesibilidad).                                                |
+| `npm run format`  | Formatea el código con Prettier (`format:check` solo comprueba).                                |
+| `npm run icons`   | Regenera `src/styles/icons.generated.css` con los iconos usados (`icons:check` solo comprueba). |
 
 > `test:ci` necesita Chrome/Chromium instalado; si no está en el `PATH`, indica su ruta con `CHROME_BIN`.
 
 ### Integración continua
 
-`.github/workflows/ci.yml` ejecuta en cada push a `main` y en cada Pull Request: `npm ci` → `lint` → `format:check` → `test:ci` → `build`.
+`.github/workflows/ci.yml` ejecuta en cada push a `main` y en cada Pull Request: `npm ci` → `lint` → `format:check` → `icons:check` → `test:ci` → `build`.
 
 En local, un hook de **husky** ejecuta `lint-staged` (ESLint + Prettier sobre los archivos preparados) antes de cada commit. Para ignorar en `git blame` el commit de formateo masivo: `git config blame.ignoreRevsFile .git-blame-ignore-revs`.
 
@@ -78,9 +79,12 @@ En local, un hook de **husky** ejecuta `lint-staged` (ESLint + Prettier sobre lo
 
 ```
 src/
-├── index.html                 # Shell HTML (+ CDNs de iconos)
+├── index.html                 # Shell HTML (sin dependencias de CDN)
 ├── main.ts                    # bootstrapApplication(AppComponent, appConfig)
-├── styles.css                 # Estilos globales y variables CSS
+├── styles.css                 # Estilos globales, variables CSS y tamaños de icono
+├── styles/
+│   ├── bootstrap.scss         # Bootstrap con solo los módulos y utilidades en uso
+│   └── icons.generated.css    # Generado por scripts/generate-icons.mjs (no editar)
 ├── environments/              # environment.ts (prod) / environment.development.ts (ng serve)
 └── app/
     ├── app.config.ts          # Providers: router, HttpClient + errorInterceptor
@@ -169,13 +173,13 @@ Todas las rutas se renderizan dentro de `LayoutComponent` (navbar + contenido + 
 
 Resumen de la [revisión de arquitectura completa](docs/ARCHITECTURE_REVIEW.md):
 
-- ⚠️ **Tamaño del bundle**: el build de producción pasa, pero el bundle inicial (618 kB, ~126 kB transferidos) supera el aviso de 500 kB, sobre todo por el CSS completo de Bootstrap (~234 kB). Pendiente: importar solo los parciales SCSS necesarios.
-- ♿ **Accesibilidad**: `npm run lint` reporta 41 avisos en plantillas (labels sin asociar, elementos clicables sin soporte de teclado, botones sin texto). Se abordarán en la fase de accesibilidad.
+- 📦 **Tamaño del bundle**: bundle inicial de 496 kB (~113 kB transferidos), con poco margen respecto al aviso de 500 kB. Si una plantilla empieza a usar un componente o utilidad de Bootstrap excluido, hay que añadirlo en `src/styles/bootstrap.scss`.
+- ♿ **Accesibilidad**: las reglas de accesibilidad de plantillas se aplican como error en el lint. Queda pendiente la gestión del foco en los modales (`role="dialog"`, foco atrapado, cierre con Escape).
 - 🧪 **Tests**: hay tests de comportamiento para servicios, interceptor, helpers de fecha, guard, dashboard y la lista de recordatorios; el resto de componentes solo comprueba que se crean.
 - 🔐 **Seguridad**: no hay token; la sesión es el perfil de usuario en `localStorage` y la API identifica al usuario por `userId` en la petición. **No usar con datos sensibles.**
 - 📊 **Dashboard**: la API no guarda cuándo se completa una tarea, así que la gráfica muestra tareas creadas y con vencimiento por día, y "Needs Attention" lista solo elementos vencidos.
 - 🗃️ No se pueden borrar ni archivar goals (la API no lo permite).
-- 🌐 Textos mezclados en inglés y español; fechas formateadas con locale `es-ES` fijo; iconos desde dos CDN (Font Awesome 6 y Bootstrap Icons).
+- 🌐 Textos mezclados en inglés y español; fechas formateadas con locale `es-ES` fijo.
 
 ---
 
@@ -198,6 +202,7 @@ Detalle y justificación en [`docs/ARCHITECTURE_REVIEW.md`](docs/ARCHITECTURE_RE
 
 Convenciones del proyecto:
 
+- Iconos: `<i class="bi bi-<nombre>"></i>` de [Bootstrap Icons](https://icons.getbootstrap.com/); tras añadir uno nuevo, `npm run icons`.
 - Componentes standalone generados con `ng generate` (los _schematics_ ya apuntan a `src/app/components`, `services`, `guards`…), siempre con `OnPush` (lo exige ESLint).
 - `inject()` para dependencias, `input()`/`output()` para la API de los componentes y signals para el estado de UI.
 - URLs de la API solo a través de `API_BASE_URL`; errores HTTP como `ApiError`; fechas con los helpers de `shared/utils/date.ts`.

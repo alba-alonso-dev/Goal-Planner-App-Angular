@@ -3,7 +3,7 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title fw-bold">
-          <i class="fas fa-bell me-2"></i>
+          <i class="bi bi-bell-fill me-2"></i>
           Create New Reminder
         </h5>
         <button
@@ -19,8 +19,11 @@
         <form [formGroup]="reminderForm" (ngSubmit)="onSubmit()" novalidate>
           <!-- Title -->
           <div class="mb-3">
-            <label class="form-label fw-semibold"> Title <span class="text-danger">*</span> </label>
+            <label class="form-label fw-semibold" for="new-reminder-title">
+              Title <span class="text-danger">*</span>
+            </label>
             <input
+              id="new-reminder-title"
               type="text"
               class="form-control"
               formControlName="title"
@@ -34,8 +37,11 @@
 
           <!-- Date & Time -->
           <div class="mb-3">
-            <label class="form-label fw-semibold"> Date & Time <span class="text-danger">*</span> </label>
+            <label class="form-label fw-semibold" for="new-reminder-reminderDateTime">
+              Date & Time <span class="text-danger">*</span>
+            </label>
             <input
+              id="new-reminder-reminderDateTime"
               type="datetime-local"
               class="form-control"
               formControlName="reminderDateTime"
@@ -56,8 +62,9 @@
 
           <!-- Description -->
           <div class="mb-3">
-            <label class="form-label fw-semibold">Description</label>
+            <label class="form-label fw-semibold" for="new-reminder-description">Description</label>
             <textarea
+              id="new-reminder-description"
               class="form-control"
               formControlName="description"
               rows="4"
@@ -67,7 +74,7 @@
 
           <!-- Info message -->
           <div class="alert alert-info">
-            <i class="fas fa-info-circle me-2"></i>
+            <i class="bi bi-info-circle-fill me-2"></i>
             You'll be reminded at the specified date and time.
           </div>
         </form>
@@ -87,7 +94,7 @@
             <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
             Creating...
           } @else {
-            <i class="fas fa-plus-circle me-2"></i>Create Reminder
+            <i class="bi bi-plus-circle me-2"></i>Create Reminder
           }
         </button>
       </div>

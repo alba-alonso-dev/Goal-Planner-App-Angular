@@ -1,0 +1,105 @@
+// Bootstrap a medida: solo los módulos que usa la aplicación.
+// Si una plantilla empieza a usar otro componente de Bootstrap (dropdown, tooltip, accordion...),
+// hay que añadir aquí su parcial. Ver https://getbootstrap.com/docs/5.3/customize/optimize/
+
+// La app no ofrece tema oscuro: evita generar las variables de [data-bs-theme=dark]
+$enable-dark-mode: false;
+
+// 1. Configuración
+@import 'bootstrap/scss/functions';
+@import 'bootstrap/scss/variables';
+@import 'bootstrap/scss/variables-dark';
+@import 'bootstrap/scss/maps';
+@import 'bootstrap/scss/mixins';
+@import 'bootstrap/scss/utilities';
+
+// Grupos de utilidades que ninguna plantilla usa (analizado sobre src/app). Si se empieza a usar
+// alguna de estas clases (p. ej. `my-3`, `pe-2`, `overflow-auto`, `text-nowrap`), quitarla de la lista.
+// Las clases de color (`text-*`, `bg-*`, `border-*`) se mantienen porque algunas se construyen dinámicamente.
+$utilities: map-remove(
+  $utilities,
+  'margin-y',
+  'align-content',
+  'align-self',
+  'order',
+  'column-gap',
+  'padding-bottom',
+  'padding-end',
+  'object-fit',
+  'padding-start',
+  'row-gap',
+  'link-underline',
+  'rounded-bottom',
+  'rounded-end',
+  'rounded-start',
+  'rounded-top',
+  'float',
+  'link-underline-opacity',
+  'focus-ring',
+  'flex-shrink',
+  'subtle-border-color',
+  'subtle-background-color',
+  'text-color',
+  'link-opacity',
+  'link-offset',
+  'align',
+  'border-opacity',
+  'border-width',
+  'overflow-x',
+  'overflow-y',
+  'overflow',
+  'text-opacity',
+  'text-transform',
+  'z-index',
+  'border-bottom',
+  'line-height',
+  'user-select',
+  'word-wrap',
+  'bottom',
+  'white-space',
+  'font-style',
+  'pointer-events',
+  'font-family',
+  'gradient',
+  'min-viewport-width',
+  'max-height',
+  'max-width',
+  'viewport-height',
+  'viewport-width'
+);
+
+// 2. Base
+@import 'bootstrap/scss/root';
+@import 'bootstrap/scss/reboot';
+@import 'bootstrap/scss/type';
+@import 'bootstrap/scss/containers';
+@import 'bootstrap/scss/grid';
+@import 'bootstrap/scss/helpers';
+
+// 3. Componentes usados
+@import 'bootstrap/scss/tables';
+// forms: sin form-range ni floating-labels, que no se usan
+@import 'bootstrap/scss/forms/labels';
+@import 'bootstrap/scss/forms/form-text';
+@import 'bootstrap/scss/forms/form-control';
+@import 'bootstrap/scss/forms/form-select';
+@import 'bootstrap/scss/forms/form-check';
+@import 'bootstrap/scss/forms/input-group';
+@import 'bootstrap/scss/forms/validation';
+@import 'bootstrap/scss/buttons';
+@import 'bootstrap/scss/transitions';
+@import 'bootstrap/scss/button-group';
+@import 'bootstrap/scss/nav';
+@import 'bootstrap/scss/navbar';
+@import 'bootstrap/scss/card';
+@import 'bootstrap/scss/badge';
+@import 'bootstrap/scss/alert';
+@import 'bootstrap/scss/progress';
+@import 'bootstrap/scss/list-group';
+@import 'bootstrap/scss/close';
+@import 'bootstrap/scss/toasts';
+@import 'bootstrap/scss/modal';
+@import 'bootstrap/scss/spinners';
+
+// 4. Utilidades (siempre al final)
+@import 'bootstrap/scss/utilities/api';

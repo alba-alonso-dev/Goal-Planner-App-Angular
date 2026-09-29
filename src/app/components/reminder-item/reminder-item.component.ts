@@ -41,11 +41,11 @@ export class ReminderItemComponent {
   }
 
   getReminderIcon(): string {
-    if (this.reminder().isAcknowledged) return 'fas fa-check-circle text-success';
-    if (this.reminder().isOverdue) return 'fas fa-exclamation-circle text-danger';
-    if (this.reminder().isToday) return 'fas fa-bell text-warning';
-    if (this.reminder().isTomorrow) return 'fas fa-clock text-info';
-    return 'fas fa-bell text-primary';
+    if (this.reminder().isAcknowledged) return 'bi bi-check-circle-fill text-success';
+    if (this.reminder().isOverdue) return 'bi bi-exclamation-circle-fill text-danger';
+    if (this.reminder().isToday) return 'bi bi-bell-fill text-warning';
+    if (this.reminder().isTomorrow) return 'bi bi-clock-fill text-info';
+    return 'bi bi-bell-fill text-primary';
   }
 
   getTimeBadgeClass(): string {

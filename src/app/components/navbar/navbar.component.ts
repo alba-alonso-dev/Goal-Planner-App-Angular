@@ -1,8 +1,9 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { NavigationEnd, Router, RouterModule } from '@angular/router';
+import { filter } from 'rxjs';
 import { LoginModalComponent } from '../login-modal/login-modal.component';
 import { AuthService } from '../../services/auth.service';
-import { RouterModule } from '@angular/router';
-import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-navbar',
@@ -17,8 +18,25 @@ export class NavbarComponent {
   private router = inject(Router);
 
   readonly modalVisible = signal(false);
+  // Menú colapsable en pantallas pequeñas (no se carga el JS de Bootstrap)
+  readonly menuOpen = signal(false);
+
+  constructor() {
+    // Cerrar el menú al navegar
+    this.router.events
+      .pipe(
+        filter(event => event instanceof NavigationEnd),
+        takeUntilDestroyed()
+      )
+      .subscribe(() => this.menuOpen.set(false));
+  }
+
+  toggleMenu() {
+    this.menuOpen.update(open => !open);
+  }
 
   openModal() {
+    this.menuOpen.set(false);
     this.modalVisible.set(true);
   }
 
