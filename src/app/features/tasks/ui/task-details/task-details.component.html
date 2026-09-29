@@ -88,9 +88,12 @@
                     type="date"
                     class="form-control"
                     formControlName="dueDate"
-                    [class.is-invalid]="editForm.get('dueDate')?.errors && editForm.get('dueDate')?.touched"
+                    [class.is-invalid]="
+                      (editForm.get('dueDate')?.invalid && editForm.get('dueDate')?.touched) ||
+                      editForm.hasError('dueDateBeforeStart')
+                    "
                   />
-                  @if (editForm.get('dueDate')?.hasError('dueDateBeforeStart')) {
+                  @if (editForm.hasError('dueDateBeforeStart')) {
                     <div class="invalid-feedback d-block">Due date cannot be before start date</div>
                   }
                 </div>

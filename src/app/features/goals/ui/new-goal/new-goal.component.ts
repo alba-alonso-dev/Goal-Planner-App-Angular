@@ -1,10 +1,9 @@
 import { ChangeDetectionStrategy, Component, inject, input, output } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { merge } from 'rxjs';
 import { GoalInput } from '../../goal.model';
 import { toDateInputValue } from '../../../../shared/utils/date';
+import { dateOrderValidator, milestonesWithinRangeValidator } from '../../../../shared/forms/date-validators';
 
 type MilestoneForm = FormGroup<{
   milestoneName: FormControl<string>;
@@ -29,38 +28,26 @@ export class NewGoalComponent {
   private fb = inject(FormBuilder).nonNullable;
 
   // Inicializar con fecha actual y próximo mes
-  readonly goalForm = this.fb.group({
-    goalName: ['', [Validators.required, Validators.minLength(3)]],
-    description: [''],
-    startDate: [toDateInputValue(), Validators.required],
-    endDate: [toDateInputValue(this.nextMonth()), Validators.required],
-    milestones: this.fb.array<MilestoneForm>([])
-  });
-
-  constructor() {
-    // Validación de fechas
-    merge(this.goalForm.controls.startDate.valueChanges, this.goalForm.controls.endDate.valueChanges)
-      .pipe(takeUntilDestroyed())
-      .subscribe(() => this.validateDates());
-  }
+  readonly goalForm = this.fb.group(
+    {
+      goalName: ['', [Validators.required, Validators.minLength(3)]],
+      description: [''],
+      startDate: [toDateInputValue(), Validators.required],
+      endDate: [toDateInputValue(this.nextMonth()), Validators.required],
+      milestones: this.fb.array<MilestoneForm>([])
+    },
+    {
+      validators: [
+        dateOrderValidator('startDate', 'endDate', 'endDateBeforeStart'),
+        milestonesWithinRangeValidator('startDate', 'endDate', 'milestones')
+      ]
+    }
+  );
 
   private nextMonth(): Date {
     const date = new Date();
     date.setMonth(date.getMonth() + 1);
     return date;
-  }
-
-  private validateDates() {
-    const { startDate, endDate } = this.goalForm.getRawValue();
-    const endControl = this.goalForm.controls.endDate;
-    if (!startDate || !endDate) return;
-
-    if (new Date(endDate) < new Date(startDate)) {
-      endControl.setErrors({ ...endControl.errors, endDateBeforeStart: true });
-    } else if (endControl.errors?.['endDateBeforeStart']) {
-      const { endDateBeforeStart: _removed, ...otherErrors } = endControl.errors;
-      endControl.setErrors(Object.keys(otherErrors).length ? otherErrors : null);
-    }
   }
 
   get milestones() {

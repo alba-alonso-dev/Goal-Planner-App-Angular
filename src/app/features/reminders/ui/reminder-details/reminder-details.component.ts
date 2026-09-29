@@ -1,11 +1,11 @@
 import { ChangeDetectionStrategy, Component, effect, inject, input, output, signal, untracked } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { ReminderView } from '../../reminder.model';
 import { ReminderStore } from '../../data-access/reminder.store';
 import { ApiError } from '../../../../core/http/api-error';
 import { toDateTimeInputValue } from '../../../../shared/utils/date';
+import { notInPastValidator } from '../../../../shared/forms/date-validators';
 
 @Component({
   selector: 'app-reminder-details',
@@ -32,7 +32,8 @@ export class ReminderDetailsComponent {
   readonly editForm = this.fb.nonNullable.group({
     title: ['', [Validators.required, Validators.minLength(3)]],
     description: [''],
-    reminderDateTime: ['', Validators.required],
+    // Solo se exige una fecha futura si se cambia: así se puede editar un recordatorio vencido
+    reminderDateTime: ['', [Validators.required, notInPastValidator({ onlyWhenChanged: true })]],
     isAcknowledged: [false]
   });
 
@@ -44,10 +45,6 @@ export class ReminderDetailsComponent {
         if (!this.editMode()) this.initForm(reminder);
       });
     });
-
-    this.editForm.controls.reminderDateTime.valueChanges
-      .pipe(takeUntilDestroyed())
-      .subscribe(() => this.validateDateTime());
   }
 
   private initForm(reminder: ReminderView) {
@@ -57,13 +54,6 @@ export class ReminderDetailsComponent {
       reminderDateTime: this.formatDateTimeForInput(reminder.reminderDateTime),
       isAcknowledged: reminder.isAcknowledged
     });
-  }
-
-  private validateDateTime() {
-    const control = this.editForm.controls.reminderDateTime;
-    if (control.value && new Date(control.value) < new Date()) {
-      control.setErrors({ ...control.errors, pastDate: true });
-    }
   }
 
   // Hora local: con toISOString() el input mostraba la hora UTC y al guardar se desplazaba

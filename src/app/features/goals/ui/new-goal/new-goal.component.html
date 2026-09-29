@@ -56,10 +56,16 @@
                       type="date"
                       class="form-control"
                       formControlName="endDate"
-                      [class.is-invalid]="goalForm.get('endDate')?.invalid && goalForm.get('endDate')?.touched"
+                      [class.is-invalid]="
+                        (goalForm.get('endDate')?.invalid && goalForm.get('endDate')?.touched) ||
+                        goalForm.hasError('endDateBeforeStart')
+                      "
                     />
                     @if (goalForm.get('endDate')?.invalid && goalForm.get('endDate')?.touched) {
                       <div class="invalid-feedback">Target date is required</div>
+                    }
+                    @if (goalForm.hasError('endDateBeforeStart')) {
+                      <div class="invalid-feedback d-block">Target date cannot be before start date</div>
                     }
                   </div>
                 </div>
@@ -117,8 +123,12 @@
                         [id]="'new-goal-milestone-' + $index + '-targetDate'"
                         type="date"
                         class="form-control form-control-sm"
+                        [class.is-invalid]="goalForm.getError('milestoneOutOfRange')?.includes($index)"
                         formControlName="targetDate"
                       />
+                      @if (goalForm.getError('milestoneOutOfRange')?.includes($index)) {
+                        <div class="invalid-feedback">Must be between the goal start and target dates</div>
+                      }
                     </div>
 
                     <div class="mb-2">

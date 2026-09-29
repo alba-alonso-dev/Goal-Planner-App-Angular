@@ -1,12 +1,11 @@
 import { ChangeDetectionStrategy, Component, effect, inject, input, output, signal, untracked } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
-import { merge } from 'rxjs';
 import { TaskFrequency, TaskView } from '../../task.model';
 import { TaskStore } from '../../data-access/task.store';
 import { ApiError } from '../../../../core/http/api-error';
 import { toDateInputValue } from '../../../../shared/utils/date';
+import { dateOrderValidator } from '../../../../shared/forms/date-validators';
 
 @Component({
   selector: 'app-task-details',
@@ -36,14 +35,17 @@ export class TaskDetailsComponent {
     { value: 'Monthly', label: 'Monthly' }
   ];
 
-  readonly editForm = this.fb.nonNullable.group({
-    taskName: ['', [Validators.required, Validators.minLength(3)]],
-    description: [''],
-    frequency: ['Daily' as TaskFrequency, Validators.required],
-    startDate: ['', Validators.required],
-    dueDate: ['', Validators.required],
-    isCompleted: [false]
-  });
+  readonly editForm = this.fb.nonNullable.group(
+    {
+      taskName: ['', [Validators.required, Validators.minLength(3)]],
+      description: [''],
+      frequency: ['Daily' as TaskFrequency, Validators.required],
+      startDate: ['', Validators.required],
+      dueDate: ['', Validators.required],
+      isCompleted: [false]
+    },
+    { validators: dateOrderValidator('startDate', 'dueDate', 'dueDateBeforeStart') }
+  );
 
   constructor() {
     // Rellenar el formulario cuando cambia la tarea, salvo mientras se está editando
@@ -53,10 +55,6 @@ export class TaskDetailsComponent {
         if (!this.editMode()) this.initForm(task);
       });
     });
-
-    merge(this.editForm.controls.startDate.valueChanges, this.editForm.controls.dueDate.valueChanges)
-      .pipe(takeUntilDestroyed())
-      .subscribe(() => this.validateDates());
   }
 
   private initForm(task: TaskView) {
@@ -68,15 +66,6 @@ export class TaskDetailsComponent {
       dueDate: this.formatDateForInput(task.dueDate),
       isCompleted: task.isCompleted
     });
-  }
-
-  private validateDates() {
-    const { startDate, dueDate } = this.editForm.getRawValue();
-    const dueControl = this.editForm.controls.dueDate;
-
-    if (startDate && dueDate && new Date(dueDate) < new Date(startDate)) {
-      dueControl.setErrors({ ...dueControl.errors, dueDateBeforeStart: true });
-    }
   }
 
   // Si la fecha falta o no es válida, se usa la fecha actual

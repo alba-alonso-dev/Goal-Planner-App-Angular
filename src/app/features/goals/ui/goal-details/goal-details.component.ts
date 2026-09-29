@@ -7,6 +7,7 @@ import { GoalStore } from '../../data-access/goal.store';
 import { resolveAchieved } from '../../domain/goal.rules';
 import { ApiError } from '../../../../core/http/api-error';
 import { toDateInputValue } from '../../../../shared/utils/date';
+import { dateOrderValidator, milestonesWithinRangeValidator } from '../../../../shared/forms/date-validators';
 
 @Component({
   selector: 'app-goal-details',
@@ -29,15 +30,23 @@ export class GoalDetailsComponent {
   readonly submitting = signal(false);
   readonly error = signal<string | null>(null);
 
-  readonly editForm = this.fb.group({
-    goalId: [0],
-    goalName: ['', [Validators.required, Validators.minLength(3)]],
-    description: [''],
-    startDate: ['', Validators.required],
-    endDate: ['', Validators.required],
-    isAchieved: [false],
-    milestones: this.fb.array<FormGroup>([])
-  });
+  readonly editForm = this.fb.group(
+    {
+      goalId: [0],
+      goalName: ['', [Validators.required, Validators.minLength(3)]],
+      description: [''],
+      startDate: ['', Validators.required],
+      endDate: ['', Validators.required],
+      isAchieved: [false],
+      milestones: this.fb.array<FormGroup>([])
+    },
+    {
+      validators: [
+        dateOrderValidator('startDate', 'endDate', 'endDateBeforeStart'),
+        milestonesWithinRangeValidator('startDate', 'endDate', 'milestones')
+      ]
+    }
+  );
 
   constructor() {
     // Rellenar el formulario cuando cambia el goal, salvo mientras se está editando

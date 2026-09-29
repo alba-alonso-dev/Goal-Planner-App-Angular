@@ -1,9 +1,9 @@
 import { ChangeDetectionStrategy, Component, inject, input, output } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ReminderInput } from '../../reminder.model';
 import { toDateTimeInputValue } from '../../../../shared/utils/date';
+import { notInPastValidator } from '../../../../shared/forms/date-validators';
 
 @Component({
   selector: 'app-new-reminder',
@@ -24,31 +24,13 @@ export class NewReminderComponent {
   readonly reminderForm = this.fb.group({
     title: ['', [Validators.required, Validators.minLength(3)]],
     description: [''],
-    reminderDateTime: [toDateTimeInputValue(this.nextHour()), Validators.required]
+    reminderDateTime: [toDateTimeInputValue(this.nextHour()), [Validators.required, notInPastValidator()]]
   });
-
-  constructor() {
-    this.reminderForm.controls.reminderDateTime.valueChanges
-      .pipe(takeUntilDestroyed())
-      .subscribe(() => this.validateDateTime());
-  }
 
   private nextHour(): Date {
     const date = new Date();
     date.setHours(date.getHours() + 1);
     return date;
-  }
-
-  private validateDateTime() {
-    const control = this.reminderForm.controls.reminderDateTime;
-    if (!control.value) return;
-
-    if (new Date(control.value) < new Date()) {
-      control.setErrors({ ...control.errors, pastDate: true });
-    } else if (control.errors?.['pastDate']) {
-      const { pastDate: _removed, ...otherErrors } = control.errors;
-      control.setErrors(Object.keys(otherErrors).length ? otherErrors : null);
-    }
   }
 
   onSubmit() {

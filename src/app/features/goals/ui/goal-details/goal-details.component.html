@@ -82,8 +82,14 @@
                       type="date"
                       class="form-control"
                       formControlName="endDate"
-                      [class.is-invalid]="editForm.get('endDate')?.invalid && editForm.get('endDate')?.touched"
+                      [class.is-invalid]="
+                        (editForm.get('endDate')?.invalid && editForm.get('endDate')?.touched) ||
+                        editForm.hasError('endDateBeforeStart')
+                      "
                     />
+                    @if (editForm.hasError('endDateBeforeStart')) {
+                      <div class="invalid-feedback d-block">Cannot be before the start date</div>
+                    }
                   </div>
                 </div>
               </div>
@@ -144,7 +150,16 @@
                             />
                           </div>
                           <div class="col-md-4">
-                            <input type="date" class="form-control form-control-sm mb-2" formControlName="targetDate" />
+                            <input
+                              type="date"
+                              class="form-control form-control-sm mb-2"
+                              formControlName="targetDate"
+                              aria-label="Milestone target date"
+                              [class.is-invalid]="editForm.getError('milestoneOutOfRange')?.includes($index)"
+                            />
+                            @if (editForm.getError('milestoneOutOfRange')?.includes($index)) {
+                              <div class="invalid-feedback">Must be within the goal dates</div>
+                            }
                           </div>
                           <div class="col-md-3 text-end">
                             <button

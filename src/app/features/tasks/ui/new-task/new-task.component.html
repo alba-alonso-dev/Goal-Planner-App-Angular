@@ -81,13 +81,16 @@
                   type="date"
                   class="form-control"
                   formControlName="dueDate"
-                  [class.is-invalid]="taskForm.get('dueDate')?.errors && taskForm.get('dueDate')?.touched"
+                  [class.is-invalid]="
+                    (taskForm.get('dueDate')?.invalid && taskForm.get('dueDate')?.touched) ||
+                    taskForm.hasError('dueDateBeforeStart')
+                  "
                 />
                 @if (taskForm.get('dueDate')?.hasError('required') && taskForm.get('dueDate')?.touched) {
                   <div class="invalid-feedback">Due date is required</div>
                 }
-                @if (taskForm.get('dueDate')?.hasError('dueDateBeforeStart')) {
-                  <div class="invalid-feedback">Due date cannot be before start date</div>
+                @if (taskForm.hasError('dueDateBeforeStart')) {
+                  <div class="invalid-feedback d-block">Due date cannot be before start date</div>
                 }
               </div>
             </div>
