@@ -2,15 +2,21 @@
   <!-- Header -->
   <div class="row mb-4">
     <div class="col-md-8">
-      <h1 class="fw-bold">
-        <i class="bi bi-bell-fill me-2"></i>
+      <h1 i18n class="fw-bold">
+        <i aria-hidden="true" class="bi bi-bell-fill me-2"></i>
         Reminders
       </h1>
-      <p class="text-muted">Never miss important dates and tasks</p>
+      <p i18n class="text-muted">Never miss important dates and tasks</p>
     </div>
     <div class="col-md-4 text-end">
-      <button class="btn btn-primary" (click)="openNewReminderModal()" [disabled]="loading()">
-        <i class="bi bi-plus-lg me-2"></i>
+      @if (alerts.canRequestPermission()) {
+        <button i18n class="btn btn-outline-secondary me-2" type="button" (click)="alerts.requestPermission()">
+          <i aria-hidden="true" class="bi bi-bell me-2"></i>
+          Enable notifications
+        </button>
+      }
+      <button i18n class="btn btn-primary" (click)="openNewReminderModal()" [disabled]="loading()">
+        <i aria-hidden="true" class="bi bi-plus-lg me-2"></i>
         New Reminder
       </button>
     </div>
@@ -21,7 +27,7 @@
     <div class="col-md-2 col-4">
       <div class="card bg-primary text-white">
         <div class="card-body text-center">
-          <h6 class="card-title small">Total</h6>
+          <h6 i18n class="card-title small">Total</h6>
           <h3 class="mb-0">{{ stats().total }}</h3>
         </div>
       </div>
@@ -29,15 +35,15 @@
     <div class="col-md-2 col-4">
       <div class="card bg-success text-white">
         <div class="card-body text-center">
-          <h6 class="card-title small">Done</h6>
+          <h6 i18n="@@reminders.stats.done" class="card-title small">Done</h6>
           <h3 class="mb-0">{{ stats().acknowledged }}</h3>
         </div>
       </div>
     </div>
     <div class="col-md-2 col-4">
-      <div class="card bg-warning text-white">
+      <div class="card text-bg-warning">
         <div class="card-body text-center">
-          <h6 class="card-title small">Pending</h6>
+          <h6 i18n="@@reminders.stats.pending" class="card-title small">Pending</h6>
           <h3 class="mb-0">{{ stats().pending }}</h3>
         </div>
       </div>
@@ -45,15 +51,15 @@
     <div class="col-md-2 col-4">
       <div class="card bg-danger text-white">
         <div class="card-body text-center">
-          <h6 class="card-title small">Overdue</h6>
+          <h6 i18n="@@reminders.stats.overdue" class="card-title small">Overdue</h6>
           <h3 class="mb-0">{{ stats().overdue }}</h3>
         </div>
       </div>
     </div>
     <div class="col-md-2 col-4">
-      <div class="card bg-info text-white">
+      <div class="card text-bg-info">
         <div class="card-body text-center">
-          <h6 class="card-title small">Today</h6>
+          <h6 i18n class="card-title small">Today</h6>
           <h3 class="mb-0">{{ stats().today }}</h3>
         </div>
       </div>
@@ -61,7 +67,7 @@
     <div class="col-md-2 col-4">
       <div class="card bg-secondary text-white">
         <div class="card-body text-center">
-          <h6 class="card-title small">This Week</h6>
+          <h6 i18n class="card-title small">This Week</h6>
           <h3 class="mb-0">{{ stats().today + stats().tomorrow + stats().thisWeek }}</h3>
         </div>
       </div>
@@ -73,6 +79,7 @@
     <div class="col-md-6">
       <div class="btn-group flex-wrap" role="group">
         <button
+          i18n="@@reminders.filter.all"
           class="btn btn-sm"
           [class.btn-primary]="filter() === 'all'"
           [class.btn-outline-secondary]="filter() !== 'all'"
@@ -81,6 +88,7 @@
           All <span class="badge bg-secondary ms-1">{{ stats().total }}</span>
         </button>
         <button
+          i18n="@@reminders.filter.pending"
           class="btn btn-sm"
           [class.btn-warning]="filter() === 'pending'"
           [class.btn-outline-secondary]="filter() !== 'pending'"
@@ -89,6 +97,7 @@
           Pending <span class="badge bg-secondary ms-1">{{ stats().pending }}</span>
         </button>
         <button
+          i18n="@@reminders.filter.acknowledged"
           class="btn btn-sm"
           [class.btn-success]="filter() === 'acknowledged'"
           [class.btn-outline-secondary]="filter() !== 'acknowledged'"
@@ -97,6 +106,7 @@
           Done <span class="badge bg-secondary ms-1">{{ stats().acknowledged }}</span>
         </button>
         <button
+          i18n="@@reminders.filter.overdue"
           class="btn btn-sm"
           [class.btn-danger]="filter() === 'overdue'"
           [class.btn-outline-secondary]="filter() !== 'overdue'"
@@ -109,11 +119,12 @@
     <div class="col-md-4">
       <div class="input-group">
         <span class="input-group-text bg-white border-end-0">
-          <i class="bi bi-search text-muted"></i>
+          <i aria-hidden="true" class="bi bi-search text-muted"></i>
         </span>
         <input
           type="text"
           class="form-control border-start-0"
+          i18n-placeholder
           placeholder="Search reminders..."
           (input)="setSearchTerm($any($event.target).value)"
         />
@@ -123,13 +134,15 @@
       <button
         class="btn btn-outline-secondary me-2"
         (click)="toggleViewMode()"
+        i18n-title
         title="Toggle view"
+        i18n-aria-label
         aria-label="Toggle view"
       >
         @if (viewMode() === 'grid') {
-          <i class="bi bi-list-ul"></i>
+          <i aria-hidden="true" class="bi bi-list-ul"></i>
         } @else {
-          <i class="bi bi-grid-fill"></i>
+          <i aria-hidden="true" class="bi bi-grid-fill"></i>
         }
       </button>
     </div>
@@ -139,9 +152,9 @@
   @if (loading()) {
     <div class="text-center py-5">
       <div class="spinner-border text-primary" role="status">
-        <span class="visually-hidden">Loading...</span>
+        <span i18n class="visually-hidden">Loading...</span>
       </div>
-      <p class="mt-2 text-muted">Loading reminders...</p>
+      <p i18n class="mt-2 text-muted">Loading reminders...</p>
     </div>
   }
 
@@ -149,13 +162,13 @@
   @if (error()) {
     <div class="alert alert-danger" role="alert">
       <div class="d-flex align-items-center">
-        <i class="bi bi-exclamation-triangle-fill icon-2x me-3"></i>
+        <i aria-hidden="true" class="bi bi-exclamation-triangle-fill icon-2x me-3"></i>
         <div class="flex-grow-1">
-          <h5 class="alert-heading">Error loading reminders</h5>
+          <h5 i18n class="alert-heading">Error loading reminders</h5>
           <p class="mb-0">{{ error() }}</p>
         </div>
-        <button class="btn btn-outline-danger ms-3" (click)="retry()">
-          <i class="bi bi-arrow-repeat me-2"></i>Retry
+        <button i18n class="btn btn-outline-danger ms-3" (click)="retry()">
+          <i aria-hidden="true" class="bi bi-arrow-repeat me-2"></i>Retry
         </button>
       </div>
     </div>
@@ -165,9 +178,9 @@
   @if (!loading() && !error()) {
     @if (filteredReminders().length === 0) {
       <div class="text-center py-5">
-        <i class="bi bi-bell-fill icon-3x text-muted mb-3"></i>
-        <h4 class="text-muted">No reminders found</h4>
-        <p class="text-muted">
+        <i aria-hidden="true" class="bi bi-bell-fill icon-3x text-muted mb-3"></i>
+        <h4 i18n class="text-muted">No reminders found</h4>
+        <p i18n class="text-muted">
           @if (filter() !== 'all') {
             Try changing the filter or
           }
@@ -204,14 +217,15 @@
             >
               <div class="d-flex align-items-center flex-grow-1">
                 <div class="me-3">
-                  <i [class]="getReminderListIcon(reminder) + ' icon-2x'"></i>
+                  <i aria-hidden="true" [class]="getReminderListIcon(reminder) + ' icon-2x'"></i>
                 </div>
                 <div class="flex-grow-1">
                   <h6 class="mb-1" [class.text-decoration-line-through]="reminder.isAcknowledged">
                     {{ reminder.title }}
                   </h6>
                   <small class="text-muted">
-                    {{ reminder.reminderDateTime | date: 'dd/MM/yyyy HH:mm' }}
+                    {{ reminder.reminderDateTime | date: 'mediumDate' }}
+                    {{ reminder.reminderDateTime | date: 'shortTime' }}
                     @if (reminder.description) {
                       <span class="ms-2"
                         >• {{ reminder.description | slice: 0 : 30
@@ -225,7 +239,7 @@
                 <span class="badge me-3" [class]="getListBadgeClass(reminder)">
                   {{ getListBadgeText(reminder) }}
                 </span>
-                <i class="bi bi-chevron-right text-muted"></i>
+                <i aria-hidden="true" class="bi bi-chevron-right text-muted"></i>
               </div>
             </div>
           }

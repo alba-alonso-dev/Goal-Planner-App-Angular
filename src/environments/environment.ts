@@ -1,5 +1,6 @@
-// Configuración de producción (por defecto en `ng build`)
+// Configuración de producción (por defecto en `ng build`).
+// La API se sirve en el mismo origen que la aplicación (la cookie de sesión es SameSite=Strict).
 export const environment = {
   production: true,
-  apiBaseUrl: 'https://api.freeprojectapi.com/api/GoalTracker'
+  apiBaseUrl: '/api'
 };

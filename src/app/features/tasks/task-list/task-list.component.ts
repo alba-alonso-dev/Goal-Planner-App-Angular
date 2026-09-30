@@ -1,5 +1,4 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TaskStore } from '../data-access/task.store';
@@ -14,7 +13,7 @@ import { TaskDetailsComponent } from '../ui/task-details/task-details.component'
 @Component({
   selector: 'app-task-list',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, NewTaskComponent, TaskItemComponent, TaskDetailsComponent],
+  imports: [RouterModule, FormsModule, NewTaskComponent, TaskItemComponent, TaskDetailsComponent],
   templateUrl: './task-list.component.html',
   styleUrls: ['./task-list.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -87,23 +86,23 @@ export class TaskListComponent implements OnInit {
       next: () => {
         this.creating.set(false);
         this.closeNewTaskModal();
-        this.notificationService.success('Task created successfully', 'Success');
+        this.notificationService.success($localize`Task created successfully`, $localize`Success`);
       },
       error: (error: ApiError) => {
         // El modal sigue abierto para poder reintentar sin perder los datos
         this.creating.set(false);
-        this.notificationService.error(error.message, 'Error creating task');
+        this.notificationService.error(error.message, $localize`Error creating task`);
       }
     });
   }
 
   onTaskUpdated() {
-    this.notificationService.success('Task updated successfully', 'Success');
+    this.notificationService.success($localize`Task updated successfully`, $localize`Success`);
   }
 
   toggleTaskCompletion(task: TaskView) {
     this.store.toggleCompletion(task.taskId).subscribe({
-      error: (error: ApiError) => this.notificationService.error(error.message, 'Error updating task')
+      error: (error: ApiError) => this.notificationService.error(error.message, $localize`Error updating task`)
     });
   }
 
@@ -117,8 +116,8 @@ export class TaskListComponent implements OnInit {
 
   deleteTask(taskId: number) {
     this.store.delete(taskId).subscribe({
-      next: () => this.notificationService.success('Task deleted successfully', 'Success'),
-      error: (error: ApiError) => this.notificationService.error(error.message, 'Error deleting task')
+      next: () => this.notificationService.success($localize`Task deleted successfully`, $localize`Success`),
+      error: (error: ApiError) => this.notificationService.error(error.message, $localize`Error deleting task`)
     });
   }
 

@@ -1,14 +1,13 @@
-export interface ReminderRequest {
+/** Recordatorio tal como lo devuelve la API. */
+export interface ReminderResponse {
   reminderId: number;
   title: string;
   description: string;
+  /** Instante ISO 8601 con zona. */
   reminderDateTime: string;
   isAcknowledged: boolean;
   userId: number;
 }
-
-/** Recordatorio tal como lo devuelve la API. */
-export type ReminderResponse = ReminderRequest;
 
 /**
  * Momento de un recordatorio pendiente respecto a ahora. Las categorías son excluyentes:
@@ -24,7 +23,6 @@ export interface ReminderView extends ReminderResponse {
   isOverdue: boolean;
   isToday: boolean;
   isTomorrow: boolean;
-  formattedDateTime: string;
 }
 
 export interface ReminderStats {
@@ -43,5 +41,5 @@ export interface ReminderStats {
 export type ReminderFilter = 'all' | 'pending' | 'acknowledged' | 'overdue';
 
 // Datos que aportan los formularios para crear/actualizar un recordatorio
-export type ReminderInput = Pick<ReminderRequest, 'title' | 'description' | 'reminderDateTime'> &
-  Partial<Pick<ReminderRequest, 'isAcknowledged'>>;
+export type ReminderInput = Pick<ReminderResponse, 'title' | 'description' | 'reminderDateTime'> &
+  Partial<Pick<ReminderResponse, 'isAcknowledged'>>;

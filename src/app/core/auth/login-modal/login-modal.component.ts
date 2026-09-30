@@ -5,9 +5,11 @@ import { LoginData, RegisterData } from '../user.model';
 import { Router } from '@angular/router';
 import { ApiError } from '../../http/api-error';
 
+import { DialogDirective } from '../../../shared/ui/dialog.directive';
+
 @Component({
   selector: 'app-login-modal',
-  imports: [FormsModule],
+  imports: [DialogDirective, FormsModule],
   templateUrl: './login-modal.component.html',
   styleUrls: ['./login-modal.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -70,7 +72,7 @@ export class LoginModalComponent {
       },
       error: (err: ApiError) => {
         this.isLoading.set(false);
-        this.errorMessage.set(err.serverMessage || 'Error al iniciar sesión. Inténtalo de nuevo.');
+        this.errorMessage.set(err.serverMessage || $localize`Could not log in. Please try again.`);
         console.error('Login error', err);
       }
     });
@@ -82,35 +84,16 @@ export class LoginModalComponent {
     this.errorMessage.set(null);
     this.successMessage.set(null);
 
+    // El backend abre la sesión al registrar: no hace falta un login posterior
     this.authService.register(this.registerObj).subscribe({
       next: () => {
-        // Después del registro exitoso, hacer login automático
-        this.successMessage.set('Registro exitoso. Iniciando sesión...');
-
-        // Usar las mismas credenciales para login automático
-        const loginData: LoginData = {
-          emailId: this.registerObj.emailId,
-          password: this.registerObj.password
-        };
-
-        this.authService.login(loginData).subscribe({
-          next: () => {
-            this.isLoading.set(false);
-            this.closeModal(); // Cierra el modal
-            this.router.navigate(['/dashboard']); // Navega al dashboard
-          },
-          error: (loginErr: ApiError) => {
-            this.isLoading.set(false);
-            // Si el login automático falla, redirigir a login manual
-            this.errorMessage.set('Registro exitoso. Por favor, inicia sesión.');
-            this.showLogin.set(true); // Cambiar a vista de login
-            console.error('Error en login automático', loginErr);
-          }
-        });
+        this.isLoading.set(false);
+        this.closeModal();
+        this.router.navigate(['/dashboard']);
       },
       error: (err: ApiError) => {
         this.isLoading.set(false);
-        this.errorMessage.set(err.serverMessage || 'Error al registrarse. Inténtalo de nuevo.');
+        this.errorMessage.set(err.serverMessage || $localize`Could not sign up. Please try again.`);
         console.error('Register error', err);
       }
     });

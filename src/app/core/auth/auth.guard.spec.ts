@@ -11,6 +11,7 @@ import {
 } from '@angular/router';
 
 import { authGuard } from './auth.guard';
+import { signInTestUser } from '../../../testing/fixtures';
 
 describe('authGuard', () => {
   const executeGuard: CanActivateFn = (...guardParameters) =>
@@ -20,32 +21,20 @@ describe('authGuard', () => {
   const state = {} as RouterStateSnapshot;
 
   beforeEach(() => {
-    localStorage.removeItem('user');
     TestBed.configureTestingModule({
       providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([])]
     });
   });
 
-  afterEach(() => localStorage.removeItem('user'));
-
   it('should allow navigation when a user is logged in', () => {
-    localStorage.setItem(
-      'user',
-      JSON.stringify({
-        userId: 1,
-        emailId: 'test@example.com',
-        fullName: 'Test',
-        mobileNo: '600000000'
-      })
-    );
-
-    expect(executeGuard(route, state)).toBeTrue();
+    signInTestUser();
+    expect(executeGuard(route, state)).toBe(true);
   });
 
   it('should redirect to /home when no user is logged in', () => {
     const result = executeGuard(route, state);
 
-    expect(result instanceof UrlTree).toBeTrue();
+    expect(result instanceof UrlTree).toBe(true);
     expect(TestBed.inject(Router).serializeUrl(result as UrlTree)).toBe('/home');
   });
 });

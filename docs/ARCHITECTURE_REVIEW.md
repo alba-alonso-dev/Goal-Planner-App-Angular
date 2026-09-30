@@ -2,6 +2,8 @@
 
 > Revisión realizada con perspectiva de Senior/Staff Software Architect sobre el estado del repositorio en la rama `claude/dreamy-euler-8c4f1x` (commit `bf91e80`, septiembre 2026).
 > Todas las afirmaciones marcadas como **[verificado]** se han comprobado ejecutando `npm ci`, `ng build` y `ng test` sobre el código actual.
+>
+> **Estado actual:** las secciones 1–3 describen el punto de partida. Las cuatro fases de la [hoja de ruta](#4-hoja-de-ruta-propuesta) están completadas (Angular 22, backend propio, e2e, accesibilidad, i18n); lo que queda pendiente está al final de la Fase 3.
 
 ---
 
@@ -277,14 +279,27 @@ features/
 | El mensaje de fecha pasada estaba oculto hasta perder el foco                                  | Botón de guardar desactivado sin explicación                                      |
 | Cada pantalla y cada mutación recargaban la lista completa                                     | Peticiones redundantes y parpadeo de la lista                                     |
 
-### Fase 3 — Producto y plataforma
+### Fase 3 — Producto y plataforma ✅ completada en la rama `fase3`
 
-- [ ] Backend propio con autenticación real (JWT/OIDC) y autorización por propietario.
-- [ ] i18n (es/en) y `LOCALE_ID`.
-- [ ] Accesibilidad de modales (`role="dialog"`, foco atrapado, Escape), contraste, y tests e2e con Playwright.
-- [ ] Zoneless: con `OnPush` y signals en todos los componentes, quitar zone.js ahorraría otros 34 kB del bundle inicial.
-- [ ] Valorar zoneless (`provideExperimentalZonelessChangeDetection` → estable en Angular 20+) y actualización a la última versión de Angular.
-- [ ] Notificaciones reales de recordatorios (Web Push / Service Worker).
+- [x] **Angular 19 → 22** paso a paso (`ng update` por versión mayor, con sus migraciones) y TypeScript 6. Builders de `@angular/build` y **Vitest** + jsdom en lugar de Karma/Jasmine.
+- [x] **Zoneless** (`provideZonelessChangeDetection`, sin zone.js) y `HttpClient` sobre `fetch`.
+- [x] **Backend propio** en `server/` (NestJS + TypeORM + PostgreSQL) que sustituye a la API pública:
+  - Sesión en cookie `HttpOnly` + `SameSite=Strict` con un JWT firmado (HS256); nada de sesión en `localStorage`. Contraseñas con scrypt y comparación en tiempo constante (también cuando el usuario no existe).
+  - **Autorización por propietario**: el usuario sale siempre de la sesión, nunca del cuerpo o la URL; cada consulta filtra por él y un recurso ajeno responde 404 (tests de IDOR).
+  - Validación con `class-validator` (`whitelist`, fechas `YYYY-MM-DD`, recordatorios con hora y zona), `helmet`, rate limit global y más estricto en login/registro, migraciones SQL explícitas con restricciones `CHECK`.
+  - Tests e2e del backend contra PostgreSQL real.
+- [x] **Accesibilidad**: directiva `appDialog` (`role="dialog"`, `aria-modal`, foco atrapado, cierre con Escape y devolución del foco) en los 7 modales; iconos decorativos con `aria-hidden`; nombres accesibles en barras de progreso. **axe-core** (WCAG 2.1 A/AA) en los e2e: se corrigieron todos los fallos de contraste (tarjetas y badges `warning`/`info`, navbar, footer, botones `outline`).
+- [x] **Tests e2e con Playwright** sobre la pila completa (backend + PostgreSQL + `ng serve`): auth, tareas, goals, recordatorios, aislamiento entre usuarios y accesibilidad. Job propio en la CI.
+- [x] **i18n en/es** con `@angular/localize`: plantillas marcadas (plurales ICU, ids propios cuando el español necesita otro género o número), `$localize` en TS, fechas y tiempos relativos según el locale (`DatePipe`, `Intl`) en lugar de `'es-ES'` fijo. El build publica `/en/` y `/es/`, y falla si falta una traducción.
+- [x] **Avisos de recordatorios**: `ReminderAlertsService` muestra un toast (y una notificación del sistema si se concede el permiso) cuando vence un recordatorio con la app abierta. El reloj avanza alineado con el minuto.
+
+**Decisiones y pendientes**
+
+- **Web Push** (avisos con la app cerrada) queda fuera: exige Service Worker, claves VAPID, guardar suscripciones y un planificador en el backend. Los avisos actuales solo funcionan con una pestaña abierta.
+- El runtime de i18n añade ~24 kB a `@angular/core`; el aviso del presupuesto inicial pasa de 500 kB a 550 kB (bundle actual: 516 kB, ~118 kB transferidos).
+- Los mensajes de error de validación del backend llegan en inglés; la UI los muestra tal cual (`serverMessage`).
+- La i18n es en tiempo de build: cambiar de idioma recarga la aplicación en otro subdirectorio. El servidor web debe servir `/en/` y `/es/` y redirigir `/` según `Accept-Language`.
+- Posibles siguientes pasos: despliegue (contenedor del backend + estáticos), recuperación de contraseña, borrar/archivar goals (el backend ya lo permite, falta la UI) y más tests de componentes.
 
 ---
 

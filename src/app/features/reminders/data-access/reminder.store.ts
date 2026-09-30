@@ -40,20 +40,12 @@ export class ReminderStore {
   }
 
   create(input: ReminderInput): Observable<ReminderResponse> {
-    return this.collection.afterSuccess(this.api.create(input), created => {
-      // Si la API devuelve el recordatorio con su id se inserta; si no, se recarga la lista
-      if (created?.reminderId > 0) {
-        this.collection.upsert({ ...this.api.toRequest(0, input, this.userId()), ...created });
-      } else {
-        this.load({ force: true });
-      }
-    });
+    return this.collection.afterSuccess(this.api.create(input), created => this.collection.upsert(created));
   }
 
-  update(reminderId: number, input: ReminderInput): Observable<unknown> {
-    return this.collection.afterSuccess(this.api.update(reminderId, input), () =>
-      this.collection.upsert(this.api.toRequest(reminderId, input, this.userId()))
-    );
+  /** No optimista (el formulario muestra un spinner): se aplica lo que devuelve el servidor. */
+  update(reminderId: number, input: ReminderInput): Observable<ReminderResponse> {
+    return this.collection.afterSuccess(this.api.update(reminderId, input), updated => this.collection.upsert(updated));
   }
 
   /** Optimista: cambia al momento y se revierte si la API falla. */
@@ -66,9 +58,5 @@ export class ReminderStore {
   /** Optimista: desaparece al momento y vuelve a su sitio si la API falla. */
   delete(reminderId: number): Observable<void> {
     return this.collection.optimisticRemove(reminderId, this.api.delete(reminderId));
-  }
-
-  private userId(): number {
-    return this.auth.loggedUser()?.userId ?? 0;
   }
 }

@@ -20,6 +20,7 @@ import { NotificationService } from '../notification.service';
             }"
           >
             <i
+              aria-hidden="true"
               class="bi"
               [ngClass]="{
                 'bi-check-circle-fill': toast.type === 'success',

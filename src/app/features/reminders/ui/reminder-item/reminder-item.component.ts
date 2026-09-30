@@ -16,6 +16,9 @@ export class ReminderItemComponent {
   readonly viewDetails = output<ReminderView>();
   readonly delete = output<number>();
 
+  protected readonly markPendingLabel = $localize`Mark as pending`;
+  protected readonly markAcknowledgedLabel = $localize`Mark as acknowledged`;
+
   onToggleAcknowledge(event: Event) {
     event.stopPropagation();
     this.toggleAcknowledge.emit(this.reminder());
@@ -27,7 +30,7 @@ export class ReminderItemComponent {
 
   onDelete(event: Event) {
     event.stopPropagation();
-    if (confirm(`Are you sure you want to delete "${this.reminder().title}"?`)) {
+    if (confirm($localize`Are you sure you want to delete "${this.reminder().title}:TITLE:"?`)) {
       this.delete.emit(this.reminder().reminderId);
     }
   }
@@ -49,18 +52,18 @@ export class ReminderItemComponent {
   }
 
   getTimeBadgeClass(): string {
-    if (this.reminder().isAcknowledged) return 'bg-success';
-    if (this.reminder().isOverdue) return 'bg-danger';
-    if (this.reminder().isToday) return 'bg-warning';
-    if (this.reminder().isTomorrow) return 'bg-info';
-    return 'bg-primary';
+    if (this.reminder().isAcknowledged) return 'text-bg-success';
+    if (this.reminder().isOverdue) return 'text-bg-danger';
+    if (this.reminder().isToday) return 'text-bg-warning';
+    if (this.reminder().isTomorrow) return 'text-bg-info';
+    return 'text-bg-primary';
   }
 
   getTimeText(): string {
-    if (this.reminder().isAcknowledged) return 'Done';
-    if (this.reminder().isOverdue) return 'Overdue';
-    if (this.reminder().isToday) return 'Today';
-    if (this.reminder().isTomorrow) return 'Tomorrow';
+    if (this.reminder().isAcknowledged) return $localize`Done`;
+    if (this.reminder().isOverdue) return $localize`Overdue`;
+    if (this.reminder().isToday) return $localize`Today`;
+    if (this.reminder().isTomorrow) return $localize`Tomorrow`;
     return this.reminder().timeRemaining || '';
   }
 }

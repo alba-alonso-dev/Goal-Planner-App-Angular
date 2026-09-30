@@ -18,14 +18,14 @@ export class ApiError extends Error {
 }
 
 const STATUS_MESSAGES: Record<number, string> = {
-  0: 'Error de red: No se puede conectar al servidor',
-  400: 'Error de validación: Los datos enviados no son correctos',
-  401: 'No autorizado: Por favor, inicia sesión de nuevo',
-  404: 'Recurso no encontrado',
-  500: 'Error interno del servidor'
+  0: $localize`Network error: the server cannot be reached`,
+  400: $localize`Validation error: the submitted data is not valid`,
+  401: $localize`Not authorized: please log in again`,
+  404: $localize`Resource not found`,
+  500: $localize`Internal server error`
 };
 
-const DEFAULT_MESSAGE = 'Error connecting to the server';
+const DEFAULT_MESSAGE = $localize`Error connecting to the server`;
 
 export function toApiError(error: HttpErrorResponse): ApiError {
   const details = parseBody(error.error);
@@ -55,6 +55,8 @@ function extractServerMessage(details: unknown): string | undefined {
   if (details && typeof details === 'object') {
     const { message, title } = details as { message?: unknown; title?: unknown };
     if (typeof message === 'string' && message) return message;
+    // Los errores de validación del backend (NestJS) llegan como lista de mensajes
+    if (Array.isArray(message) && message.length) return message.join('. ');
     if (typeof title === 'string' && title) return title;
   }
   return undefined;

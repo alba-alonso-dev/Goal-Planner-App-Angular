@@ -1,13 +1,20 @@
 @let task = this.task();
-<div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0, 0, 0, 0.5)">
+<div
+  class="modal fade show d-block"
+  tabindex="-1"
+  style="background-color: rgba(0, 0, 0, 0.5)"
+  appDialog
+  appDialogLabelledBy="task-details-dialog-title"
+  (appDialogDismiss)="closeModal()"
+>
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title fw-bold">
+        <h5 i18n class="modal-title fw-bold" id="task-details-dialog-title">
           @if (editMode()) {
-            <i class="bi bi-pencil-square me-2"></i>Edit Task
+            <i aria-hidden="true" class="bi bi-pencil-square me-2"></i>Edit Task
           } @else {
-            <i class="bi bi-list-check me-2"></i>Task Details
+            <i aria-hidden="true" class="bi bi-list-check me-2"></i>Task Details
           }
         </h5>
         <button
@@ -15,6 +22,7 @@
           class="btn-close"
           (click)="closeModal()"
           [disabled]="submitting()"
+          i18n-aria-label
           aria-label="Close"
         ></button>
       </div>
@@ -23,9 +31,15 @@
         <!-- Error message -->
         @if (error()) {
           <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            <i aria-hidden="true" class="bi bi-exclamation-triangle-fill me-2"></i>
             {{ error() }}
-            <button aria-label="Close" type="button" class="btn-close" (click)="error.set(null)"></button>
+            <button
+              i18n-aria-label
+              aria-label="Close"
+              type="button"
+              class="btn-close"
+              (click)="error.set(null)"
+            ></button>
           </div>
         }
 
@@ -34,7 +48,7 @@
           <form [formGroup]="editForm">
             <!-- Task Name -->
             <div class="mb-3">
-              <label class="form-label fw-semibold" for="task-details-taskName">
+              <label i18n class="form-label fw-semibold" for="task-details-taskName">
                 Task Title <span class="text-danger">*</span>
               </label>
               <input
@@ -45,13 +59,13 @@
                 [class.is-invalid]="editForm.get('taskName')?.invalid && editForm.get('taskName')?.touched"
               />
               @if (editForm.get('taskName')?.invalid && editForm.get('taskName')?.touched) {
-                <div class="invalid-feedback">Task title is required (minimum 3 characters)</div>
+                <div i18n class="invalid-feedback">Task title is required (minimum 3 characters)</div>
               }
             </div>
 
             <!-- Frequency -->
             <div class="mb-3">
-              <label class="form-label fw-semibold" for="task-details-frequency">
+              <label i18n class="form-label fw-semibold" for="task-details-frequency">
                 Frequency <span class="text-danger">*</span>
               </label>
               <select
@@ -70,7 +84,7 @@
             <div class="row">
               <div class="col-6">
                 <div class="mb-3">
-                  <label class="form-label fw-semibold" for="task-details-startDate">Start Date</label>
+                  <label i18n class="form-label fw-semibold" for="task-details-startDate">Start Date</label>
                   <input
                     id="task-details-startDate"
                     type="date"
@@ -82,7 +96,7 @@
               </div>
               <div class="col-6">
                 <div class="mb-3">
-                  <label class="form-label fw-semibold" for="task-details-dueDate">Due Date</label>
+                  <label i18n class="form-label fw-semibold" for="task-details-dueDate">Due Date</label>
                   <input
                     id="task-details-dueDate"
                     type="date"
@@ -94,7 +108,7 @@
                     "
                   />
                   @if (editForm.hasError('dueDateBeforeStart')) {
-                    <div class="invalid-feedback d-block">Due date cannot be before start date</div>
+                    <div i18n class="invalid-feedback d-block">Due date cannot be before start date</div>
                   }
                 </div>
               </div>
@@ -102,7 +116,7 @@
 
             <!-- Description -->
             <div class="mb-3">
-              <label class="form-label fw-semibold" for="task-details-description">Description</label>
+              <label i18n class="form-label fw-semibold" for="task-details-description">Description</label>
               <textarea
                 id="task-details-description"
                 class="form-control"
@@ -115,7 +129,7 @@
             <div class="mb-3">
               <div class="form-check">
                 <input type="checkbox" class="form-check-input" id="isCompleted" formControlName="isCompleted" />
-                <label class="form-check-label" for="isCompleted"> Task completed </label>
+                <label i18n class="form-check-label" for="isCompleted"> Task completed </label>
               </div>
             </div>
           </form>
@@ -123,18 +137,18 @@
           <!-- VIEW MODE -->
           <div class="text-center mb-4">
             <div class="display-1 mb-3">
-              <i [class]="getFrequencyIconClass()"></i>
+              <i aria-hidden="true" [class]="getFrequencyIconClass()"></i>
             </div>
             <h3 class="fw-bold">{{ task.taskName }}</h3>
             <span
               class="badge fs-6 mt-2"
               [ngClass]="{
-                'bg-success': task.isCompleted,
-                'bg-danger': !task.isCompleted && task.isOverdue,
-                'bg-warning': !task.isCompleted && !task.isOverdue
+                'text-bg-success': task.isCompleted,
+                'text-bg-danger': !task.isCompleted && task.isOverdue,
+                'text-bg-warning': !task.isCompleted && !task.isOverdue
               }"
             >
-              <i class="bi bi-circle-fill me-1" style="font-size: 8px"></i>
+              <i aria-hidden="true" class="bi bi-circle-fill me-1" style="font-size: 8px"></i>
               {{ getStatusText() }}
             </span>
           </div>
@@ -144,17 +158,23 @@
             <div class="col-6">
               <div class="card bg-light border-0">
                 <div class="card-body text-center">
-                  <i class="bi bi-arrow-repeat icon-2x text-primary mb-2"></i>
-                  <h6 class="text-muted mb-1">Frequency</h6>
-                  <p class="h5 mb-0">{{ task.frequency }}</p>
+                  <i aria-hidden="true" class="bi bi-arrow-repeat icon-2x text-primary mb-2"></i>
+                  <h6 i18n class="text-muted mb-1">Frequency</h6>
+                  <p class="h5 mb-0">
+                    <ng-container i18n>{task.frequency, select,
+                      Daily {Daily}
+                      Weekly {Weekly}
+                      Monthly {Monthly}
+                    }</ng-container>
+                  </p>
                 </div>
               </div>
             </div>
             <div class="col-6">
               <div class="card bg-light border-0">
                 <div class="card-body text-center">
-                  <i class="bi bi-clock icon-2x text-primary mb-2"></i>
-                  <h6 class="text-muted mb-1">Status</h6>
+                  <i aria-hidden="true" class="bi bi-clock icon-2x text-primary mb-2"></i>
+                  <h6 i18n class="text-muted mb-1">Status</h6>
                   <p class="h5 mb-0" [class]="getStatusClass()">
                     {{ getDaysRemainingText() }}
                   </p>
@@ -164,8 +184,8 @@
             <div class="col-6">
               <div class="card bg-light border-0">
                 <div class="card-body text-center">
-                  <i class="bi bi-calendar3 icon-2x text-primary mb-2"></i>
-                  <h6 class="text-muted mb-1">Start Date</h6>
+                  <i aria-hidden="true" class="bi bi-calendar3 icon-2x text-primary mb-2"></i>
+                  <h6 i18n class="text-muted mb-1">Start Date</h6>
                   <p class="h5 mb-0">{{ task.startDate | date: 'fullDate' }}</p>
                 </div>
               </div>
@@ -173,8 +193,8 @@
             <div class="col-6">
               <div class="card bg-light border-0">
                 <div class="card-body text-center">
-                  <i class="bi bi-calendar-check icon-2x text-primary mb-2"></i>
-                  <h6 class="text-muted mb-1">Due Date</h6>
+                  <i aria-hidden="true" class="bi bi-calendar-check icon-2x text-primary mb-2"></i>
+                  <h6 i18n class="text-muted mb-1">Due Date</h6>
                   <p class="h5 mb-0">{{ task.dueDate | date: 'fullDate' }}</p>
                 </div>
               </div>
@@ -184,22 +204,31 @@
           <!-- Description -->
           @if (task.description) {
             <div class="mb-4">
-              <h6 class="fw-semibold mb-2">Description</h6>
+              <h6 i18n class="fw-semibold mb-2">Description</h6>
               <p class="text-muted">{{ task.description }}</p>
             </div>
           }
 
           <!-- Created Date -->
-          <small class="text-muted d-block text-center"> Created: {{ task.createdDate | date: 'fullDate' }} </small>
+          <small i18n class="text-muted d-block text-center">
+            Created: {{ task.createdDate | date: 'fullDate' }}
+          </small>
         }
       </div>
 
       <div class="modal-footer">
         @if (editMode()) {
-          <button type="button" class="btn btn-outline-secondary" (click)="toggleEditMode()" [disabled]="submitting()">
+          <button
+            i18n
+            type="button"
+            class="btn btn-outline-secondary"
+            (click)="toggleEditMode()"
+            [disabled]="submitting()"
+          >
             Cancel
           </button>
           <button
+            i18n
             type="button"
             class="btn btn-primary"
             (click)="saveChanges()"
@@ -209,24 +238,30 @@
               <span class="spinner-border spinner-border-sm me-2"></span>
               Saving...
             } @else {
-              <i class="bi bi-floppy me-2"></i>Save Changes
+              <i aria-hidden="true" class="bi bi-floppy me-2"></i>Save Changes
             }
           </button>
         } @else {
-          <button type="button" class="btn btn-outline-success" (click)="toggleCompletion()" [disabled]="submitting()">
+          <button
+            i18n
+            type="button"
+            class="btn btn-outline-success"
+            (click)="toggleCompletion()"
+            [disabled]="submitting()"
+          >
             @if (task.isCompleted) {
-              <i class="bi bi-arrow-counterclockwise me-2"></i>Mark Pending
+              <i aria-hidden="true" class="bi bi-arrow-counterclockwise me-2"></i>Mark Pending
             } @else {
-              <i class="bi bi-check-lg me-2"></i>Mark Complete
+              <i aria-hidden="true" class="bi bi-check-lg me-2"></i>Mark Complete
             }
           </button>
-          <button type="button" class="btn btn-outline-primary" (click)="toggleEditMode()">
-            <i class="bi bi-pencil-square me-2"></i>Edit
+          <button i18n type="button" class="btn btn-outline-primary" (click)="toggleEditMode()">
+            <i aria-hidden="true" class="bi bi-pencil-square me-2"></i>Edit
           </button>
-          <button type="button" class="btn btn-outline-danger" (click)="deleteTask()">
-            <i class="bi bi-trash me-2"></i>Delete
+          <button i18n type="button" class="btn btn-outline-danger" (click)="deleteTask()">
+            <i aria-hidden="true" class="bi bi-trash me-2"></i>Delete
           </button>
-          <button type="button" class="btn btn-primary" (click)="closeModal()">Close</button>
+          <button i18n type="button" class="btn btn-primary" (click)="closeModal()">Close</button>
         }
       </div>
     </div>

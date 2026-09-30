@@ -4,59 +4,64 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
+    "start:es": "ng serve --configuration es",
     "build": "ng build",
+    "i18n:extract": "ng extract-i18n",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "test:ci": "ng test --watch=false --browsers=ChromeHeadlessCI",
+    "test:ci": "ng test --watch=false",
     "lint": "ng lint",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "prepare": "husky",
     "icons": "node scripts/generate-icons.mjs",
-    "icons:check": "node scripts/generate-icons.mjs --check"
+    "icons:check": "node scripts/generate-icons.mjs --check",
+    "e2e": "playwright test"
   },
   "private": true,
   "dependencies": {
-    "@angular/common": "^19.2.0",
-    "@angular/compiler": "^19.2.0",
-    "@angular/core": "^19.2.0",
-    "@angular/forms": "^19.2.0",
-    "@angular/platform-browser": "^19.2.0",
-    "@angular/platform-browser-dynamic": "^19.2.0",
-    "@angular/router": "^19.2.0",
+    "@angular/common": "^22.2.0",
+    "@angular/compiler": "^22.2.0",
+    "@angular/core": "^22.2.0",
+    "@angular/forms": "^22.2.0",
+    "@angular/platform-browser": "^22.2.0",
+    "@angular/platform-browser-dynamic": "^22.2.0",
+    "@angular/router": "^22.2.0",
     "bootstrap": "^5.3.8",
     "bootstrap-icons": "^1.11.3",
     "chart.js": "^4.4.0",
     "rxjs": "~7.8.0",
-    "tslib": "^2.3.0",
-    "zone.js": "~0.15.0"
+    "tslib": "^2.3.0"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "^19.2.19",
-    "@angular/cli": "^19.2.19",
-    "@angular/compiler-cli": "^19.2.0",
-    "@types/jasmine": "~5.1.0",
-    "@types/node": "^18.18.0",
-    "angular-eslint": "19.8.1",
+    "@angular/build": "^22.2.0",
+    "@angular/cli": "^22.2.0",
+    "@angular/compiler-cli": "^22.2.0",
+    "@angular/localize": "^22.2.0",
+    "@axe-core/playwright": "^4.13.0",
+    "@playwright/test": "1.56",
+    "@types/node": "^22.20.4",
+    "angular-eslint": "22.5.0",
     "eslint": "^9.28.0",
     "eslint-config-prettier": "^10.1.8",
     "husky": "^9.1.7",
-    "jasmine-core": "~5.6.0",
-    "karma": "~6.4.0",
-    "karma-chrome-launcher": "~3.2.0",
-    "karma-coverage": "~2.2.0",
-    "karma-jasmine": "~5.1.0",
-    "karma-jasmine-html-reporter": "~2.1.0",
+    "jsdom": "^30.1.1",
     "lint-staged": "^15.5.2",
     "prettier": "^3.9.9",
-    "typescript": "~5.7.2",
-    "typescript-eslint": "8.33.1"
+    "typescript": "~6.0.3",
+    "typescript-eslint": "^8.33.1",
+    "vitest": "^5.0.0"
   },
   "lint-staged": {
-    "*.{ts,html}": [
+    "src/**/*.{ts,html}": [
       "eslint --fix",
       "prettier --write"
     ],
-    "*.{css,json,md,yml}": "prettier --write"
+    "server/**/*.ts": "prettier --write",
+    "*.{css,json,md,yml}": "prettier --write",
+    "e2e/**/*.ts": "prettier --write"
+  },
+  "engines": {
+    "node": ">=22.22.3"
   }
 }

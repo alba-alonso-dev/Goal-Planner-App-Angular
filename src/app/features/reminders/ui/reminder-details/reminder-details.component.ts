@@ -7,10 +7,12 @@ import { ApiError } from '../../../../core/http/api-error';
 import { toDateTimeInputValue } from '../../../../shared/utils/date';
 import { notInPastValidator } from '../../../../shared/forms/date-validators';
 
+import { DialogDirective } from '../../../../shared/ui/dialog.directive';
+
 @Component({
   selector: 'app-reminder-details',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule],
+  imports: [DialogDirective, CommonModule, FormsModule, ReactiveFormsModule],
   templateUrl: './reminder-details.component.html',
   styleUrls: ['./reminder-details.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -77,7 +79,7 @@ export class ReminderDetailsComponent {
     this.error.set(null);
     this.store.toggleAcknowledgement(this.reminder().reminderId).subscribe({
       next: () => this.reminderUpdated.emit(),
-      error: (error: ApiError) => this.error.set(error.message || 'Error updating reminder')
+      error: (error: ApiError) => this.error.set(error.message || $localize`Error updating reminder`)
     });
   }
 
@@ -97,14 +99,14 @@ export class ReminderDetailsComponent {
         this.reminderUpdated.emit();
       },
       error: (error: ApiError) => {
-        this.error.set(error.message || 'Error updating reminder');
+        this.error.set(error.message || $localize`Error updating reminder`);
         this.submitting.set(false);
       }
     });
   }
 
   deleteReminder() {
-    if (confirm(`Are you sure you want to delete "${this.reminder().title}"?`)) {
+    if (confirm($localize`Are you sure you want to delete "${this.reminder().title}:TITLE:"?`)) {
       this.delete.emit(this.reminder().reminderId);
       this.closeModal();
     }
@@ -125,19 +127,19 @@ export class ReminderDetailsComponent {
 
   getStatusText(): string {
     const reminder = this.reminder();
-    if (reminder.isAcknowledged) return 'Acknowledged';
-    if (reminder.isOverdue) return 'Overdue';
-    if (reminder.isToday) return 'Today';
-    if (reminder.isTomorrow) return 'Tomorrow';
-    return 'Upcoming';
+    if (reminder.isAcknowledged) return $localize`Acknowledged`;
+    if (reminder.isOverdue) return $localize`Overdue`;
+    if (reminder.isToday) return $localize`Today`;
+    if (reminder.isTomorrow) return $localize`Tomorrow`;
+    return $localize`Upcoming`;
   }
 
   getStatusClass(): string {
     const reminder = this.reminder();
-    if (reminder.isAcknowledged) return 'bg-success';
-    if (reminder.isOverdue) return 'bg-danger';
-    if (reminder.isToday) return 'bg-warning';
-    if (reminder.isTomorrow) return 'bg-info';
-    return 'bg-primary';
+    if (reminder.isAcknowledged) return 'text-bg-success';
+    if (reminder.isOverdue) return 'text-bg-danger';
+    if (reminder.isToday) return 'text-bg-warning';
+    if (reminder.isTomorrow) return 'text-bg-info';
+    return 'text-bg-primary';
   }
 }

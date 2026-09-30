@@ -87,26 +87,22 @@ export class GoalListComponent implements OnInit {
       next: () => {
         this.creating.set(false);
         this.closeNewGoalModal();
-        this.notificationService.success('Goal created successfully', 'Success');
+        this.notificationService.success($localize`Goal created successfully`, $localize`Success`);
       },
       error: (error: ApiError) => {
         // El modal sigue abierto para poder reintentar sin perder los datos
         this.creating.set(false);
-        this.notificationService.error(error.message, 'Error creating goal');
+        this.notificationService.error(error.message, $localize`Error creating goal`);
       }
     });
   }
 
   onGoalUpdated() {
-    this.notificationService.success('Goal updated successfully', 'Success');
+    this.notificationService.success($localize`Goal updated successfully`, $localize`Success`);
   }
 
-  /** Abre el detalle al momento y trae los milestones en segundo plano (el listado no los incluye). */
   viewGoalDetails(goal: GoalView) {
     this.selectedGoalId.set(goal.goalId);
-    this.store.loadDetails(goal.goalId).subscribe({
-      error: (error: ApiError) => this.notificationService.error(error.message, 'Error loading goal details')
-    });
   }
 
   closeDetailsModal() {
@@ -115,5 +111,9 @@ export class GoalListComponent implements OnInit {
 
   retry() {
     this.store.load({ force: true });
+  }
+
+  protected progressLabel(goalName: string): string {
+    return $localize`${goalName}:GOAL_NAME: progress`;
   }
 }

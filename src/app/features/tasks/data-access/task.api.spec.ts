@@ -3,81 +3,65 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { TestBed } from '@angular/core/testing';
 
 import { TaskApi } from './task.api';
-import { API_BASE_URL } from '../../../core/config/api.config';
-import { ApiError } from '../../../core/http/api-error';
-import { loginTestUser, mockTaskResponse } from '../../../../testing/fixtures';
+import { mockTaskResponse } from '../../../../testing/fixtures';
 
 describe('TaskApi', () => {
   let api: TaskApi;
   let httpTesting: HttpTestingController;
 
-  const setup = () => {
-    TestBed.configureTestingModule({
-      providers: [provideHttpClient(), provideHttpClientTesting(), { provide: API_BASE_URL, useValue: '/api' }]
-    });
+  beforeEach(() => {
+    TestBed.configureTestingModule({ providers: [provideHttpClient(), provideHttpClientTesting()] });
     api = TestBed.inject(TaskApi);
     httpTesting = TestBed.inject(HttpTestingController);
-  };
-
-  beforeEach(() => localStorage.removeItem('user'));
-  afterEach(() => {
-    httpTesting.verify();
-    localStorage.removeItem('user');
   });
 
-  it('fails with a 401 ApiError and sends nothing when not logged in', () => {
-    setup();
-    let captured: unknown;
+  afterEach(() => httpTesting.verify());
 
-    api.getAll().subscribe({ error: (e: unknown) => (captured = e) });
-
-    expect(captured instanceof ApiError).toBeTrue();
-    expect((captured as ApiError).status).toBe(401);
-  });
-
-  it('loads the tasks of the logged user', () => {
-    loginTestUser();
-    setup();
+  it('lists the tasks of the session user without sending any userId', () => {
     let result: unknown;
-
     api.getAll().subscribe(tasks => (result = tasks));
 
-    const req = httpTesting.expectOne(r => r.url === '/api/getAllTasks');
-    expect(req.request.params.get('userId')).toBe('1');
+    const req = httpTesting.expectOne('/api/tasks');
+    expect(req.request.method).toBe('GET');
+    expect(req.request.params.keys()).toEqual([]);
     req.flush([mockTaskResponse]);
     expect(result).toEqual([mockTaskResponse]);
   });
 
-  it('sends the full task with trimmed text and ISO dates on update', () => {
-    loginTestUser();
-    setup();
-
+  it('sends only the editable fields, trimmed, with date-only values', () => {
     api
-      .update(7, { ...mockTaskResponse, taskName: '  Leer  ', startDate: '2026-06-01', dueDate: '2026-06-05' })
+      .update(7, {
+        ...mockTaskResponse,
+        taskName: '  Leer  ',
+        startDate: '2026-06-01',
+        dueDate: new Date(2026, 5, 5, 23, 30).toISOString()
+      })
       .subscribe();
 
-    const req = httpTesting.expectOne('/api/updateTask/7');
+    const req = httpTesting.expectOne('/api/tasks/7');
     expect(req.request.method).toBe('PUT');
-    expect(req.request.body).toEqual(
-      jasmine.objectContaining({
-        taskId: 7,
-        userId: 1,
-        taskName: 'Leer',
-        startDate: new Date(2026, 5, 1).toISOString(),
-        dueDate: new Date(2026, 5, 5).toISOString()
-      })
-    );
-    req.flush({});
+    expect(req.request.body).toEqual({
+      taskName: 'Leer',
+      description: '',
+      frequency: 'Daily',
+      startDate: '2026-06-01',
+      dueDate: '2026-06-05',
+      isCompleted: false
+    });
+    req.flush(mockTaskResponse);
   });
 
   it('emits an error instead of sending a request when a date is invalid', () => {
-    loginTestUser();
-    setup();
     let captured: unknown;
 
     api.create({ ...mockTaskResponse, dueDate: 'not a date' }).subscribe({ error: (e: unknown) => (captured = e) });
 
-    expect(captured instanceof Error).toBeTrue();
-    httpTesting.expectNone('/api/createTask');
+    expect(captured instanceof Error).toBe(true);
+    httpTesting.expectNone('/api/tasks');
+  });
+
+  it('deletes by id', () => {
+    api.delete(3).subscribe();
+    expect(httpTesting.expectOne('/api/tasks/3').request.method).toBe('DELETE');
   });
 });

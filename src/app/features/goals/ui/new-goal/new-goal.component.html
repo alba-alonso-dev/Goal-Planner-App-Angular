@@ -1,13 +1,21 @@
-<div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0, 0, 0, 0.5)">
+<div
+  class="modal fade show d-block"
+  tabindex="-1"
+  style="background-color: rgba(0, 0, 0, 0.5)"
+  appDialog
+  appDialogLabelledBy="new-goal-dialog-title"
+  (appDialogDismiss)="closeModal()"
+>
   <div class="modal-dialog modal-lg modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title fw-bold">Create New Goal</h5>
+        <h5 i18n class="modal-title fw-bold" id="new-goal-dialog-title">Create New Goal</h5>
         <button
           type="button"
           class="btn-close"
           (click)="closeModal()"
           [disabled]="submitting()"
+          i18n-aria-label
           aria-label="Close"
         ></button>
       </div>
@@ -18,24 +26,25 @@
             <!-- Columna izquierda - Información principal del goal -->
             <div class="col-7">
               <div class="mb-3">
-                <label class="form-label fw-semibold" for="new-goal-goalName">Goal Title</label>
+                <label i18n class="form-label fw-semibold" for="new-goal-goalName">Goal Title</label>
                 <input
                   id="new-goal-goalName"
                   type="text"
                   class="form-control"
                   formControlName="goalName"
                   [class.is-invalid]="goalForm.get('goalName')?.invalid && goalForm.get('goalName')?.touched"
+                  i18n-placeholder
                   placeholder="Enter goal title"
                 />
                 @if (goalForm.get('goalName')?.invalid && goalForm.get('goalName')?.touched) {
-                  <div class="invalid-feedback">Goal title is required (minimum 3 characters)</div>
+                  <div i18n class="invalid-feedback">Goal title is required (minimum 3 characters)</div>
                 }
               </div>
 
               <div class="row">
                 <div class="col-6">
                   <div class="mb-3">
-                    <label class="form-label fw-semibold" for="new-goal-startDate">Start Date</label>
+                    <label i18n class="form-label fw-semibold" for="new-goal-startDate">Start Date</label>
                     <input
                       id="new-goal-startDate"
                       type="date"
@@ -44,13 +53,13 @@
                       [class.is-invalid]="goalForm.get('startDate')?.invalid && goalForm.get('startDate')?.touched"
                     />
                     @if (goalForm.get('startDate')?.invalid && goalForm.get('startDate')?.touched) {
-                      <div class="invalid-feedback">Start date is required</div>
+                      <div i18n class="invalid-feedback">Start date is required</div>
                     }
                   </div>
                 </div>
                 <div class="col-6">
                   <div class="mb-3">
-                    <label class="form-label fw-semibold" for="new-goal-endDate">Target Date</label>
+                    <label i18n class="form-label fw-semibold" for="new-goal-endDate">Target Date</label>
                     <input
                       id="new-goal-endDate"
                       type="date"
@@ -62,22 +71,23 @@
                       "
                     />
                     @if (goalForm.get('endDate')?.invalid && goalForm.get('endDate')?.touched) {
-                      <div class="invalid-feedback">Target date is required</div>
+                      <div i18n class="invalid-feedback">Target date is required</div>
                     }
                     @if (goalForm.hasError('endDateBeforeStart')) {
-                      <div class="invalid-feedback d-block">Target date cannot be before start date</div>
+                      <div i18n class="invalid-feedback d-block">Target date cannot be before start date</div>
                     }
                   </div>
                 </div>
               </div>
 
               <div class="mb-3">
-                <label class="form-label fw-semibold" for="new-goal-description">Description</label>
+                <label i18n class="form-label fw-semibold" for="new-goal-description">Description</label>
                 <textarea
                   id="new-goal-description"
                   class="form-control"
                   formControlName="description"
                   rows="3"
+                  i18n-placeholder
                   placeholder="Describe your goal..."
                 ></textarea>
               </div>
@@ -85,25 +95,26 @@
 
             <!-- Columna derecha - Milestones -->
             <div class="col-5" formArrayName="milestones">
-              <span class="form-label fw-semibold d-block">Milestones</span>
+              <span i18n class="form-label fw-semibold d-block">Milestones</span>
 
               @for (milestone of milestones.controls; track $index) {
                 <div class="card mb-3" [formGroupName]="$index">
                   <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-2">
-                      <h6 class="card-subtitle text-muted">Milestone {{ $index + 1 }}</h6>
+                      <h6 i18n class="card-subtitle text-muted">Milestone {{ $index + 1 }}</h6>
                       <button
                         type="button"
                         class="btn btn-sm btn-outline-danger"
+                        i18n-aria-label
                         aria-label="Remove milestone"
                         (click)="removeMilestone($index)"
                       >
-                        <i class="bi bi-x-lg"></i>
+                        <i aria-hidden="true" class="bi bi-x-lg"></i>
                       </button>
                     </div>
 
                     <div class="mb-2">
-                      <label class="form-label small" [for]="'new-goal-milestone-' + $index + '-milestoneName'"
+                      <label i18n class="form-label small" [for]="'new-goal-milestone-' + $index + '-milestoneName'"
                         >Title</label
                       >
                       <input
@@ -111,12 +122,13 @@
                         type="text"
                         class="form-control form-control-sm"
                         formControlName="milestoneName"
+                        i18n-placeholder
                         placeholder="Milestone title"
                       />
                     </div>
 
                     <div class="mb-2">
-                      <label class="form-label small" [for]="'new-goal-milestone-' + $index + '-targetDate'"
+                      <label i18n class="form-label small" [for]="'new-goal-milestone-' + $index + '-targetDate'"
                         >Target Date</label
                       >
                       <input
@@ -127,12 +139,12 @@
                         formControlName="targetDate"
                       />
                       @if (goalForm.getError('milestoneOutOfRange')?.includes($index)) {
-                        <div class="invalid-feedback">Must be between the goal start and target dates</div>
+                        <div i18n class="invalid-feedback">Must be between the goal start and target dates</div>
                       }
                     </div>
 
                     <div class="mb-2">
-                      <label class="form-label small" [for]="'new-goal-milestone-' + $index + '-description'"
+                      <label i18n class="form-label small" [for]="'new-goal-milestone-' + $index + '-description'"
                         >Description</label
                       >
                       <textarea
@@ -140,6 +152,7 @@
                         class="form-control form-control-sm"
                         formControlName="description"
                         rows="2"
+                        i18n-placeholder
                         placeholder="Milestone description..."
                       ></textarea>
                     </div>
@@ -148,8 +161,8 @@
               }
 
               <div class="text-center">
-                <button type="button" class="btn btn-outline-secondary btn-sm w-100" (click)="addMilestone()">
-                  <i class="bi bi-plus-lg me-2"></i>Add Milestone
+                <button i18n type="button" class="btn btn-outline-secondary btn-sm w-100" (click)="addMilestone()">
+                  <i aria-hidden="true" class="bi bi-plus-lg me-2"></i>Add Milestone
                 </button>
               </div>
             </div>
@@ -158,10 +171,11 @@
       </div>
 
       <div class="modal-footer">
-        <button type="button" class="btn btn-outline-secondary" (click)="closeModal()" [disabled]="submitting()">
+        <button i18n type="button" class="btn btn-outline-secondary" (click)="closeModal()" [disabled]="submitting()">
           Cancel
         </button>
         <button
+          i18n
           type="button"
           class="btn btn-primary"
           (click)="onSubmit()"
@@ -171,7 +185,7 @@
             <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
             Creating...
           } @else {
-            <i class="bi bi-floppy me-2"></i>Create Goal
+            <i aria-hidden="true" class="bi bi-floppy me-2"></i>Create Goal
           }
         </button>
       </div>

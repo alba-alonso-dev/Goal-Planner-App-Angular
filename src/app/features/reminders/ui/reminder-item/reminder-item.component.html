@@ -3,7 +3,7 @@
   <div class="card-body">
     <div class="d-flex justify-content-between align-items-start mb-2">
       <div class="d-flex align-items-center">
-        <i [class]="getReminderIcon() + ' icon-lg me-2'"></i>
+        <i aria-hidden="true" [class]="getReminderIcon() + ' icon-lg me-2'"></i>
         <h6
           class="card-title fw-bold mb-0"
           [class.text-decoration-line-through]="reminder.isAcknowledged"
@@ -26,25 +26,32 @@
 
     <!-- Date & Time -->
     <div class="d-flex align-items-center mt-2 small text-muted">
-      <i class="bi bi-calendar3 me-1"></i>
-      {{ reminder.reminderDateTime | date: 'dd/MM/yyyy HH:mm' }}
+      <i aria-hidden="true" class="bi bi-calendar3 me-1"></i>
+      {{ reminder.reminderDateTime | date: 'mediumDate' }} {{ reminder.reminderDateTime | date: 'shortTime' }}
     </div>
   </div>
 
   <div class="card-footer bg-transparent border-top-0 p-2">
     <div class="btn-group w-100" role="group">
-      <button type="button" class="btn btn-sm btn-outline-primary" aria-label="View details" (click)="onViewDetails()">
-        <i class="bi bi-eye"></i>
+      <button
+        type="button"
+        class="btn btn-sm btn-outline-primary"
+        i18n-aria-label
+        aria-label="View details"
+        (click)="onViewDetails()"
+      >
+        <i aria-hidden="true" class="bi bi-eye"></i>
       </button>
       <button
         type="button"
         class="btn btn-sm"
-        [attr.aria-label]="reminder.isAcknowledged ? 'Mark as pending' : 'Mark as acknowledged'"
+        [attr.aria-label]="reminder.isAcknowledged ? markPendingLabel : markAcknowledgedLabel"
         [class.btn-outline-success]="!reminder.isAcknowledged"
         [class.btn-outline-warning]="reminder.isAcknowledged"
         (click)="onToggleAcknowledge($event)"
       >
         <i
+          aria-hidden="true"
           class="bi"
           [class.bi-check-lg]="!reminder.isAcknowledged"
           [class.bi-arrow-counterclockwise]="reminder.isAcknowledged"
@@ -53,10 +60,11 @@
       <button
         type="button"
         class="btn btn-sm btn-outline-danger"
+        i18n-aria-label
         aria-label="Delete reminder"
         (click)="onDelete($event)"
       >
-        <i class="bi bi-trash"></i>
+        <i aria-hidden="true" class="bi bi-trash"></i>
       </button>
     </div>
   </div>

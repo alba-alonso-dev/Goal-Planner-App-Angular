@@ -3,55 +3,40 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { TestBed } from '@angular/core/testing';
 
 import { GoalStore } from './goal.store';
-import { API_BASE_URL } from '../../../core/config/api.config';
-import { GoalResponse } from '../goal.model';
-import { loginTestUser, mockGoalResponse, provideFixedClock } from '../../../../testing/fixtures';
+import { mockGoalResponse, provideFixedClock, signInTestUser } from '../../../../testing/fixtures';
 
 describe('GoalStore', () => {
   let store: GoalStore;
   let httpTesting: HttpTestingController;
 
-  const withoutMilestones = ({ milestones: _m, ...goal }: GoalResponse): GoalResponse => goal;
-
   beforeEach(() => {
-    loginTestUser();
     TestBed.configureTestingModule({
-      providers: [
-        provideHttpClient(),
-        provideHttpClientTesting(),
-        provideFixedClock(),
-        { provide: API_BASE_URL, useValue: '/api' }
-      ]
+      providers: [provideHttpClient(), provideHttpClientTesting(), provideFixedClock()]
     });
-    store = TestBed.inject(GoalStore);
     httpTesting = TestBed.inject(HttpTestingController);
+    signInTestUser();
+    store = TestBed.inject(GoalStore);
   });
 
-  afterEach(() => {
-    httpTesting.verify();
-    localStorage.removeItem('user');
-  });
+  afterEach(() => httpTesting.verify());
 
   const loadGoal = () => {
     store.load();
-    httpTesting.expectOne(r => r.url === '/api/getAllGoalsByUser').flush([withoutMilestones(mockGoalResponse)]);
-    httpTesting.expectOne('/api/getGoal/1').flush(mockGoalResponse);
+    httpTesting.expectOne({ method: 'GET', url: '/api/goals' }).flush([mockGoalResponse]);
   };
 
-  it('loads the details of a small list before exposing it', () => {
-    store.load();
-    httpTesting.expectOne(r => r.url === '/api/getAllGoalsByUser').flush([withoutMilestones(mockGoalResponse)]);
-    expect(store.goals()).toEqual([]);
+  it('loads goals with their milestones in a single request', () => {
+    loadGoal();
 
-    httpTesting.expectOne('/api/getGoal/1').flush(mockGoalResponse);
     expect(store.goals()[0].progress).toBe(50);
+    httpTesting.expectNone('/api/goals/1');
   });
 
   it('handles a user with no goals', () => {
     store.load();
-    httpTesting.expectOne(r => r.url === '/api/getAllGoalsByUser').flush([]);
+    httpTesting.expectOne('/api/goals').flush([]);
     expect(store.goals()).toEqual([]);
-    expect(store.loading()).toBeFalse();
+    expect(store.loading()).toBe(false);
   });
 
   it('toggles a milestone optimistically and marks the goal achieved when all are done', () => {
@@ -60,40 +45,52 @@ describe('GoalStore', () => {
     store.toggleMilestone(1, 2).subscribe();
 
     expect(store.goals()[0].progress).toBe(100);
-    expect(store.goals()[0].isAchieved).toBeTrue();
-    const req = httpTesting.expectOne('/api/updateGoalWithMilestones/1');
-    expect(req.request.body.isAchieved).toBeTrue();
-    req.flush({});
-  });
-
-  it('reopens an achieved goal when a milestone is unticked', () => {
-    loadGoal();
-    store.toggleMilestone(1, 2).subscribe();
-    httpTesting.expectOne('/api/updateGoalWithMilestones/1').flush({});
-
-    store.toggleMilestone(1, 1).subscribe();
-
-    expect(store.goals()[0].isAchieved).toBeFalse();
-    httpTesting.expectOne('/api/updateGoalWithMilestones/1').flush({});
+    expect(store.goals()[0].isAchieved).toBe(true);
+    const req = httpTesting.expectOne({ method: 'PUT', url: '/api/goals/1' });
+    expect(req.request.body.isAchieved).toBe(true);
+    req.flush({ ...mockGoalResponse, isAchieved: true });
   });
 
   it('reverts a milestone toggle if the API fails', () => {
     loadGoal();
 
     store.toggleMilestone(1, 2).subscribe({ error: () => undefined });
-    httpTesting.expectOne('/api/updateGoalWithMilestones/1').flush(null, { status: 500, statusText: 'Server Error' });
+    httpTesting.expectOne('/api/goals/1').flush(null, { status: 500, statusText: 'Server Error' });
 
     expect(store.goals()[0].progress).toBe(50);
-    expect(store.goals()[0].isAchieved).toBeFalse();
+    expect(store.goals()[0].isAchieved).toBe(false);
   });
 
-  it('refreshes only the edited goal after an update (to get new milestone ids)', () => {
+  it('applies the goal returned by the server after an update (with new milestone ids)', () => {
+    loadGoal();
+    const withNewMilestone = {
+      ...mockGoalResponse,
+      milestones: [
+        ...mockGoalResponse.milestones!,
+        { milestoneId: 3, milestoneName: 'Forms', description: '', targetDate: '2026-07-01', isCompleted: false }
+      ]
+    };
+
+    store
+      .update(1, {
+        ...mockGoalResponse,
+        milestones: [...mockGoalResponse.milestones!, { milestoneName: 'Forms', targetDate: '2026-07-01' }]
+      })
+      .subscribe();
+    httpTesting.expectOne({ method: 'PUT', url: '/api/goals/1' }).flush(withNewMilestone);
+
+    expect(store.goals()[0].milestones.map(m => m.milestoneId)).toEqual([1, 2, 3]);
+  });
+
+  it('inserts the created goal without reloading the list', () => {
     loadGoal();
 
-    store.update(1, { ...mockGoalResponse, goalName: 'Editado' }).subscribe();
-    httpTesting.expectOne('/api/updateGoalWithMilestones/1').flush({});
-    httpTesting.expectOne('/api/getGoal/1').flush({ ...mockGoalResponse, goalName: 'Editado' });
+    store.create({ goalName: 'Nuevo', startDate: '2026-07-01', endDate: '2026-07-31' }).subscribe();
+    httpTesting
+      .expectOne({ method: 'POST', url: '/api/goals' })
+      .flush({ ...mockGoalResponse, goalId: 2, goalName: 'Nuevo', milestones: [] });
 
-    expect(store.goals()[0].goalName).toBe('Editado');
+    expect(store.goals().map(g => g.goalId)).toEqual([1, 2]);
+    httpTesting.expectNone({ method: 'GET', url: '/api/goals' });
   });
 });

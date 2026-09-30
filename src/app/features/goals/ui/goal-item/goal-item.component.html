@@ -7,10 +7,10 @@
       <span
         class="badge"
         [ngClass]="{
-          'bg-success': goal.progress >= 75,
-          'bg-primary': goal.progress >= 50 && goal.progress < 75,
-          'bg-warning': goal.progress >= 25 && goal.progress < 50,
-          'bg-danger': goal.progress < 25
+          'text-bg-success': goal.progress >= 75,
+          'text-bg-primary': goal.progress >= 50 && goal.progress < 75,
+          'text-bg-warning': goal.progress >= 25 && goal.progress < 50,
+          'text-bg-danger': goal.progress < 25
         }"
       >
         {{ goal.progress || 0 }}%
@@ -29,6 +29,8 @@
           'bg-danger': (goal.progress || 0) < 25
         }"
         role="progressbar"
+        i18n-aria-label
+        aria-label="Goal progress"
         [attr.aria-valuenow]="goal.progress || 0"
         aria-valuemin="0"
         aria-valuemax="100"
@@ -44,28 +46,31 @@
 
     <!-- Fechas -->
     <div class="d-flex justify-content-between text-muted small mb-2">
-      <span>
-        <i class="bi bi-calendar3 me-1"></i>
-        Inicio: {{ goal.startDate | date: 'dd/MM/yyyy' }}
+      <span i18n>
+        <i aria-hidden="true" class="bi bi-calendar3 me-1"></i>
+        Start: {{ goal.startDate | date: 'mediumDate' }}
       </span>
-      <span>
-        <i class="bi bi-calendar-check me-1"></i>
-        Fin: {{ goal.endDate | date: 'dd/MM/yyyy' }}
+      <span i18n>
+        <i aria-hidden="true" class="bi bi-calendar-check me-1"></i>
+        End: {{ goal.endDate | date: 'mediumDate' }}
       </span>
     </div>
 
     <!-- Milestones count si existen -->
     @if (goal.milestones && goal.milestones.length > 0) {
       <div class="d-flex align-items-center text-muted small">
-        <i class="bi bi-flag-fill me-1"></i>
-        <span>{{ goal.milestones.length }} {{ goal.milestones.length === 1 ? 'milestone' : 'milestones' }}</span>
+        <i aria-hidden="true" class="bi bi-flag-fill me-1"></i>
+        <span i18n>{goal.milestones.length, plural,
+          =1 {1 milestone}
+          other {{{ goal.milestones.length }} milestones}
+        }</span>
       </div>
     }
   </div>
 
   <div class="card-footer bg-transparent border-top-0">
-    <button class="btn btn-sm btn-outline-primary w-100" (click)="onViewDetails()">
-      <i class="bi bi-chevron-right me-2"></i>View Details
+    <button i18n class="btn btn-sm btn-outline-primary w-100" (click)="onViewDetails()">
+      <i aria-hidden="true" class="bi bi-chevron-right me-2"></i>View Details
     </button>
   </div>
 </div>

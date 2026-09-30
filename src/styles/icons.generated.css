@@ -190,6 +190,9 @@
 .bi-sun-fill::before {
   content: '\f5a1';
 }
+.bi-translate::before {
+  content: '\f658';
+}
 .bi-trash::before {
   content: '\f5de';
 }

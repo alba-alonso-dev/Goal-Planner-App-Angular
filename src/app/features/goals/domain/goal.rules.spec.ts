@@ -51,24 +51,24 @@ describe('goal rules', () => {
 
   describe('resolveAchieved', () => {
     it('is achieved only when every milestone is completed', () => {
-      expect(resolveAchieved([{ isCompleted: true }, { isCompleted: true }], false)).toBeTrue();
-      expect(resolveAchieved([{ isCompleted: true }, { isCompleted: false }], true)).toBeFalse();
+      expect(resolveAchieved([{ isCompleted: true }, { isCompleted: true }], false)).toBe(true);
+      expect(resolveAchieved([{ isCompleted: true }, { isCompleted: false }], true)).toBe(false);
     });
 
     it('uses the requested value when there are no milestones', () => {
-      expect(resolveAchieved([], true)).toBeTrue();
-      expect(resolveAchieved([], false)).toBeFalse();
+      expect(resolveAchieved([], true)).toBe(true);
+      expect(resolveAchieved([], false)).toBe(false);
     });
   });
 
   describe('overdue and status', () => {
     it('is not overdue on its target day, and is from the next day', () => {
-      expect(isGoalOverdue(goal(), now)).toBeFalse();
-      expect(isGoalOverdue(goal(), at(2026, 7, 1, 0))).toBeTrue();
+      expect(isGoalOverdue(goal(), now)).toBe(false);
+      expect(isGoalOverdue(goal(), at(2026, 7, 1, 0))).toBe(true);
     });
 
     it('an achieved goal is never overdue', () => {
-      expect(isGoalOverdue(goal({ isAchieved: true, endDate: day(2020, 1, 1) }), now)).toBeFalse();
+      expect(isGoalOverdue(goal({ isAchieved: true, endDate: day(2020, 1, 1) }), now)).toBe(false);
     });
 
     it('assigns exactly one status, with achieved and overdue taking precedence', () => {
@@ -88,7 +88,7 @@ describe('goal rules', () => {
 
     it('derives milestones, progress, days remaining and status', () => {
       expect(views[1]).toEqual(
-        jasmine.objectContaining({ progress: 50, daysRemaining: 0, isOverdue: false, status: 'inProgress' })
+        expect.objectContaining({ progress: 50, daysRemaining: 0, isOverdue: false, status: 'inProgress' })
       );
       expect(toGoalView(goal(), now).milestones).toEqual([]);
     });
@@ -106,8 +106,8 @@ describe('goal rules', () => {
       expect(selectGoals(views, { filter: 'active', search: '' }).map(g => g.goalId)).toEqual([2]);
       expect(selectGoals(views, { filter: 'overdue', search: '' }).map(g => g.goalId)).toEqual([3]);
       expect(selectGoals(views, { filter: 'completed', search: '' }).map(g => g.goalId)).toEqual([1]);
-      expect(matchesGoalSearch(goal(), 'ROUTER')).toBeTrue();
-      expect(matchesGoalSearch(goal(), 'python')).toBeFalse();
+      expect(matchesGoalSearch(goal(), 'ROUTER')).toBe(true);
+      expect(matchesGoalSearch(goal(), 'python')).toBe(false);
     });
   });
 });

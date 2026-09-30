@@ -1,4 +1,7 @@
 import { signal } from '@angular/core';
+import { HttpTestingController } from '@angular/common/http/testing';
+import { TestBed } from '@angular/core/testing';
+import { AuthService } from '../app/core/auth/auth.service';
 import { ClockService } from '../app/core/time/clock.service';
 import { toGoalView } from '../app/features/goals/domain/goal.rules';
 import { GoalResponse } from '../app/features/goals/goal.model';
@@ -20,10 +23,17 @@ export const provideFixedClock = (now: Date = FIXED_NOW) => ({
 
 export const TEST_USER = { userId: 1, emailId: 'test@example.com', fullName: 'Test', mobileNo: '600000000' };
 
-/** Deja una sesión guardada para que AuthService arranque autenticado. */
-export const loginTestUser = () => localStorage.setItem('user', JSON.stringify(TEST_USER));
+/**
+ * Inicia sesión como TEST_USER a través de AuthService (la sesión real vive en una cookie HttpOnly).
+ * Requiere provideHttpClientTesting() en el TestBed.
+ */
+export function signInTestUser(user = TEST_USER): void {
+  TestBed.inject(AuthService).login({ emailId: user.emailId, password: 'secret-password' }).subscribe();
+  TestBed.inject(HttpTestingController).expectOne('/api/auth/login').flush(user);
+}
 
-const day = (month: number, date: number) => new Date(2026, month - 1, date).toISOString();
+/** Día natural YYYY-MM-DD (formato de la API para los campos sin hora). */
+const day = (month: number, date: number) => `2026-${String(month).padStart(2, '0')}-${String(date).padStart(2, '0')}`;
 
 export const mockGoalResponse: GoalResponse = {
   goalId: 1,
@@ -44,7 +54,7 @@ export const mockTaskResponse: TaskResponse = {
   taskName: 'Leer documentación',
   description: '',
   frequency: 'Daily',
-  createdDate: day(1, 1),
+  createdDate: new Date(2026, 0, 1, 9).toISOString(),
   startDate: day(1, 1),
   dueDate: day(6, 20),
   isCompleted: false,

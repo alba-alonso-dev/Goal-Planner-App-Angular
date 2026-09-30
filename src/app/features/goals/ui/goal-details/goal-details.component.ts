@@ -9,10 +9,12 @@ import { ApiError } from '../../../../core/http/api-error';
 import { toDateInputValue } from '../../../../shared/utils/date';
 import { dateOrderValidator, milestonesWithinRangeValidator } from '../../../../shared/forms/date-validators';
 
+import { DialogDirective } from '../../../../shared/ui/dialog.directive';
+
 @Component({
   selector: 'app-goal-details',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule],
+  imports: [DialogDirective, CommonModule, FormsModule, ReactiveFormsModule],
   templateUrl: './goal-details.component.html',
   styleUrls: ['./goal-details.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -147,7 +149,7 @@ export class GoalDetailsComponent {
     this.error.set(null);
     this.store.toggleMilestone(this.goal().goalId, milestone.milestoneId).subscribe({
       next: () => this.goalUpdated.emit(),
-      error: (error: ApiError) => this.error.set(error.message || 'Error al actualizar el milestone')
+      error: (error: ApiError) => this.error.set(error.message || $localize`Error updating the milestone`)
     });
   }
 
@@ -183,7 +185,7 @@ export class GoalDetailsComponent {
           this.goalUpdated.emit();
         },
         error: (error: ApiError) => {
-          this.error.set(error.message || 'Error al actualizar el goal');
+          this.error.set(error.message || $localize`Error updating the goal`);
           this.submitting.set(false);
           console.error('Error updating goal:', error);
         }

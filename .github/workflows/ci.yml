@@ -10,7 +10,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build-and-test:
+  web:
+    name: Frontend (Angular)
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
@@ -19,7 +20,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version-file: .nvmrc
           cache: npm
 
       - name: Install dependencies
@@ -37,5 +38,126 @@ jobs:
       - name: Unit tests
         run: npm run test:ci
 
+      # Las reglas de fechas dependen del huso horario: se repiten en uno al oeste de UTC
+      - name: Unit tests (America/Los_Angeles)
+        run: npm run test:ci
+        env:
+          TZ: America/Los_Angeles
+
+      # El catálogo de textos versionado debe coincidir con las plantillas
+      - name: Check i18n catalogue is up to date
+        run: npm run i18n:extract && git diff --exit-code src/locale/messages.json
+
+      # Compila en/es; falla si falta alguna traducción (i18nMissingTranslation: error)
       - name: Production build
         run: npm run build
+
+  server:
+    name: Backend (NestJS + PostgreSQL)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: server
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: goal
+          POSTGRES_PASSWORD: goal
+          POSTGRES_DB: goal_planner_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      TEST_DATABASE_URL: postgres://goal:goal@localhost:5432/goal_planner_test
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: server/package-lock.json
+
+      # El lockfile del servidor se resuelve con npm 11 (npm 10 no lo acepta en `npm ci`)
+      - name: Install dependencies
+        run: npx -y npm@11.20.0 ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Type check
+        run: npm run typecheck
+
+      - name: Unit tests
+        run: npm test
+
+      - name: End-to-end tests (real PostgreSQL)
+        run: npm run test:e2e
+
+      - name: Build
+        run: npm run build
+
+  e2e:
+    name: End-to-end (Playwright, full stack)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: goal
+          POSTGRES_PASSWORD: goal
+          POSTGRES_DB: goal_planner_e2e
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      E2E_DATABASE_URL: postgres://goal:goal@localhost:5432/goal_planner_e2e
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            server/package-lock.json
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          cd server && npx -y npm@11.20.0 ci
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      # playwright.config.ts arranca el backend (contra PostgreSQL) y ng serve
+      - name: Run Playwright tests
+        run: npx playwright test
+
+      - name: Upload report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            playwright-report
+            test-results
+          retention-days: 7
