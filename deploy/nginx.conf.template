@@ -1,0 +1,57 @@
+# Idioma por defecto para las URLs sin prefijo (/, /reset-password?token=…), según el navegador
+map $http_accept_language $preferred_lang {
+    default en;
+    "~*^es" es;
+}
+
+server {
+    listen 80;
+    server_name _;
+    root /usr/share/nginx/html;
+    server_tokens off;
+    # Redirecciones relativas: conservan el host, el puerto y el esquema que vio el navegador
+    absolute_redirect off;
+
+    # Cabeceras de seguridad (las plantillas de Angular no usan scripts inline; los estilos de los
+    # componentes sí se insertan en <style>, de ahí 'unsafe-inline' solo en style-src)
+    add_header Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'" always;
+    add_header X-Content-Type-Options nosniff always;
+    add_header Referrer-Policy no-referrer always;
+    add_header X-Frame-Options DENY always;
+    add_header Permissions-Policy "camera=(), microphone=(), geolocation=()" always;
+
+    gzip on;
+    gzip_types text/css application/javascript application/json image/svg+xml;
+
+    location /api/ {
+        proxy_pass ${API_UPSTREAM};
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    # El Service Worker debe revalidarse siempre para que las actualizaciones lleguen
+    location ~ ^/(en|es)/push-sw\.js$ {
+        expires -1;
+    }
+
+    # Ficheros con hash en el nombre: caché permanente
+    location ~ ^/(en|es)/.+\.(js|css|woff2?)$ {
+        expires max;
+        try_files $uri =404;
+    }
+
+    # Cada idioma es una SPA con su propio index.html (que no se cachea)
+    location ~ ^/(en|es)/ {
+        expires -1;
+        try_files $uri /$1/index.html;
+    }
+
+    location = / {
+        return 302 /$preferred_lang/;
+    }
+
+    location / {
+        return 302 /$preferred_lang$request_uri;
+    }
+}

@@ -1,0 +1,11 @@
+# Contexto de la imagen del frontend: solo lo necesario para `ng build`
+node_modules
+dist
+.angular
+server
+e2e
+coverage
+test-results
+playwright-report
+.git
+*.log

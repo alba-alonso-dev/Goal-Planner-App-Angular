@@ -19,6 +19,11 @@ export interface AppConfig {
   vapid: { publicKey: string; privateKey: string; subject: string } | null;
   /** Cada cuántos segundos se buscan recordatorios vencidos que notificar (0: nunca, p. ej. en tests). */
   pushIntervalSeconds: number;
+  /**
+   * Proxies de confianza delante del servidor (p. ej. 1 detrás de nginx). Sin esto, todas las
+   * peticiones llegarían con la IP del proxy y el límite de intentos sería común a todos los clientes.
+   */
+  trustProxy: number;
 }
 
 export const APP_CONFIG = Symbol('APP_CONFIG');
@@ -65,6 +70,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
             subject: env['VAPID_SUBJECT'] ?? 'mailto:admin@goal-planner.local'
           }
         : null,
-    pushIntervalSeconds: Number(env['PUSH_INTERVAL_SECONDS'] ?? 30)
+    pushIntervalSeconds: Number(env['PUSH_INTERVAL_SECONDS'] ?? 30),
+    trustProxy: Number(env['TRUST_PROXY'] ?? 0)
   };
 }

@@ -1,0 +1,56 @@
+# Despliegue completo con Docker: `docker compose -f compose.prod.yaml --env-file .env.prod up -d --build`
+# Variables: ver .env.prod.example. La app queda en http://localhost:${WEB_PORT:-8080}; en producción,
+# pon delante un proxy con HTTPS (la cookie de sesión es Secure por defecto).
+name: goal-planner
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: goal
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+      POSTGRES_DB: goal_planner
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U goal -d goal_planner']
+      interval: 5s
+      retries: 10
+    restart: unless-stopped
+
+  api:
+    build:
+      context: ./server
+      args:
+        NODE_IMAGE: ${NODE_IMAGE:-node:22-alpine}
+    environment:
+      DATABASE_URL: postgres://goal:${POSTGRES_PASSWORD}@db:5432/goal_planner
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required (openssl rand -base64 48)}
+      APP_URL: ${APP_URL:?APP_URL is required}
+      SMTP_URL: ${SMTP_URL:?SMTP_URL is required}
+      MAIL_FROM: ${MAIL_FROM:-Goal Planner <no-reply@goal-planner.local>}
+      COOKIE_SECURE: ${COOKIE_SECURE:-true}
+      VAPID_PUBLIC_KEY: ${VAPID_PUBLIC_KEY:-}
+      VAPID_PRIVATE_KEY: ${VAPID_PRIVATE_KEY:-}
+      VAPID_SUBJECT: ${VAPID_SUBJECT:-mailto:admin@example.com}
+      # Detrás del nginx del servicio web
+      TRUST_PROXY: 1
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  web:
+    build:
+      context: .
+      args:
+        NODE_IMAGE: ${NODE_IMAGE:-node:22-alpine}
+    ports:
+      - '${WEB_PORT:-8080}:80'
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  db-data:
