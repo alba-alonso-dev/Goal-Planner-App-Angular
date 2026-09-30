@@ -5,7 +5,7 @@ import { provideRouter, Router } from '@angular/router';
 
 import { errorInterceptor } from './error.interceptor';
 import { ApiError } from './api-error';
-import { AuthService } from '../../services/auth.service';
+import { AuthService } from '../auth/auth.service';
 
 describe('errorInterceptor', () => {
   let http: HttpClient;

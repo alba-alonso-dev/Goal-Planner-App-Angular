@@ -1,0 +1,133 @@
+<div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0, 0, 0, 0.5)">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold">
+          <i class="bi bi-list-check me-2"></i>
+          Create New Task
+        </h5>
+        <button
+          type="button"
+          class="btn-close"
+          (click)="closeModal()"
+          [disabled]="submitting()"
+          aria-label="Close"
+        ></button>
+      </div>
+
+      <div class="modal-body">
+        <form [formGroup]="taskForm" (ngSubmit)="onSubmit()" novalidate>
+          <!-- Task Title -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold" for="new-task-taskName">
+              Task Title <span class="text-danger">*</span>
+            </label>
+            <input
+              id="new-task-taskName"
+              type="text"
+              class="form-control"
+              formControlName="taskName"
+              [class.is-invalid]="taskForm.get('taskName')?.invalid && taskForm.get('taskName')?.touched"
+              placeholder="Enter task title"
+            />
+            @if (taskForm.get('taskName')?.invalid && taskForm.get('taskName')?.touched) {
+              <div class="invalid-feedback">Task title is required (minimum 3 characters)</div>
+            }
+          </div>
+
+          <!-- Frequency -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold" for="new-task-frequency">
+              Frequency <span class="text-danger">*</span>
+            </label>
+            <select
+              id="new-task-frequency"
+              class="form-select"
+              formControlName="frequency"
+              [class.is-invalid]="taskForm.get('frequency')?.invalid && taskForm.get('frequency')?.touched"
+            >
+              @for (freq of frequencies; track freq.value) {
+                <option [value]="freq.value">{{ freq.label }}</option>
+              }
+            </select>
+          </div>
+
+          <!-- Dates -->
+          <div class="row">
+            <div class="col-6">
+              <div class="mb-3">
+                <label class="form-label fw-semibold" for="new-task-startDate">
+                  Start Date <span class="text-danger">*</span>
+                </label>
+                <input
+                  id="new-task-startDate"
+                  type="date"
+                  class="form-control"
+                  formControlName="startDate"
+                  [class.is-invalid]="taskForm.get('startDate')?.invalid && taskForm.get('startDate')?.touched"
+                />
+                @if (taskForm.get('startDate')?.invalid && taskForm.get('startDate')?.touched) {
+                  <div class="invalid-feedback">Start date is required</div>
+                }
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="mb-3">
+                <label class="form-label fw-semibold" for="new-task-dueDate">
+                  Due Date <span class="text-danger">*</span>
+                </label>
+                <input
+                  id="new-task-dueDate"
+                  type="date"
+                  class="form-control"
+                  formControlName="dueDate"
+                  [class.is-invalid]="
+                    (taskForm.get('dueDate')?.invalid && taskForm.get('dueDate')?.touched) ||
+                    taskForm.hasError('dueDateBeforeStart')
+                  "
+                />
+                @if (taskForm.get('dueDate')?.hasError('required') && taskForm.get('dueDate')?.touched) {
+                  <div class="invalid-feedback">Due date is required</div>
+                }
+                @if (taskForm.hasError('dueDateBeforeStart')) {
+                  <div class="invalid-feedback d-block">Due date cannot be before start date</div>
+                }
+              </div>
+            </div>
+          </div>
+
+          <!-- Description -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold" for="new-task-description">Description</label>
+            <textarea
+              id="new-task-description"
+              class="form-control"
+              formControlName="description"
+              rows="3"
+              placeholder="Enter task description (optional)"
+            ></textarea>
+          </div>
+        </form>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" (click)="closeModal()" [disabled]="submitting()">
+          Cancel
+        </button>
+        <button
+          type="button"
+          class="btn btn-primary"
+          (click)="onSubmit()"
+          [disabled]="taskForm.invalid || submitting()"
+        >
+          @if (submitting()) {
+            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+            Creating...
+          } @else {
+            <i class="bi bi-plus-circle me-2"></i>Create Task
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router';
-import { HomeComponent } from './components/home/home.component';
-import { LayoutComponent } from './components/layout/layout.component';
-import { authGuard } from './guards/auth.guard';
+import { authGuard } from './core/auth/auth.guard';
+import { LayoutComponent } from './core/layout/layout/layout.component';
+import { HomeComponent } from './features/home/home/home.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
@@ -10,27 +10,22 @@ export const routes: Routes = [
     component: LayoutComponent, // Todas las rutas usan el mismo layout
     children: [
       { path: 'home', component: HomeComponent }, // Home público (eager: es la página de entrada)
-      // Rutas protegidas cargadas bajo demanda para reducir el bundle inicial
+      // Cada feature privada se carga bajo demanda con sus propias rutas
       {
-        path: 'dashboard',
+        path: '',
         canActivate: [authGuard],
-        loadComponent: () => import('./components/dashboard/dashboard.component').then(m => m.DashboardComponent)
-      },
-      {
-        path: 'goals',
-        canActivate: [authGuard],
-        loadComponent: () => import('./components/goal-list/goal-list.component').then(m => m.GoalListComponent)
-      },
-      {
-        path: 'tasks',
-        canActivate: [authGuard],
-        loadComponent: () => import('./components/task-list/task-list.component').then(m => m.TaskListComponent)
-      },
-      {
-        path: 'reminders',
-        canActivate: [authGuard],
-        loadComponent: () =>
-          import('./components/reminder-list/reminder-list.component').then(m => m.ReminderListComponent)
+        children: [
+          {
+            path: 'dashboard',
+            loadChildren: () => import('./features/dashboard/dashboard.routes').then(m => m.DASHBOARD_ROUTES)
+          },
+          { path: 'goals', loadChildren: () => import('./features/goals/goals.routes').then(m => m.GOALS_ROUTES) },
+          { path: 'tasks', loadChildren: () => import('./features/tasks/tasks.routes').then(m => m.TASKS_ROUTES) },
+          {
+            path: 'reminders',
+            loadChildren: () => import('./features/reminders/reminders.routes').then(m => m.REMINDERS_ROUTES)
+          }
+        ]
       }
     ]
   },

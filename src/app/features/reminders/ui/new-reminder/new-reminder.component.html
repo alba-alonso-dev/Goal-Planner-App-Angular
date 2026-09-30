@@ -1,0 +1,103 @@
+<div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0, 0, 0, 0.5)">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold">
+          <i class="bi bi-bell-fill me-2"></i>
+          Create New Reminder
+        </h5>
+        <button
+          type="button"
+          class="btn-close"
+          (click)="closeModal()"
+          [disabled]="submitting()"
+          aria-label="Close"
+        ></button>
+      </div>
+
+      <div class="modal-body">
+        <form [formGroup]="reminderForm" (ngSubmit)="onSubmit()" novalidate>
+          <!-- Title -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold" for="new-reminder-title">
+              Title <span class="text-danger">*</span>
+            </label>
+            <input
+              id="new-reminder-title"
+              type="text"
+              class="form-control"
+              formControlName="title"
+              [class.is-invalid]="reminderForm.get('title')?.invalid && reminderForm.get('title')?.touched"
+              placeholder="Enter reminder title"
+            />
+            @if (reminderForm.get('title')?.invalid && reminderForm.get('title')?.touched) {
+              <div class="invalid-feedback">Title is required (minimum 3 characters)</div>
+            }
+          </div>
+
+          <!-- Date & Time -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold" for="new-reminder-reminderDateTime">
+              Date & Time <span class="text-danger">*</span>
+            </label>
+            <input
+              id="new-reminder-reminderDateTime"
+              type="datetime-local"
+              class="form-control"
+              formControlName="reminderDateTime"
+              [class.is-invalid]="
+                reminderForm.get('reminderDateTime')?.errors && reminderForm.get('reminderDateTime')?.touched
+              "
+            />
+            @if (
+              reminderForm.get('reminderDateTime')?.hasError('required') &&
+              reminderForm.get('reminderDateTime')?.touched
+            ) {
+              <div class="invalid-feedback">Date and time are required</div>
+            }
+            @if (reminderForm.get('reminderDateTime')?.hasError('pastDate')) {
+              <div class="invalid-feedback d-block">Reminder cannot be in the past</div>
+            }
+          </div>
+
+          <!-- Description -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold" for="new-reminder-description">Description</label>
+            <textarea
+              id="new-reminder-description"
+              class="form-control"
+              formControlName="description"
+              rows="4"
+              placeholder="Enter reminder description (optional)"
+            ></textarea>
+          </div>
+
+          <!-- Info message -->
+          <div class="alert alert-info">
+            <i class="bi bi-info-circle-fill me-2"></i>
+            You'll be reminded at the specified date and time.
+          </div>
+        </form>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" (click)="closeModal()" [disabled]="submitting()">
+          Cancel
+        </button>
+        <button
+          type="button"
+          class="btn btn-primary"
+          (click)="onSubmit()"
+          [disabled]="reminderForm.invalid || submitting()"
+        >
+          @if (submitting()) {
+            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+            Creating...
+          } @else {
+            <i class="bi bi-plus-circle me-2"></i>Create Reminder
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

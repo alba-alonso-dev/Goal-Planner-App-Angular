@@ -1,0 +1,331 @@
+@let goal = this.goal();
+<div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0, 0, 0, 0.5)">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold">
+          @if (editMode()) {
+            Edit Goal
+          } @else {
+            Goal Details
+          }
+        </h5>
+        <button
+          type="button"
+          class="btn-close"
+          (click)="closeModal()"
+          [disabled]="submitting()"
+          aria-label="Close"
+        ></button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Error message -->
+        @if (error()) {
+          <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            {{ error() }}
+            <button aria-label="Close" type="button" class="btn-close" (click)="error.set(null)"></button>
+          </div>
+        }
+
+        @if (editMode()) {
+          <!-- MODO EDICIÓN - Usando FormGroup -->
+          <form [formGroup]="editForm">
+            <!-- Header con título y progreso -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <input
+                type="text"
+                class="form-control form-control-lg fw-bold"
+                formControlName="goalName"
+                [class.is-invalid]="editForm.get('goalName')?.invalid && editForm.get('goalName')?.touched"
+              />
+
+              <div class="text-end">
+                <div class="h2 mb-0" [ngClass]="'text-' + getProgressColor(goal.progress)">{{ goal.progress }}%</div>
+                <small class="text-muted">Complete</small>
+              </div>
+            </div>
+
+            <!-- Barra de progreso grande -->
+            <div class="progress mb-4" style="height: 12px">
+              <div
+                class="progress-bar"
+                [style.width.%]="goal.progress"
+                [ngClass]="'bg-' + getProgressColor(goal.progress)"
+                role="progressbar"
+              ></div>
+            </div>
+
+            <!-- Fechas y estadísticas -->
+            <div class="row mb-4">
+              <div class="col-md-4">
+                <div class="card bg-light border-0">
+                  <div class="card-body text-center">
+                    <i class="bi bi-calendar3 icon-2x text-primary mb-2"></i>
+                    <h6 class="text-muted mb-1">Start Date</h6>
+                    <input
+                      type="date"
+                      class="form-control"
+                      formControlName="startDate"
+                      [class.is-invalid]="editForm.get('startDate')?.invalid && editForm.get('startDate')?.touched"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="card bg-light border-0">
+                  <div class="card-body text-center">
+                    <i class="bi bi-calendar-check icon-2x text-primary mb-2"></i>
+                    <h6 class="text-muted mb-1">Target Date</h6>
+                    <input
+                      type="date"
+                      class="form-control"
+                      formControlName="endDate"
+                      [class.is-invalid]="
+                        (editForm.get('endDate')?.invalid && editForm.get('endDate')?.touched) ||
+                        editForm.hasError('endDateBeforeStart')
+                      "
+                    />
+                    @if (editForm.hasError('endDateBeforeStart')) {
+                      <div class="invalid-feedback d-block">Cannot be before the start date</div>
+                    }
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="card bg-light border-0">
+                  <div class="card-body text-center">
+                    <i class="bi bi-clock icon-2x text-primary mb-2"></i>
+                    <h6 class="text-muted mb-1">Days Remaining</h6>
+                    <p class="h5 mb-0" [ngClass]="{ 'text-danger': getDaysRemaining() < 0 }">
+                      {{ getDaysRemaining() >= 0 ? getDaysRemaining() + ' days' : 'Overdue' }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Descripción -->
+            <div class="mb-4">
+              <h5 class="fw-semibold mb-3">Description</h5>
+              <textarea class="form-control" rows="3" formControlName="description"></textarea>
+            </div>
+
+            <!-- Checkbox isAchieved -->
+            <div class="mb-4">
+              <div class="form-check">
+                <input type="checkbox" class="form-check-input" id="isAchieved" formControlName="isAchieved" />
+                <label class="form-check-label" for="isAchieved"> Goal achieved </label>
+                @if (milestonesArray.length > 0) {
+                  <div class="form-text">Set automatically when all milestones are completed.</div>
+                }
+              </div>
+            </div>
+
+            <!-- Milestones en modo edición -->
+            <div>
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-semibold mb-0">Milestones</h5>
+                <button type="button" class="btn btn-sm btn-outline-primary" (click)="addNewMilestone()">
+                  <i class="bi bi-plus-lg me-2"></i>Add Milestone
+                </button>
+              </div>
+
+              <div formArrayName="milestones">
+                @for (milestone of milestonesArray.controls; track $index) {
+                  <div class="list-group-item mb-2" [formGroupName]="$index">
+                    <div class="d-flex align-items-start">
+                      <div class="me-3">
+                        <input type="checkbox" class="form-check-input" formControlName="isCompleted" />
+                      </div>
+                      <div class="flex-grow-1">
+                        <div class="row">
+                          <div class="col-md-5">
+                            <input
+                              type="text"
+                              class="form-control form-control-sm mb-2"
+                              formControlName="milestoneName"
+                              placeholder="Milestone name"
+                            />
+                          </div>
+                          <div class="col-md-4">
+                            <input
+                              type="date"
+                              class="form-control form-control-sm mb-2"
+                              formControlName="targetDate"
+                              aria-label="Milestone target date"
+                              [class.is-invalid]="editForm.getError('milestoneOutOfRange')?.includes($index)"
+                            />
+                            @if (editForm.getError('milestoneOutOfRange')?.includes($index)) {
+                              <div class="invalid-feedback">Must be within the goal dates</div>
+                            }
+                          </div>
+                          <div class="col-md-3 text-end">
+                            <button
+                              type="button"
+                              class="btn btn-sm btn-outline-danger"
+                              aria-label="Remove milestone"
+                              (click)="removeMilestone($index)"
+                            >
+                              <i class="bi bi-trash"></i>
+                            </button>
+                          </div>
+                          <div class="col-12">
+                            <textarea
+                              class="form-control form-control-sm"
+                              formControlName="description"
+                              rows="2"
+                              placeholder="Milestone description..."
+                            ></textarea>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                } @empty {
+                  <div class="text-center py-4">
+                    <p class="text-muted mb-0">No milestones yet</p>
+                    <button type="button" class="btn btn-sm btn-outline-primary mt-2" (click)="addNewMilestone()">
+                      <i class="bi bi-plus-lg me-2"></i>Add your first milestone
+                    </button>
+                  </div>
+                }
+              </div>
+            </div>
+          </form>
+        } @else {
+          <!-- MODO VISTA - Solo visualización -->
+          <!-- Header con título y progreso -->
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="fw-bold mb-0">{{ goal.goalName }}</h3>
+            <div class="text-end">
+              <div class="h2 mb-0" [ngClass]="'text-' + getProgressColor(goal.progress)">{{ goal.progress }}%</div>
+              <small class="text-muted">Complete</small>
+            </div>
+          </div>
+
+          <!-- Barra de progreso grande -->
+          <div class="progress mb-4" style="height: 12px">
+            <div
+              class="progress-bar"
+              [style.width.%]="goal.progress"
+              [ngClass]="'bg-' + getProgressColor(goal.progress)"
+              role="progressbar"
+            ></div>
+          </div>
+
+          <!-- Fechas y estadísticas -->
+          <div class="row mb-4">
+            <div class="col-md-4">
+              <div class="card bg-light border-0">
+                <div class="card-body text-center">
+                  <i class="bi bi-calendar3 icon-2x text-primary mb-2"></i>
+                  <h6 class="text-muted mb-1">Start Date</h6>
+                  <p class="h5 mb-0">{{ goal.startDate | date: 'fullDate' }}</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="card bg-light border-0">
+                <div class="card-body text-center">
+                  <i class="bi bi-calendar-check icon-2x text-primary mb-2"></i>
+                  <h6 class="text-muted mb-1">Target Date</h6>
+                  <p class="h5 mb-0">{{ goal.endDate | date: 'fullDate' }}</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="card bg-light border-0">
+                <div class="card-body text-center">
+                  <i class="bi bi-clock icon-2x text-primary mb-2"></i>
+                  <h6 class="text-muted mb-1">Days Remaining</h6>
+                  <p class="h5 mb-0" [ngClass]="{ 'text-danger': getDaysRemaining() < 0 }">
+                    {{ getDaysRemaining() >= 0 ? getDaysRemaining() + ' days' : 'Overdue' }}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Descripción -->
+          @if (goal.description) {
+            <div class="mb-4">
+              <h5 class="fw-semibold mb-3">Description</h5>
+              <p class="text-muted">{{ goal.description }}</p>
+            </div>
+          }
+
+          <!-- Milestones en modo vista -->
+          @if (goal.milestones && goal.milestones.length > 0) {
+            <div>
+              <h5 class="fw-semibold mb-3">Milestones</h5>
+              <div class="list-group">
+                @for (milestone of goal.milestones; track milestone.milestoneId; let i = $index) {
+                  <div
+                    class="list-group-item list-group-item-action d-flex align-items-center"
+                    role="button"
+                    tabindex="0"
+                    (click)="toggleMilestoneCompletion(i)"
+                    (keydown.enter)="toggleMilestoneCompletion(i)"
+                    (keydown.space)="$event.preventDefault(); toggleMilestoneCompletion(i)"
+                  >
+                    <div class="me-3">
+                      @if (milestone.isCompleted) {
+                        <i class="bi bi-check-circle-fill text-success icon-lg"></i>
+                      } @else {
+                        <i class="bi bi-circle text-muted icon-lg"></i>
+                      }
+                    </div>
+                    <div class="flex-grow-1">
+                      <div class="d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0" [class.text-muted]="milestone.isCompleted">
+                          {{ milestone.milestoneName }}
+                        </h6>
+                        <small class="text-muted">
+                          <i class="bi bi-calendar3 me-1"></i>
+                          {{ milestone.targetDate | date: 'dd/MM/yyyy' }}
+                        </small>
+                      </div>
+                      @if (milestone.description) {
+                        <small class="text-muted d-block mt-1">
+                          {{ milestone.description }}
+                        </small>
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        }
+      </div>
+
+      <div class="modal-footer">
+        @if (editMode()) {
+          <button type="button" class="btn btn-outline-secondary" (click)="toggleEditMode()" [disabled]="submitting()">
+            Cancel
+          </button>
+          <button
+            type="button"
+            class="btn btn-primary"
+            (click)="saveChanges()"
+            [disabled]="editForm.invalid || submitting()"
+          >
+            @if (submitting()) {
+              <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+              Saving...
+            } @else {
+              <i class="bi bi-floppy me-2"></i>Save Changes
+            }
+          </button>
+        } @else {
+          <button type="button" class="btn btn-outline-primary" (click)="toggleEditMode()">
+            <i class="bi bi-pencil-square me-2"></i>Edit Goal
+          </button>
+          <button type="button" class="btn btn-primary" (click)="closeModal()">Close</button>
+        }
+      </div>
+    </div>
+  </div>
+</div>

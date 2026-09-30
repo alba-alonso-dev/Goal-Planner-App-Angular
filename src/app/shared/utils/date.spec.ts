@@ -62,5 +62,12 @@ describe('date utils', () => {
       expect(daysBetween(new Date(2026, 0, 10), new Date(2026, 0, 3))).toBe(-7);
       expect(daysBetween(new Date(2026, 0, 1, 8), new Date(2026, 0, 1, 20))).toBe(0);
     });
+
+    it('should not be affected by daylight saving time changes', () => {
+      // En Europa el cambio de hora de 2026 es el 29 de marzo (ese día dura 23 h)
+      expect(daysBetween(new Date(2026, 2, 28, 12), new Date(2026, 2, 30, 12))).toBe(2);
+      expect(daysBetween(new Date(2026, 9, 24, 12), new Date(2026, 9, 26, 12))).toBe(2);
+      expect(toDateInputValue(addDays(new Date(2026, 2, 28), 1))).toBe('2026-03-29');
+    });
   });
 });
