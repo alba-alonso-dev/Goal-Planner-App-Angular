@@ -48,7 +48,7 @@ export class TaskItemComponent {
   getStatusClass(): string {
     if (this.task().isCompleted) return 'text-success';
     if (this.task().isOverdue) return 'text-danger';
-    return 'text-warning';
+    return 'text-warning-emphasis';
   }
 
   getStatusText(): string {

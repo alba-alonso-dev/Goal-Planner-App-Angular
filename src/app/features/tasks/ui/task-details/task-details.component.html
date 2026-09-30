@@ -136,9 +136,9 @@
             <span
               class="badge fs-6 mt-2"
               [ngClass]="{
-                'bg-success': task.isCompleted,
-                'bg-danger': !task.isCompleted && task.isOverdue,
-                'bg-warning': !task.isCompleted && !task.isOverdue
+                'text-bg-success': task.isCompleted,
+                'text-bg-danger': !task.isCompleted && task.isOverdue,
+                'text-bg-warning': !task.isCompleted && !task.isOverdue
               }"
             >
               <i aria-hidden="true" class="bi bi-circle-fill me-1" style="font-size: 8px"></i>

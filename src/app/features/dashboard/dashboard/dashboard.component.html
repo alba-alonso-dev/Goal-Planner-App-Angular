@@ -52,7 +52,7 @@
                   <span class="text-success me-2">
                     <i aria-hidden="true" class="bi bi-check-circle-fill"></i> {{ stats().completedTasks }}
                   </span>
-                  <span class="text-warning me-2">
+                  <span class="text-warning-emphasis me-2">
                     <i aria-hidden="true" class="bi bi-clock-fill"></i> {{ stats().pendingTasks }}
                   </span>
                   <span class="text-danger">
@@ -112,7 +112,15 @@
                 <span class="fw-bold">{{ stats().averageGoalProgress }}%</span>
               </div>
               <div class="progress" style="height: 6px">
-                <div class="progress-bar" [style.width.%]="stats().averageGoalProgress" role="progressbar"></div>
+                <div
+                  class="progress-bar"
+                  [style.width.%]="stats().averageGoalProgress"
+                  role="progressbar"
+                  aria-label="Average goal progress"
+                  [attr.aria-valuenow]="stats().averageGoalProgress"
+                  aria-valuemin="0"
+                  aria-valuemax="100"
+                ></div>
               </div>
             </div>
           </div>
@@ -131,7 +139,7 @@
                   <span class="text-success me-2">
                     <i aria-hidden="true" class="bi bi-check-circle-fill"></i> {{ stats().acknowledgedReminders }}
                   </span>
-                  <span class="text-warning me-2">
+                  <span class="text-warning-emphasis me-2">
                     <i aria-hidden="true" class="bi bi-bell-fill"></i> {{ stats().pendingReminders }}
                   </span>
                   <span class="text-danger">
@@ -185,7 +193,15 @@
                 <span class="fw-bold">{{ stats().completionRate }}%</span>
               </div>
               <div class="progress" style="height: 6px">
-                <div class="progress-bar" [style.width.%]="stats().completionRate" role="progressbar"></div>
+                <div
+                  class="progress-bar"
+                  [style.width.%]="stats().completionRate"
+                  role="progressbar"
+                  aria-label="Task completion rate"
+                  [attr.aria-valuenow]="stats().completionRate"
+                  aria-valuemin="0"
+                  aria-valuemax="100"
+                ></div>
               </div>
             </div>
           </div>
@@ -247,18 +263,17 @@
                         } @else if (task.isOverdue) {
                           <span class="badge bg-danger">Overdue</span>
                         } @else {
-                          <span class="badge bg-warning">Pending</span>
+                          <span class="badge text-bg-warning">Pending</span>
                         }
                       </td>
                       <td style="width: 150px">
                         @if (!task.isCompleted) {
-                          <div class="progress" style="height: 6px">
+                          <div class="progress" style="height: 6px" aria-hidden="true">
                             <div
                               class="progress-bar"
                               [class.bg-success]="task.daysRemaining && task.daysRemaining > 0"
                               [class.bg-danger]="task.isOverdue"
                               [style.width.%]="task.isOverdue ? 100 : 0"
-                              role="progressbar"
                             ></div>
                           </div>
                         }
@@ -343,7 +358,7 @@
                 <small class="text-muted">Completed</small>
               </div>
               <div class="col-4">
-                <span class="badge bg-warning d-block p-2 mb-1">{{ stats().activeGoals }}</span>
+                <span class="badge text-bg-warning d-block p-2 mb-1">{{ stats().activeGoals }}</span>
                 <small class="text-muted">In Progress</small>
               </div>
               <div class="col-4">

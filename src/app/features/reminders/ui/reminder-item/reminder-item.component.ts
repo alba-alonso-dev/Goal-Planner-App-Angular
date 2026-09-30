@@ -49,11 +49,11 @@ export class ReminderItemComponent {
   }
 
   getTimeBadgeClass(): string {
-    if (this.reminder().isAcknowledged) return 'bg-success';
-    if (this.reminder().isOverdue) return 'bg-danger';
-    if (this.reminder().isToday) return 'bg-warning';
-    if (this.reminder().isTomorrow) return 'bg-info';
-    return 'bg-primary';
+    if (this.reminder().isAcknowledged) return 'text-bg-success';
+    if (this.reminder().isOverdue) return 'text-bg-danger';
+    if (this.reminder().isToday) return 'text-bg-warning';
+    if (this.reminder().isTomorrow) return 'text-bg-info';
+    return 'text-bg-primary';
   }
 
   getTimeText(): string {

@@ -5,6 +5,11 @@
 // La app no ofrece tema oscuro: evita generar las variables de [data-bs-theme=dark]
 $enable-dark-mode: false;
 
+// Primario y secundario un tono más oscuros que los de Bootstrap: los botones `outline` sobre
+// fondos `bg-light` no llegaban al contraste 4.5:1 de WCAG AA (lo comprueba e2e/a11y.spec.ts)
+$primary: #0b5ed7;
+$secondary: #5c636a;
+
 // 1. Configuración
 @import 'bootstrap/scss/functions';
 @import 'bootstrap/scss/variables';

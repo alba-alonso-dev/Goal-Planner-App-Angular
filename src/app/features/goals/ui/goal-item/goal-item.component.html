@@ -7,10 +7,10 @@
       <span
         class="badge"
         [ngClass]="{
-          'bg-success': goal.progress >= 75,
-          'bg-primary': goal.progress >= 50 && goal.progress < 75,
-          'bg-warning': goal.progress >= 25 && goal.progress < 50,
-          'bg-danger': goal.progress < 25
+          'text-bg-success': goal.progress >= 75,
+          'text-bg-primary': goal.progress >= 50 && goal.progress < 75,
+          'text-bg-warning': goal.progress >= 25 && goal.progress < 50,
+          'text-bg-danger': goal.progress < 25
         }"
       >
         {{ goal.progress || 0 }}%
@@ -29,6 +29,7 @@
           'bg-danger': (goal.progress || 0) < 25
         }"
         role="progressbar"
+        aria-label="Goal progress"
         [attr.aria-valuenow]="goal.progress || 0"
         aria-valuemin="0"
         aria-valuemax="100"

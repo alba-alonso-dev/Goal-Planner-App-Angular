@@ -20,6 +20,12 @@ body {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+/* Enlaces más opacos que el 55% de navbar-dark para llegar a 4.5:1 sobre el morado (WCAG AA) */
+.navbar.navbar-dark {
+  --bs-navbar-color: rgba(255, 255, 255, 0.85);
+  --bs-navbar-hover-color: #fff;
+}
+
 .navbar-brand {
   font-size: 1.5rem;
   letter-spacing: 0.5px;

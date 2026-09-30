@@ -137,11 +137,11 @@ export class ReminderListComponent implements OnInit {
   }
 
   getListBadgeClass(reminder: ReminderView): string {
-    if (reminder.isAcknowledged) return 'bg-success';
-    if (reminder.isOverdue) return 'bg-danger';
-    if (reminder.isToday) return 'bg-warning';
-    if (reminder.isTomorrow) return 'bg-info';
-    return 'bg-primary';
+    if (reminder.isAcknowledged) return 'text-bg-success';
+    if (reminder.isOverdue) return 'text-bg-danger';
+    if (reminder.isToday) return 'text-bg-warning';
+    if (reminder.isTomorrow) return 'text-bg-info';
+    return 'text-bg-primary';
   }
 
   getListBadgeText(reminder: ReminderView): string {

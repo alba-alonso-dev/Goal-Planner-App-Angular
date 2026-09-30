@@ -29,9 +29,9 @@
       <span
         class="badge"
         [ngClass]="{
-          'bg-success': task.isCompleted,
-          'bg-danger': !task.isCompleted && task.isOverdue,
-          'bg-warning': !task.isCompleted && !task.isOverdue
+          'text-bg-success': task.isCompleted,
+          'text-bg-danger': !task.isCompleted && task.isOverdue,
+          'text-bg-warning': !task.isCompleted && !task.isOverdue
         }"
       >
         <i aria-hidden="true" [class]="getFrequencyIcon(task.frequency)" class="me-1"></i>

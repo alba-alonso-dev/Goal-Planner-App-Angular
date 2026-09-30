@@ -35,7 +35,7 @@
       </div>
     </div>
     <div class="col-md-3 col-6">
-      <div class="card bg-info text-white">
+      <div class="card text-bg-info">
         <div class="card-body">
           <h6 class="card-title">Active</h6>
           <h2 class="mb-0">{{ stats().active }}</h2>
@@ -43,7 +43,7 @@
       </div>
     </div>
     <div class="col-md-3 col-6">
-      <div class="card bg-warning text-white">
+      <div class="card text-bg-warning">
         <div class="card-body">
           <h6 class="card-title">Overdue</h6>
           <h2 class="mb-0">{{ stats().overdue }}</h2>
@@ -211,6 +211,11 @@
                         'bg-warning': goal.progress >= 25 && goal.progress < 50,
                         'bg-danger': goal.progress < 25
                       }"
+                      role="progressbar"
+                      [attr.aria-label]="goal.goalName + ' progress'"
+                      [attr.aria-valuenow]="goal.progress"
+                      aria-valuemin="0"
+                      aria-valuemax="100"
                     ></div>
                   </div>
                   <small class="text-muted">{{ goal.progress }}%</small>

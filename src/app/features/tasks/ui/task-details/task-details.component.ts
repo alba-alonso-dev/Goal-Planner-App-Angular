@@ -146,7 +146,7 @@ export class TaskDetailsComponent {
     const task = this.task();
     if (task.isCompleted) return 'text-success';
     if (task.isOverdue) return 'text-danger';
-    return 'text-warning';
+    return 'text-warning-emphasis';
   }
 
   getStatusText(): string {
