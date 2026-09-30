@@ -1,4 +1,4 @@
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withXhr } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideRouter } from '@angular/router';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
@@ -13,7 +13,7 @@ describe('GoalItemComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [GoalItemComponent],
-      providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([])]
+      providers: [provideHttpClient(withXhr()), provideHttpClientTesting(), provideRouter([])]
     }).compileComponents();
 
     fixture = TestBed.createComponent(GoalItemComponent);

@@ -27,9 +27,7 @@
             "styles": ["src/styles/bootstrap.scss", "src/styles/icons.generated.css", "src/styles.css"],
             "scripts": [],
             "stylePreprocessorOptions": {
-              "sass": {
-                "silenceDeprecations": ["import", "global-builtin", "color-functions", "mixed-decls"]
-              }
+              "sass": {}
             }
           },
           "configurations": {

@@ -1,14 +1,14 @@
 import { GoalApi } from './goal.api';
 import { mockGoalResponse } from '../../../../testing/fixtures';
 import { TestBed } from '@angular/core/testing';
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withXhr } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 
 describe('GoalApi', () => {
   let api: GoalApi;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({ providers: [provideHttpClient(), provideHttpClientTesting()] });
+    TestBed.configureTestingModule({ providers: [provideHttpClient(withXhr()), provideHttpClientTesting()] });
     api = TestBed.inject(GoalApi);
   });
 
