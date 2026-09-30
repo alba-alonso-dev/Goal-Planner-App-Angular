@@ -18,6 +18,10 @@ export class User {
   @Column({ name: 'password_hash', type: 'varchar', length: 255 })
   passwordHash!: string;
 
+  /** Va en el JWT: al incrementarse, las sesiones emitidas antes dejan de ser válidas. */
+  @Column({ name: 'session_version', type: 'int', default: 0 })
+  sessionVersion!: number;
+
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt!: Date;
 }

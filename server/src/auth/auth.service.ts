@@ -1,9 +1,9 @@
-import { ConflictException, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../users/user.entity.js';
-import { LoginDto, RegisterDto } from './dto/auth.dto.js';
+import { ChangePasswordDto, LoginDto, RegisterDto } from './dto/auth.dto.js';
 import { hashPassword, verifyPassword } from './password.js';
 
 // Hash de una contraseña aleatoria: se usa cuando el email no existe para que el tiempo de respuesta
@@ -25,7 +25,8 @@ export class AuthService {
       email: dto.emailId,
       fullName: dto.fullName,
       mobileNo: dto.mobileNo,
-      passwordHash: await hashPassword(dto.password)
+      passwordHash: await hashPassword(dto.password),
+      sessionVersion: 0
     });
     return this.users.save(user);
   }
@@ -44,7 +45,28 @@ export class AuthService {
     return user;
   }
 
-  signSession(userId: number): Promise<string> {
-    return this.jwt.signAsync({ sub: userId });
+  /**
+   * Cambia la contraseña y cierra las demás sesiones (sube `sessionVersion`). Devuelve el usuario
+   * actualizado para emitir una sesión nueva en este dispositivo.
+   */
+  async changePassword(userId: number, dto: ChangePasswordDto): Promise<User> {
+    const user = await this.findUser(userId);
+    if (!(await verifyPassword(dto.currentPassword, user.passwordHash))) {
+      throw new BadRequestException('Current password is incorrect');
+    }
+    user.passwordHash = await hashPassword(dto.newPassword);
+    user.sessionVersion += 1;
+    return this.users.save(user);
+  }
+
+  /** JWT de sesión: `ver` deja de coincidir cuando se cambia la contraseña. */
+  signSession(user: Pick<User, 'id' | 'sessionVersion'>): Promise<string> {
+    return this.jwt.signAsync({ sub: user.id, ver: user.sessionVersion });
+  }
+
+  /** ¿Sigue vigente una sesión emitida con esta versión? */
+  async isSessionCurrent(userId: number, version: number): Promise<boolean> {
+    const user = await this.users.findOne({ select: { id: true, sessionVersion: true }, where: { id: userId } });
+    return user !== null && user.sessionVersion === version;
   }
 }

@@ -1,5 +1,6 @@
-# PostgreSQL para desarrollo local: `docker compose up -d`
-# Crea goal_planner (app) y goal_planner_test / goal_planner_e2e (tests), usuario y contraseña `goal`.
+# Servicios para desarrollo local: `docker compose up -d`
+# - PostgreSQL: goal_planner (app) y goal_planner_test / goal_planner_e2e (tests), usuario y contraseña `goal`.
+# - Mailpit: servidor SMTP de pruebas (SMTP_URL=smtp://localhost:1025); los emails se ven en http://localhost:8025
 services:
   postgres:
     image: postgres:16
@@ -16,6 +17,12 @@ services:
       test: ['CMD-SHELL', 'pg_isready -U goal']
       interval: 5s
       retries: 10
+
+  mailpit:
+    image: axllent/mailpit:v1.27
+    ports:
+      - '1025:1025'
+      - '8025:8025'
 
 volumes:
   pgdata:

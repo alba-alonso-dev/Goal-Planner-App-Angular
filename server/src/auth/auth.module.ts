@@ -4,13 +4,15 @@ import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { APP_CONFIG, AppConfig } from '../config/app-config.js';
 import { User } from '../users/user.entity.js';
+import { PasswordResetToken } from './password-reset-token.entity.js';
+import { PasswordResetService } from './password-reset.service.js';
 import { AuthController } from './auth.controller.js';
 import { AuthService } from './auth.service.js';
 import { JwtAuthGuard } from './jwt-auth.guard.js';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User]),
+    TypeOrmModule.forFeature([User, PasswordResetToken]),
     JwtModule.registerAsync({
       inject: [APP_CONFIG],
       useFactory: (config: AppConfig) => ({
@@ -21,6 +23,6 @@ import { JwtAuthGuard } from './jwt-auth.guard.js';
     })
   ],
   controllers: [AuthController],
-  providers: [AuthService, { provide: APP_GUARD, useClass: JwtAuthGuard }]
+  providers: [AuthService, PasswordResetService, { provide: APP_GUARD, useClass: JwtAuthGuard }]
 })
 export class AuthModule {}

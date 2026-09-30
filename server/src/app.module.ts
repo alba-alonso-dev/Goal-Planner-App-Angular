@@ -8,6 +8,7 @@ import { ConfigModule } from './config/config.module.js';
 import { APP_CONFIG, AppConfig } from './config/app-config.js';
 import { typeOrmOptions } from './database/typeorm-options.js';
 import { GoalsModule } from './goals/goals.module.js';
+import { MailModule } from './mail/mail.module.js';
 import { RemindersModule } from './reminders/reminders.module.js';
 import { TasksModule } from './tasks/tasks.module.js';
 
@@ -20,6 +21,7 @@ import { TasksModule } from './tasks/tasks.module.js';
     }),
     // Límite general por cliente; los endpoints de login/registro tienen uno más estricto
     ThrottlerModule.forRoot([{ name: 'default', ttl: 60_000, limit: 300 }]),
+    MailModule,
     AuthModule,
     TasksModule,
     GoalsModule,
