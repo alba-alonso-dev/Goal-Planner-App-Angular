@@ -1,13 +1,14 @@
-import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
+import { ApplicationConfig, provideZonelessChangeDetection } from '@angular/core';
 import { provideRouter } from '@angular/router';
-import { provideHttpClient, withInterceptors, withXhr } from '@angular/common/http';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { routes } from './app.routes';
 import { errorInterceptor } from './core/http/error.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideZoneChangeDetection({ eventCoalescing: true }),
+    // Sin zone.js: la detección de cambios la disparan signals, eventos de plantilla y async pipe
+    provideZonelessChangeDetection(),
     provideRouter(routes),
-    provideHttpClient(withXhr(), withInterceptors([errorInterceptor]))
+    provideHttpClient(withInterceptors([errorInterceptor]))
   ]
 };
