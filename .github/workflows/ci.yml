@@ -10,7 +10,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build-and-test:
+  web:
+    name: Frontend (Angular)
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
@@ -44,4 +45,58 @@ jobs:
           TZ: America/Los_Angeles
 
       - name: Production build
+        run: npm run build
+
+  server:
+    name: Backend (NestJS + PostgreSQL)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: server
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: goal
+          POSTGRES_PASSWORD: goal
+          POSTGRES_DB: goal_planner_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      TEST_DATABASE_URL: postgres://goal:goal@localhost:5432/goal_planner_test
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: server/package-lock.json
+
+      # El lockfile del servidor se resuelve con npm 11 (npm 10 no lo acepta en `npm ci`)
+      - name: Install dependencies
+        run: npx -y npm@11.20.0 ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Type check
+        run: npm run typecheck
+
+      - name: Unit tests
+        run: npm test
+
+      - name: End-to-end tests (real PostgreSQL)
+        run: npm run test:e2e
+
+      - name: Build
         run: npm run build

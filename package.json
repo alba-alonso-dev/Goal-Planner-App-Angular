@@ -47,10 +47,11 @@
     "vitest": "^5.0.0"
   },
   "lint-staged": {
-    "*.{ts,html}": [
+    "src/**/*.{ts,html}": [
       "eslint --fix",
       "prettier --write"
     ],
+    "server/**/*.ts": "prettier --write",
     "*.{css,json,md,yml}": "prettier --write"
   },
   "engines": {

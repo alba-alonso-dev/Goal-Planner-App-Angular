@@ -5,6 +5,8 @@ const angular = require('angular-eslint');
 const prettier = require('eslint-config-prettier');
 
 module.exports = tseslint.config(
+  // El backend (server/) tiene su propio lint (oxlint)
+  { ignores: ['server/**'] },
   {
     files: ['**/*.ts'],
     extends: [
