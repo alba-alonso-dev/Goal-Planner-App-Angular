@@ -13,7 +13,8 @@
     "format:check": "prettier --check .",
     "prepare": "husky",
     "icons": "node scripts/generate-icons.mjs",
-    "icons:check": "node scripts/generate-icons.mjs --check"
+    "icons:check": "node scripts/generate-icons.mjs --check",
+    "e2e": "playwright test"
   },
   "private": true,
   "dependencies": {
@@ -34,6 +35,7 @@
     "@angular/build": "^22.2.0",
     "@angular/cli": "^22.2.0",
     "@angular/compiler-cli": "^22.2.0",
+    "@playwright/test": "1.56",
     "@types/node": "^22.20.4",
     "angular-eslint": "22.5.0",
     "eslint": "^9.28.0",
@@ -52,7 +54,8 @@
       "prettier --write"
     ],
     "server/**/*.ts": "prettier --write",
-    "*.{css,json,md,yml}": "prettier --write"
+    "*.{css,json,md,yml}": "prettier --write",
+    "e2e/**/*.ts": "prettier --write"
   },
   "engines": {
     "node": ">=22.22.3"

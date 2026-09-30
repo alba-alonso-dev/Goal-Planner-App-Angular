@@ -100,3 +100,59 @@ jobs:
 
       - name: Build
         run: npm run build
+
+  e2e:
+    name: End-to-end (Playwright, full stack)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: goal
+          POSTGRES_PASSWORD: goal
+          POSTGRES_DB: goal_planner_e2e
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      E2E_DATABASE_URL: postgres://goal:goal@localhost:5432/goal_planner_e2e
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            server/package-lock.json
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          cd server && npx -y npm@11.20.0 ci
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      # playwright.config.ts arranca el backend (contra PostgreSQL) y ng serve
+      - name: Run Playwright tests
+        run: npx playwright test
+
+      - name: Upload report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            playwright-report
+            test-results
+          retention-days: 7
