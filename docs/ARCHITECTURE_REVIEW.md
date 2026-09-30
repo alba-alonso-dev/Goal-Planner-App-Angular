@@ -3,7 +3,7 @@
 > Revisión realizada con perspectiva de Senior/Staff Software Architect sobre el estado del repositorio en la rama `claude/dreamy-euler-8c4f1x` (commit `bf91e80`, septiembre 2026).
 > Todas las afirmaciones marcadas como **[verificado]** se han comprobado ejecutando `npm ci`, `ng build` y `ng test` sobre el código actual.
 >
-> **Estado actual:** las secciones 1–3 describen el punto de partida. Las cuatro fases de la [hoja de ruta](#4-hoja-de-ruta-propuesta) están completadas (Angular 22, backend propio, e2e, accesibilidad, i18n); lo que queda pendiente está al final de la Fase 3.
+> **Estado actual:** las secciones 1–3 describen el punto de partida. Las cinco fases de la [hoja de ruta](#4-hoja-de-ruta-propuesta) están completadas (Angular 22, backend propio, e2e, accesibilidad, i18n, recuperación de contraseña, Web Push y despliegue con Docker); lo que queda pendiente está al final de la Fase 4.
 
 ---
 
@@ -300,6 +300,49 @@ features/
 - Los mensajes de error de validación del backend llegan en inglés; la UI los muestra tal cual (`serverMessage`).
 - La i18n es en tiempo de build: cambiar de idioma recarga la aplicación en otro subdirectorio. El servidor web debe servir `/en/` y `/es/` y redirigir `/` según `Accept-Language`.
 - Posibles siguientes pasos: despliegue (contenedor del backend + estáticos), recuperación de contraseña, borrar/archivar goals (el backend ya lo permite, falta la UI) y más tests de componentes.
+
+### Fase 4 — Cuenta, notificaciones y despliegue ✅ completada en la rama `fase4`
+
+- [x] **Borrar goals** desde el diálogo de detalle (con confirmación y borrado optimista).
+- [x] **Contraseñas**:
+  - Cambio desde _Mi cuenta_: pide la actual y cierra las demás sesiones.
+  - Recuperación por email: enlace de un solo uso que caduca en 1 hora, con token guardado como SHA-256, en el idioma de quien lo pide.
+  - Sesiones revocables mediante `session_version` en el JWT.
+  - Correo por SMTP (nodemailer), obligatorio en producción; Mailpit en `docker compose` para desarrollo.
+- [x] **Web Push**:
+  - Service Worker mínimo, sin caché.
+  - Suscripciones por navegador (la última persona que se suscribe se queda con ellas) y baja al cerrar sesión.
+  - Planificador que reclama cada recordatorio vencido con un `UPDATE` condicional (una sola notificación aunque haya varias instancias).
+  - Allowlist de servicios de push: evita que el servidor haga peticiones a URLs arbitrarias.
+  - El e2e entrega un push al Service Worker real a través de Chromium DevTools.
+- [x] **Despliegue con Docker**:
+  - Imagen de la API sin privilegios y con healthcheck.
+  - Imagen web con nginx: redirección por idioma, SPA por locale, caché según el tipo de fichero, CSP y cabeceras de seguridad.
+  - `compose.prod.yaml` y job de CI que construye la pila y la prueba.
+  - `TRUST_PROXY` para el rate limit detrás del proxy.
+- [x] **Tests de componentes** con comportamiento real: se escribe en los campos y se pulsan botones sobre el DOM, con los stores reales y un `HttpClient` de test.
+  - Frontend: 139 → 200 tests.
+  - Backend: 8 → 15 unitarios y 19 → 33 e2e.
+  - Playwright: 14 → 22.
+
+**Hallazgos durante la Fase 4**
+
+| Hallazgo                                                                                         | Corrección                                                                   |
+| ------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------- |
+| Los botones principales de la home enlazaban a `/auth/login` y `/auth/register`, que no existían | `LoginPromptService` abre el modal de acceso desde cualquier parte           |
+| El diálogo de detalle de goal: título blanco sobre gris claro y botón de cerrar invisible        | Cabecera igual que el resto de diálogos; axe revisa ahora todos los diálogos |
+| Campos de edición del goal sin etiqueta asociada                                                 | `label for` / `aria-label`                                                   |
+| Al pasar a modo edición, el foco se perdía y Escape dejaba de cerrar el diálogo                  | `appDialog` atiende el teclado aunque el foco haya salido del diálogo        |
+| El CSS crítico en línea añadía un `<script>` inline incompatible con una CSP estricta            | `inlineCritical: false` en producción                                        |
+| Toasts con texto blanco sobre `bg-info` y títulos sin traducir                                   | `text-bg-*` y títulos con `$localize`                                        |
+| Detrás de un proxy, todas las peticiones compartirían IP y el rate limit sería global            | `TRUST_PROXY`                                                                |
+
+**Decisiones y pendientes**
+
+- El Service Worker solo gestiona notificaciones (no cachea): la app no funciona sin conexión ni se puede instalar. Añadir un manifest (PWA) permitiría además Web Push en iOS.
+- Los recordatorios que vencieron hace más de una hora (p. ej. con el servidor parado) no se notifican: avisar tarde sería más confuso que útil.
+- El email no se verifica al registrarse y no se puede editar el perfil ni borrar la cuenta.
+- Siguientes pasos propuestos: verificación del email y gestión de la cuenta, PWA, copias de seguridad de PostgreSQL y observabilidad (logs estructurados, métricas, alertas).
 
 ---
 

@@ -11,24 +11,28 @@ test('the service worker shows the pushed reminder as a notification', async ({ 
 
   const cdp = await context.newCDPSession(page);
   await cdp.send('ServiceWorker.enable');
-  const registrationId = new Promise<string>(resolve =>
-    cdp.on('ServiceWorker.workerRegistrationUpdated', ({ registrations }) => {
-      const registration = registrations.find(r => r.scopeURL.startsWith('http://localhost:4300/') && !r.isDeleted);
-      if (registration) resolve(registration.registrationId);
-    })
-  );
+  // CDP también informa de registros de otros contextos del mismo navegador (tests anteriores):
+  // se entrega el push a todos los del origen y se comprueba la notificación en esta página
+  const registrations = new Set<string>();
+  cdp.on('ServiceWorker.workerRegistrationUpdated', ({ registrations: updated }) => {
+    for (const r of updated) {
+      if (r.scopeURL.startsWith('http://localhost:4300/') && !r.isDeleted) registrations.add(r.registrationId);
+    }
+  });
 
   await page.goto('/home');
   await page.evaluate(async () => {
     await navigator.serviceWorker.register('push-sw.js');
     await navigator.serviceWorker.ready;
   });
+  await expect.poll(() => registrations.size).toBeGreaterThan(0);
 
-  await cdp.send('ServiceWorker.deliverPushMessage', {
-    origin: 'http://localhost:4300',
-    registrationId: await registrationId,
-    data: JSON.stringify({ title: '⏰ Stand-up', body: 'Daily sync', tag: 'reminder-7', url: 'reminders' })
-  });
+  const data = JSON.stringify({ title: '⏰ Stand-up', body: 'Daily sync', tag: 'reminder-7', url: 'reminders' });
+  for (const registrationId of registrations) {
+    await cdp
+      .send('ServiceWorker.deliverPushMessage', { origin: 'http://localhost:4300', registrationId, data })
+      .catch(() => undefined); // un registro de un contexto ya cerrado
+  }
 
   await expect
     .poll(() =>
