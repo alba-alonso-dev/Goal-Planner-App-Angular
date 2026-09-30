@@ -88,18 +88,18 @@ export class ReminderListComponent implements OnInit {
       next: () => {
         this.creating.set(false);
         this.closeNewReminderModal();
-        this.notificationService.success('Reminder created successfully', 'Success');
+        this.notificationService.success($localize`Reminder created successfully`, $localize`Success`);
       },
       error: (error: ApiError) => {
         // El modal sigue abierto para poder reintentar sin perder los datos
         this.creating.set(false);
-        this.notificationService.error(error.message, 'Error creating reminder');
+        this.notificationService.error(error.message, $localize`Error creating reminder`);
       }
     });
   }
 
   onReminderUpdated() {
-    this.notificationService.success('Reminder updated successfully', 'Success');
+    this.notificationService.success($localize`Reminder updated successfully`, $localize`Success`);
   }
 
   viewReminderDetails(reminder: ReminderView) {
@@ -112,14 +112,14 @@ export class ReminderListComponent implements OnInit {
 
   toggleReminderAcknowledgement(reminder: ReminderView) {
     this.store.toggleAcknowledgement(reminder.reminderId).subscribe({
-      error: (error: ApiError) => this.notificationService.error(error.message, 'Error updating reminder')
+      error: (error: ApiError) => this.notificationService.error(error.message, $localize`Error updating reminder`)
     });
   }
 
   deleteReminder(reminderId: number) {
     this.store.delete(reminderId).subscribe({
-      next: () => this.notificationService.success('Reminder deleted successfully', 'Success'),
-      error: (error: ApiError) => this.notificationService.error(error.message, 'Error deleting reminder')
+      next: () => this.notificationService.success($localize`Reminder deleted successfully`, $localize`Success`),
+      error: (error: ApiError) => this.notificationService.error(error.message, $localize`Error deleting reminder`)
     });
   }
 
@@ -145,10 +145,10 @@ export class ReminderListComponent implements OnInit {
   }
 
   getListBadgeText(reminder: ReminderView): string {
-    if (reminder.isAcknowledged) return 'Done';
-    if (reminder.isOverdue) return 'Overdue';
-    if (reminder.isToday) return 'Today';
-    if (reminder.isTomorrow) return 'Tomorrow';
-    return 'Upcoming';
+    if (reminder.isAcknowledged) return $localize`Done`;
+    if (reminder.isOverdue) return $localize`Overdue`;
+    if (reminder.isToday) return $localize`Today`;
+    if (reminder.isTomorrow) return $localize`Tomorrow`;
+    return $localize`Upcoming`;
   }
 }

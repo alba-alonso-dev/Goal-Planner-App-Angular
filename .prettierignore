@@ -4,3 +4,6 @@ coverage
 node_modules
 package-lock.json
 src/styles/icons.generated.css
+
+# Generado por `npm run i18n:extract` (CI comprueba que está al día)
+src/locale/messages.json

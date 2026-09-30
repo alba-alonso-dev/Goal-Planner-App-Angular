@@ -23,7 +23,6 @@ export interface ReminderView extends ReminderResponse {
   isOverdue: boolean;
   isToday: boolean;
   isTomorrow: boolean;
-  formattedDateTime: string;
 }
 
 export interface ReminderStats {

@@ -9,6 +9,18 @@
       "root": "",
       "sourceRoot": "src",
       "prefix": "app",
+      "i18n": {
+        "sourceLocale": {
+          "code": "en-US",
+          "subPath": "en"
+        },
+        "locales": {
+          "es": {
+            "translation": "src/locale/messages.es.json",
+            "subPath": "es"
+          }
+        }
+      },
       "architect": {
         "build": {
           "builder": "@angular/build:application",
@@ -29,14 +41,16 @@
               "sass": {
                 "silenceDeprecations": ["import", "global-builtin", "color-functions"]
               }
-            }
+            },
+            "polyfills": ["@angular/localize/init"],
+            "i18nMissingTranslation": "error"
           },
           "configurations": {
             "production": {
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "500kB",
+                  "maximumWarning": "550kB",
                   "maximumError": "1MB"
                 },
                 {
@@ -45,7 +59,8 @@
                   "maximumError": "8kB"
                 }
               ],
-              "outputHashing": "all"
+              "outputHashing": "all",
+              "localize": true
             },
             "development": {
               "fileReplacements": [
@@ -62,6 +77,9 @@
               "aot": false,
               "optimization": false,
               "extractLicenses": false
+            },
+            "es": {
+              "localize": ["es"]
             }
           },
           "defaultConfiguration": "production"
@@ -74,6 +92,9 @@
             },
             "development": {
               "buildTarget": "goal-planer:build:development"
+            },
+            "es": {
+              "buildTarget": "goal-planer:build:development,es"
             }
           },
           "defaultConfiguration": "development",
@@ -82,7 +103,11 @@
           }
         },
         "extract-i18n": {
-          "builder": "@angular/build:extract-i18n"
+          "builder": "@angular/build:extract-i18n",
+          "options": {
+            "format": "json",
+            "outputPath": "src/locale"
+          }
         },
         "test": {
           "builder": "@angular/build:unit-test",

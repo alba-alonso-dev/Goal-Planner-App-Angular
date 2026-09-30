@@ -16,7 +16,7 @@ test.describe('tasks', () => {
     await expect(dialog).toBeHidden();
 
     const item = page.locator('app-task-item', { hasText: 'Preparar la demo' });
-    await expect(item).toContainText('01/06/2026 - 10/06/2026');
+    await expect(item).toContainText('Jun 1, 2026 - Jun 10, 2026');
 
     await item.getByRole('checkbox').check();
     await page.reload();

@@ -44,6 +44,11 @@ jobs:
         env:
           TZ: America/Los_Angeles
 
+      # El catálogo de textos versionado debe coincidir con las plantillas
+      - name: Check i18n catalogue is up to date
+        run: npm run i18n:extract && git diff --exit-code src/locale/messages.json
+
+      # Compila en/es; falla si falta alguna traducción (i18nMissingTranslation: error)
       - name: Production build
         run: npm run build
 

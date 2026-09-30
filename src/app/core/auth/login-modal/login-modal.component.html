@@ -11,9 +11,14 @@
         <div class="modal-body p-4">
           <div class="text-center mb-4">
             <h4 class="modal-title fw-bold" id="authModalTitle">
-              {{ showLogin() ? 'Welcome Back!' : 'Create your account' }}
+              @if (showLogin()) {
+                <ng-container i18n>Welcome Back!</ng-container>
+              } @else {
+                <ng-container i18n>Create your account</ng-container>
+              }
             </h4>
             <button
+              i18n-aria-label
               aria-label="Close"
               type="button"
               class="btn-close position-absolute top-0 end-0 m-3"
@@ -36,6 +41,7 @@
                   name="emailId"
                   [(ngModel)]="loginObj.emailId"
                   class="form-control"
+                  i18n-placeholder
                   placeholder="Email"
                   required
                 />
@@ -46,6 +52,7 @@
                   class="form-control"
                   name="password"
                   [(ngModel)]="loginObj.password"
+                  i18n-placeholder
                   placeholder="Password"
                   required
                 />
@@ -54,15 +61,16 @@
                 @if (isLoading()) {
                   <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
                 }
-                Login
+                <ng-container i18n>Login</ng-container>
               </button>
               <p class="text-center">
-                Don't have an account?
+                <ng-container i18n>Don't have an account?</ng-container>
                 <button
                   type="button"
                   id="showSignup"
                   class="btn btn-link p-0 align-baseline text-decoration-none"
                   (click)="toggleForm()"
+                  i18n
                 >
                   Sign Up
                 </button>
@@ -76,6 +84,7 @@
                   name="fullName"
                   [(ngModel)]="registerObj.fullName"
                   class="form-control"
+                  i18n-placeholder
                   placeholder="Full Name"
                   required
                 />
@@ -86,6 +95,7 @@
                   name="emailId"
                   [(ngModel)]="registerObj.emailId"
                   class="form-control"
+                  i18n-placeholder
                   placeholder="Email"
                   required
                 />
@@ -96,6 +106,7 @@
                   name="password"
                   [(ngModel)]="registerObj.password"
                   class="form-control"
+                  i18n-placeholder
                   placeholder="Password"
                   required
                 />
@@ -106,6 +117,7 @@
                   name="mobileNo"
                   [(ngModel)]="registerObj.mobileNo"
                   class="form-control"
+                  i18n-placeholder
                   placeholder="Mobile number"
                   required
                 />
@@ -114,15 +126,16 @@
                 @if (isLoading()) {
                   <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
                 }
-                Sign Up
+                <ng-container i18n>Sign Up</ng-container>
               </button>
               <p class="text-center">
-                Already have an account?
+                <ng-container i18n>Already have an account?</ng-container>
                 <button
                   type="button"
                   id="showLogin"
                   class="btn btn-link p-0 align-baseline text-decoration-none"
                   (click)="toggleForm()"
+                  i18n
                 >
                   Login
                 </button>

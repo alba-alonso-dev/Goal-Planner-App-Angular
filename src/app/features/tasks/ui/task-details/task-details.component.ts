@@ -91,7 +91,7 @@ export class TaskDetailsComponent {
     this.error.set(null);
     this.store.toggleCompletion(this.task().taskId).subscribe({
       next: () => this.taskUpdated.emit(),
-      error: (error: ApiError) => this.error.set(error.message || 'Error updating task')
+      error: (error: ApiError) => this.error.set(error.message || $localize`Error updating task`)
     });
   }
 
@@ -112,14 +112,14 @@ export class TaskDetailsComponent {
         this.taskUpdated.emit();
       },
       error: (error: ApiError) => {
-        this.error.set(error.message || 'Error updating task');
+        this.error.set(error.message || $localize`Error updating task`);
         this.submitting.set(false);
       }
     });
   }
 
   deleteTask() {
-    if (confirm(`Are you sure you want to delete "${this.task().taskName}"?`)) {
+    if (confirm($localize`Are you sure you want to delete "${this.task().taskName}:TASK_NAME:"?`)) {
       this.delete.emit(this.task().taskId);
       this.closeModal();
     }
@@ -151,22 +151,23 @@ export class TaskDetailsComponent {
 
   getStatusText(): string {
     const task = this.task();
-    if (task.isCompleted) return 'Completed';
-    if (task.isOverdue) return 'Overdue';
-    return 'Pending';
+    if (task.isCompleted) return $localize`Completed`;
+    if (task.isOverdue) return $localize`Overdue`;
+    return $localize`Pending`;
   }
 
   getDaysRemainingText(): string {
     const { isCompleted, daysRemaining } = this.task();
-    if (isCompleted) return 'Completed';
-    if (daysRemaining === undefined || daysRemaining === null) return 'No due date';
+    if (isCompleted) return $localize`Completed`;
+    if (daysRemaining === undefined || daysRemaining === null) return $localize`No due date`;
 
     if (daysRemaining > 0) {
-      return `${daysRemaining} day${daysRemaining !== 1 ? 's' : ''} remaining`;
+      return daysRemaining === 1 ? $localize`1 day remaining` : $localize`${daysRemaining}:COUNT: days remaining`;
     } else if (daysRemaining === 0) {
-      return 'Due today';
+      return $localize`Due today`;
     } else {
-      return `Overdue by ${Math.abs(daysRemaining)} day${Math.abs(daysRemaining) !== 1 ? 's' : ''}`;
+      const overdue = Math.abs(daysRemaining);
+      return overdue === 1 ? $localize`Overdue by 1 day` : $localize`Overdue by ${overdue}:COUNT: days`;
     }
   }
 }

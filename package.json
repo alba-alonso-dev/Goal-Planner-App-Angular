@@ -4,7 +4,9 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
+    "start:es": "ng serve --configuration es",
     "build": "ng build",
+    "i18n:extract": "ng extract-i18n",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "test:ci": "ng test --watch=false",
@@ -35,6 +37,7 @@
     "@angular/build": "^22.2.0",
     "@angular/cli": "^22.2.0",
     "@angular/compiler-cli": "^22.2.0",
+    "@angular/localize": "^22.2.0",
     "@axe-core/playwright": "^4.13.0",
     "@playwright/test": "1.56",
     "@types/node": "^22.20.4",

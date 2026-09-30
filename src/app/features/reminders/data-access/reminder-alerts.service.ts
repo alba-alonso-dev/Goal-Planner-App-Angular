@@ -64,7 +64,11 @@ export class ReminderAlertsService {
 
     for (const reminder of due) {
       this.notified.add(reminder.reminderId);
-      this.toasts.warning(reminder.description || 'It is time for this reminder.', `⏰ ${reminder.title}`, 10_000);
+      this.toasts.warning(
+        reminder.description || $localize`It is time for this reminder.`,
+        `⏰ ${reminder.title}`,
+        10_000
+      );
       this.showSystemNotification(reminder);
     }
   }

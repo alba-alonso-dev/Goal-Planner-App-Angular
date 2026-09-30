@@ -72,7 +72,7 @@ export class LoginModalComponent {
       },
       error: (err: ApiError) => {
         this.isLoading.set(false);
-        this.errorMessage.set(err.serverMessage || 'Error al iniciar sesión. Inténtalo de nuevo.');
+        this.errorMessage.set(err.serverMessage || $localize`Could not log in. Please try again.`);
         console.error('Login error', err);
       }
     });
@@ -93,7 +93,7 @@ export class LoginModalComponent {
       },
       error: (err: ApiError) => {
         this.isLoading.set(false);
-        this.errorMessage.set(err.serverMessage || 'Error al registrarse. Inténtalo de nuevo.');
+        this.errorMessage.set(err.serverMessage || $localize`Could not sign up. Please try again.`);
         console.error('Register error', err);
       }
     });

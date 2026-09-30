@@ -14,43 +14,43 @@ export class HomeComponent {
   features = [
     {
       icon: 'bi bi-bullseye',
-      title: 'Goal Tracking',
-      description: 'Define and track your personal and professional goals with milestones and progress tracking.',
+      title: $localize`Goal Tracking`,
+      description: $localize`Define and track your personal and professional goals with milestones and progress tracking.`,
       color: 'primary',
       link: '/goals'
     },
     {
       icon: 'bi bi-list-task',
-      title: 'Task Management',
-      description: 'Organize your daily, weekly, and monthly tasks with priority levels and due dates.',
+      title: $localize`Task Management`,
+      description: $localize`Organize your daily, weekly, and monthly tasks with priority levels and due dates.`,
       color: 'success',
       link: '/tasks'
     },
     {
       icon: 'bi bi-bell',
-      title: 'Smart Reminders',
-      description: 'Never miss important dates with intelligent reminders and notifications.',
+      title: $localize`Smart Reminders`,
+      description: $localize`Never miss important dates with intelligent reminders and notifications.`,
       color: 'warning',
       link: '/reminders'
     },
     {
       icon: 'bi bi-graph-up',
-      title: 'Analytics Dashboard',
-      description: 'Visualize your progress with beautiful charts and detailed statistics.',
+      title: $localize`Analytics Dashboard`,
+      description: $localize`Visualize your progress with beautiful charts and detailed statistics.`,
       color: 'info',
       link: '/dashboard'
     },
     {
       icon: 'bi bi-calendar-check',
-      title: 'Milestone Tracking',
-      description: 'Break down your goals into manageable milestones and track completion.',
+      title: $localize`Milestone Tracking`,
+      description: $localize`Break down your goals into manageable milestones and track completion.`,
       color: 'danger',
       link: '/goals'
     },
     {
       icon: 'bi bi-arrow-repeat',
-      title: 'Habit Building',
-      description: 'Build lasting habits with recurring tasks and consistency tracking.',
+      title: $localize`Habit Building`,
+      description: $localize`Build lasting habits with recurring tasks and consistency tracking.`,
       color: 'secondary',
       link: '/tasks'
     }
@@ -58,10 +58,10 @@ export class HomeComponent {
 
   // Estadísticas
   stats = [
-    { value: '10K+', label: 'Active Users', icon: 'bi bi-people-fill' },
-    { value: '50K+', label: 'Goals Achieved', icon: 'bi bi-trophy-fill' },
-    { value: '100K+', label: 'Tasks Completed', icon: 'bi bi-check-circle-fill' },
-    { value: '4.9', label: 'User Rating', icon: 'bi bi-star-fill' }
+    { value: '10K+', label: $localize`Active Users`, icon: 'bi bi-people-fill' },
+    { value: '50K+', label: $localize`Goals Achieved`, icon: 'bi bi-trophy-fill' },
+    { value: '100K+', label: $localize`Tasks Completed`, icon: 'bi bi-check-circle-fill' },
+    { value: '4.9', label: $localize`User Rating`, icon: 'bi bi-star-fill' }
   ];
 
   // Testimonios
@@ -69,27 +69,25 @@ export class HomeComponent {
     {
       id: 1,
       name: 'Ana García',
-      role: 'Product Manager',
+      role: $localize`Product Manager`,
       avatar: 'AG',
-      content:
-        '"Esta aplicación ha transformado completamente mi productividad. Puedo seguir todos mis objetivos y tareas diarias en un solo lugar."',
+      content: $localize`"This app has completely transformed my productivity. I can follow all my goals and daily tasks in one place."`,
       rating: 5
     },
     {
       id: 2,
       name: 'Carlos Rodríguez',
-      role: 'Freelancer',
+      role: $localize`Freelancer`,
       avatar: 'CR',
-      content:
-        '"Los recordatorios inteligentes me ayudan a nunca perder fechas límite. La interfaz es intuitiva y los gráficos son muy útiles."',
+      content: $localize`"The smart reminders help me never miss a deadline. The interface is intuitive and the charts are really useful."`,
       rating: 5
     },
     {
       id: 3,
       name: 'María López',
-      role: 'Estudiante',
+      role: $localize`Student`,
       avatar: 'ML',
-      content: '"Perfecta para organizar mis estudios. Puedo dividir mis metas en hitos y ver mi progreso fácilmente."',
+      content: $localize`"Perfect for organising my studies. I can split my goals into milestones and see my progress easily."`,
       rating: 5
     }
   ];
@@ -98,26 +96,26 @@ export class HomeComponent {
   steps = [
     {
       number: '01',
-      title: 'Create Account',
-      description: 'Sign up for free in less than 2 minutes.',
+      title: $localize`Create Account`,
+      description: $localize`Sign up for free in less than 2 minutes.`,
       icon: 'bi bi-person-plus-fill'
     },
     {
       number: '02',
-      title: 'Set Your Goals',
-      description: 'Define your objectives and break them into milestones.',
+      title: $localize`Set Your Goals`,
+      description: $localize`Define your objectives and break them into milestones.`,
       icon: 'bi bi-bullseye'
     },
     {
       number: '03',
-      title: 'Add Tasks',
-      description: 'Create daily, weekly, or monthly tasks.',
+      title: $localize`Add Tasks`,
+      description: $localize`Create daily, weekly, or monthly tasks.`,
       icon: 'bi bi-list-check'
     },
     {
       number: '04',
-      title: 'Track Progress',
-      description: 'Monitor your achievements and stay motivated.',
+      title: $localize`Track Progress`,
+      description: $localize`Monitor your achievements and stay motivated.`,
       icon: 'bi bi-graph-up-arrow'
     }
   ];
@@ -125,24 +123,23 @@ export class HomeComponent {
   // FAQ
   faqs = [
     {
-      question: 'Is the app really free?',
-      answer:
-        'Yes! Our basic features are completely free. We offer premium plans with advanced features for power users.',
+      question: $localize`Is the app really free?`,
+      answer: $localize`Yes! Our basic features are completely free. We offer premium plans with advanced features for power users.`,
       open: false
     },
     {
-      question: 'Can I sync across devices?',
-      answer: 'Absolutely! Your data syncs automatically across all your devices when you sign in.',
+      question: $localize`Can I sync across devices?`,
+      answer: $localize`Absolutely! Your data syncs automatically across all your devices when you sign in.`,
       open: false
     },
     {
-      question: 'How are my reminders handled?',
-      answer: 'Reminders are processed in real-time and can be sent via email, push notifications, or both.',
+      question: $localize`How are my reminders handled?`,
+      answer: $localize`You get an alert in the app, and a desktop notification if you allow it, as soon as a reminder is due.`,
       open: false
     },
     {
-      question: 'Can I share goals with others?',
-      answer: 'Yes! Premium users can share goals and collaborate with team members or family.',
+      question: $localize`Can I share goals with others?`,
+      answer: $localize`Yes! Premium users can share goals and collaborate with team members or family.`,
       open: false
     }
   ];

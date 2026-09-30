@@ -38,7 +38,7 @@ describe('errorInterceptor', () => {
     const error = captured as ApiError;
     expect(error instanceof ApiError).toBe(true);
     expect(error.status).toBe(400);
-    expect(error.message).toContain('Error de validación');
+    expect(error.message).toContain('Validation error');
     expect(error.serverMessage).toBe('Email already registered');
   });
 

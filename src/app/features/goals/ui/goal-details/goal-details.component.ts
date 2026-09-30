@@ -149,7 +149,7 @@ export class GoalDetailsComponent {
     this.error.set(null);
     this.store.toggleMilestone(this.goal().goalId, milestone.milestoneId).subscribe({
       next: () => this.goalUpdated.emit(),
-      error: (error: ApiError) => this.error.set(error.message || 'Error al actualizar el milestone')
+      error: (error: ApiError) => this.error.set(error.message || $localize`Error updating the milestone`)
     });
   }
 
@@ -185,7 +185,7 @@ export class GoalDetailsComponent {
           this.goalUpdated.emit();
         },
         error: (error: ApiError) => {
-          this.error.set(error.message || 'Error al actualizar el goal');
+          this.error.set(error.message || $localize`Error updating the goal`);
           this.submitting.set(false);
           console.error('Error updating goal:', error);
         }

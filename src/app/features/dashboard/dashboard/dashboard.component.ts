@@ -3,6 +3,7 @@ import {
   Component,
   DestroyRef,
   ElementRef,
+  LOCALE_ID,
   OnInit,
   Signal,
   computed,
@@ -73,6 +74,7 @@ export class DashboardComponent implements OnInit {
   private goalStore = inject(GoalStore);
   private reminderStore = inject(ReminderStore);
   private clock = inject(ClockService);
+  private readonly locale = inject(LOCALE_ID);
 
   // Los canvas solo existen cuando no se está cargando ni hay error
   private taskChartCanvas = viewChild<ElementRef<HTMLCanvasElement>>('taskChart');
@@ -263,7 +265,7 @@ export class DashboardComponent implements OnInit {
         labels: data.labels,
         datasets: [
           {
-            label: 'Upcoming Reminders',
+            label: $localize`Upcoming Reminders`,
             data: data.datasets[0].data,
             backgroundColor: ['#ffc107', '#17a2b8', '#007bff', '#6c757d'],
             borderRadius: 5,
@@ -297,7 +299,7 @@ export class DashboardComponent implements OnInit {
             },
             title: {
               display: true,
-              text: 'Number of Reminders'
+              text: $localize`Number of Reminders`
             }
           },
           x: {
@@ -313,11 +315,11 @@ export class DashboardComponent implements OnInit {
   getActivityText(activity: RecentActivity): string {
     switch (activity.type) {
       case 'task':
-        return 'Overdue task';
+        return $localize`Overdue task`;
       case 'goal':
-        return 'Overdue goal';
+        return $localize`Overdue goal`;
       case 'reminder':
-        return 'Missed reminder';
+        return $localize`Missed reminder`;
     }
   }
 
@@ -328,13 +330,14 @@ export class DashboardComponent implements OnInit {
     const diffHours = Math.floor(diffMins / 60);
     const diffDays = Math.floor(diffHours / 24);
 
-    if (diffMins < 1) return 'Just now';
-    if (diffMins < 60) return `${diffMins} minute${diffMins !== 1 ? 's' : ''} ago`;
-    if (diffHours < 24) return `${diffHours} hour${diffHours !== 1 ? 's' : ''} ago`;
-    if (diffDays === 1) return 'Yesterday';
-    if (diffDays < 7) return `${diffDays} days ago`;
+    if (diffMins < 1) return $localize`Just now`;
+    // Intl resuelve los plurales y el orden de cada idioma ("5 minutes ago" / "hace 5 minutos")
+    const relative = new Intl.RelativeTimeFormat(this.locale, { numeric: 'auto' });
+    if (diffMins < 60) return relative.format(-diffMins, 'minute');
+    if (diffHours < 24) return relative.format(-diffHours, 'hour');
+    if (diffDays < 7) return relative.format(-diffDays, 'day');
 
-    return new Date(date).toLocaleDateString('es-ES', {
+    return new Date(date).toLocaleDateString(this.locale, {
       year: 'numeric',
       month: 'short',
       day: 'numeric'

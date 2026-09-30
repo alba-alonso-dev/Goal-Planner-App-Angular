@@ -79,7 +79,7 @@ export class ReminderDetailsComponent {
     this.error.set(null);
     this.store.toggleAcknowledgement(this.reminder().reminderId).subscribe({
       next: () => this.reminderUpdated.emit(),
-      error: (error: ApiError) => this.error.set(error.message || 'Error updating reminder')
+      error: (error: ApiError) => this.error.set(error.message || $localize`Error updating reminder`)
     });
   }
 
@@ -99,14 +99,14 @@ export class ReminderDetailsComponent {
         this.reminderUpdated.emit();
       },
       error: (error: ApiError) => {
-        this.error.set(error.message || 'Error updating reminder');
+        this.error.set(error.message || $localize`Error updating reminder`);
         this.submitting.set(false);
       }
     });
   }
 
   deleteReminder() {
-    if (confirm(`Are you sure you want to delete "${this.reminder().title}"?`)) {
+    if (confirm($localize`Are you sure you want to delete "${this.reminder().title}:TITLE:"?`)) {
       this.delete.emit(this.reminder().reminderId);
       this.closeModal();
     }
@@ -127,11 +127,11 @@ export class ReminderDetailsComponent {
 
   getStatusText(): string {
     const reminder = this.reminder();
-    if (reminder.isAcknowledged) return 'Acknowledged';
-    if (reminder.isOverdue) return 'Overdue';
-    if (reminder.isToday) return 'Today';
-    if (reminder.isTomorrow) return 'Tomorrow';
-    return 'Upcoming';
+    if (reminder.isAcknowledged) return $localize`Acknowledged`;
+    if (reminder.isOverdue) return $localize`Overdue`;
+    if (reminder.isToday) return $localize`Today`;
+    if (reminder.isTomorrow) return $localize`Tomorrow`;
+    return $localize`Upcoming`;
   }
 
   getStatusClass(): string {

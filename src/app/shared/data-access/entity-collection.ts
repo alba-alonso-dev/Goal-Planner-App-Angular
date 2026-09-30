@@ -56,7 +56,7 @@ export class EntityCollection<T, K extends keyof T> {
       },
       error: (error: Error) => {
         if (generation !== this.generation) return;
-        this._error.set(error.message || 'Error loading data');
+        this._error.set(error.message || $localize`Error loading data`);
         this._status.set('error');
       }
     });

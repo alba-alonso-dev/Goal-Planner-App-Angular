@@ -27,19 +27,25 @@
     <!-- Date & Time -->
     <div class="d-flex align-items-center mt-2 small text-muted">
       <i aria-hidden="true" class="bi bi-calendar3 me-1"></i>
-      {{ reminder.reminderDateTime | date: 'dd/MM/yyyy HH:mm' }}
+      {{ reminder.reminderDateTime | date: 'mediumDate' }} {{ reminder.reminderDateTime | date: 'shortTime' }}
     </div>
   </div>
 
   <div class="card-footer bg-transparent border-top-0 p-2">
     <div class="btn-group w-100" role="group">
-      <button type="button" class="btn btn-sm btn-outline-primary" aria-label="View details" (click)="onViewDetails()">
+      <button
+        type="button"
+        class="btn btn-sm btn-outline-primary"
+        i18n-aria-label
+        aria-label="View details"
+        (click)="onViewDetails()"
+      >
         <i aria-hidden="true" class="bi bi-eye"></i>
       </button>
       <button
         type="button"
         class="btn btn-sm"
-        [attr.aria-label]="reminder.isAcknowledged ? 'Mark as pending' : 'Mark as acknowledged'"
+        [attr.aria-label]="reminder.isAcknowledged ? markPendingLabel : markAcknowledgedLabel"
         [class.btn-outline-success]="!reminder.isAcknowledged"
         [class.btn-outline-warning]="reminder.isAcknowledged"
         (click)="onToggleAcknowledge($event)"
@@ -54,6 +60,7 @@
       <button
         type="button"
         class="btn btn-sm btn-outline-danger"
+        i18n-aria-label
         aria-label="Delete reminder"
         (click)="onDelete($event)"
       >

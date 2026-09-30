@@ -10,7 +10,7 @@
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title fw-bold" id="reminder-details-dialog-title">
+        <h5 i18n class="modal-title fw-bold" id="reminder-details-dialog-title">
           @if (editMode()) {
             <i aria-hidden="true" class="bi bi-pencil-square me-2"></i>Edit Reminder
           } @else {
@@ -22,6 +22,7 @@
           class="btn-close"
           (click)="closeModal()"
           [disabled]="submitting()"
+          i18n-aria-label
           aria-label="Close"
         ></button>
       </div>
@@ -32,7 +33,13 @@
           <div class="alert alert-danger alert-dismissible fade show" role="alert">
             <i aria-hidden="true" class="bi bi-exclamation-triangle-fill me-2"></i>
             {{ error() }}
-            <button aria-label="Close" type="button" class="btn-close" (click)="error.set(null)"></button>
+            <button
+              i18n-aria-label
+              aria-label="Close"
+              type="button"
+              class="btn-close"
+              (click)="error.set(null)"
+            ></button>
           </div>
         }
 
@@ -41,7 +48,7 @@
           <form [formGroup]="editForm">
             <!-- Title -->
             <div class="mb-3">
-              <label class="form-label fw-semibold" for="reminder-details-title">
+              <label i18n class="form-label fw-semibold" for="reminder-details-title">
                 Title <span class="text-danger">*</span>
               </label>
               <input
@@ -52,13 +59,13 @@
                 [class.is-invalid]="editForm.get('title')?.invalid && editForm.get('title')?.touched"
               />
               @if (editForm.get('title')?.invalid && editForm.get('title')?.touched) {
-                <div class="invalid-feedback">Title is required (minimum 3 characters)</div>
+                <div i18n class="invalid-feedback">Title is required (minimum 3 characters)</div>
               }
             </div>
 
             <!-- Date & Time -->
             <div class="mb-3">
-              <label class="form-label fw-semibold" for="reminder-details-reminderDateTime">
+              <label i18n class="form-label fw-semibold" for="reminder-details-reminderDateTime">
                 Date & Time <span class="text-danger">*</span>
               </label>
               <input
@@ -73,16 +80,16 @@
               @if (
                 editForm.get('reminderDateTime')?.hasError('required') && editForm.get('reminderDateTime')?.touched
               ) {
-                <div class="invalid-feedback">Date and time are required</div>
+                <div i18n class="invalid-feedback">Date and time are required</div>
               }
               @if (editForm.get('reminderDateTime')?.hasError('pastDate')) {
-                <div class="invalid-feedback d-block">Reminder cannot be in the past</div>
+                <div i18n class="invalid-feedback d-block">Reminder cannot be in the past</div>
               }
             </div>
 
             <!-- Description -->
             <div class="mb-3">
-              <label class="form-label fw-semibold" for="reminder-details-description">Description</label>
+              <label i18n class="form-label fw-semibold" for="reminder-details-description">Description</label>
               <textarea
                 id="reminder-details-description"
                 class="form-control"
@@ -95,7 +102,7 @@
             <div class="mb-3">
               <div class="form-check">
                 <input type="checkbox" class="form-check-input" id="isAcknowledged" formControlName="isAcknowledged" />
-                <label class="form-check-label" for="isAcknowledged"> Reminder acknowledged </label>
+                <label i18n class="form-check-label" for="isAcknowledged"> Reminder acknowledged </label>
               </div>
             </div>
           </form>
@@ -120,9 +127,9 @@
                   <div class="d-flex align-items-center">
                     <i aria-hidden="true" class="bi bi-calendar3 icon-2x text-primary me-3"></i>
                     <div>
-                      <h6 class="text-muted mb-1">Date & Time</h6>
-                      <p class="h5 mb-0">
-                        {{ reminder.formattedDateTime || (reminder.reminderDateTime | date: 'fullDate') }} a las
+                      <h6 i18n class="text-muted mb-1">Date & Time</h6>
+                      <p i18n class="h5 mb-0">
+                        {{ reminder.reminderDateTime | date: 'fullDate' }} at
                         {{ reminder.reminderDateTime | date: 'shortTime' }}
                       </p>
                     </div>
@@ -138,7 +145,7 @@
                     <div class="d-flex align-items-center">
                       <i aria-hidden="true" class="bi bi-hourglass-split icon-2x text-primary me-3"></i>
                       <div>
-                        <h6 class="text-muted mb-1">Time Remaining</h6>
+                        <h6 i18n class="text-muted mb-1">Time Remaining</h6>
                         <p class="h5 mb-0" [class.text-danger]="reminder.isOverdue">
                           {{ reminder.timeRemaining }}
                         </p>
@@ -153,7 +160,7 @@
           <!-- Description -->
           @if (reminder.description) {
             <div class="mb-4">
-              <h6 class="fw-semibold mb-2">Description</h6>
+              <h6 i18n class="fw-semibold mb-2">Description</h6>
               <p class="text-muted">{{ reminder.description }}</p>
             </div>
           }
@@ -162,10 +169,17 @@
 
       <div class="modal-footer">
         @if (editMode()) {
-          <button type="button" class="btn btn-outline-secondary" (click)="toggleEditMode()" [disabled]="submitting()">
+          <button
+            i18n
+            type="button"
+            class="btn btn-outline-secondary"
+            (click)="toggleEditMode()"
+            [disabled]="submitting()"
+          >
             Cancel
           </button>
           <button
+            i18n
             type="button"
             class="btn btn-primary"
             (click)="saveChanges()"
@@ -180,6 +194,7 @@
           </button>
         } @else {
           <button
+            i18n
             type="button"
             class="btn btn-outline-success"
             (click)="toggleAcknowledgement()"
@@ -191,13 +206,13 @@
               <i aria-hidden="true" class="bi bi-check-lg me-2"></i>Mark Acknowledged
             }
           </button>
-          <button type="button" class="btn btn-outline-primary" (click)="toggleEditMode()">
+          <button i18n type="button" class="btn btn-outline-primary" (click)="toggleEditMode()">
             <i aria-hidden="true" class="bi bi-pencil-square me-2"></i>Edit
           </button>
-          <button type="button" class="btn btn-outline-danger" (click)="deleteReminder()">
+          <button i18n type="button" class="btn btn-outline-danger" (click)="deleteReminder()">
             <i aria-hidden="true" class="bi bi-trash me-2"></i>Delete
           </button>
-          <button type="button" class="btn btn-primary" (click)="closeModal()">Close</button>
+          <button i18n type="button" class="btn btn-primary" (click)="closeModal()">Close</button>
         }
       </div>
     </div>

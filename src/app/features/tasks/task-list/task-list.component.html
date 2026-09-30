@@ -2,14 +2,14 @@
   <!-- Header -->
   <div class="row mb-4">
     <div class="col-md-8">
-      <h1 class="fw-bold">
+      <h1 i18n class="fw-bold">
         <i aria-hidden="true" class="bi bi-list-check me-2"></i>
         Tasks
       </h1>
-      <p class="text-muted">Manage and track your daily, weekly, and monthly tasks</p>
+      <p i18n class="text-muted">Manage and track your daily, weekly, and monthly tasks</p>
     </div>
     <div class="col-md-4 text-end">
-      <button class="btn btn-primary" (click)="openNewTaskModal()" [disabled]="loading()">
+      <button i18n class="btn btn-primary" (click)="openNewTaskModal()" [disabled]="loading()">
         <i aria-hidden="true" class="bi bi-plus-lg me-2"></i>
         New Task
       </button>
@@ -21,7 +21,7 @@
     <div class="col-md-3 col-6">
       <div class="card bg-primary text-white">
         <div class="card-body">
-          <h6 class="card-title">Total Tasks</h6>
+          <h6 i18n class="card-title">Total Tasks</h6>
           <h2 class="mb-0">{{ stats().total }}</h2>
         </div>
       </div>
@@ -29,7 +29,7 @@
     <div class="col-md-3 col-6">
       <div class="card bg-success text-white">
         <div class="card-body">
-          <h6 class="card-title">Completed</h6>
+          <h6 i18n="@@tasks.stats.completed" class="card-title">Completed</h6>
           <h2 class="mb-0">{{ stats().completed }}</h2>
         </div>
       </div>
@@ -37,7 +37,7 @@
     <div class="col-md-3 col-6">
       <div class="card text-bg-warning">
         <div class="card-body">
-          <h6 class="card-title">Pending</h6>
+          <h6 i18n="@@tasks.stats.pending" class="card-title">Pending</h6>
           <h2 class="mb-0">{{ stats().pending }}</h2>
         </div>
       </div>
@@ -45,7 +45,7 @@
     <div class="col-md-3 col-6">
       <div class="card bg-danger text-white">
         <div class="card-body">
-          <h6 class="card-title">Overdue</h6>
+          <h6 i18n="@@tasks.stats.overdue" class="card-title">Overdue</h6>
           <h2 class="mb-0">{{ stats().overdue }}</h2>
         </div>
       </div>
@@ -57,6 +57,7 @@
     <div class="col-md-6">
       <div class="btn-group" role="group">
         <button
+          i18n="@@tasks.filter.all"
           class="btn"
           [class.btn-primary]="filter() === 'all'"
           [class.btn-outline-secondary]="filter() !== 'all'"
@@ -65,6 +66,7 @@
           All <span class="badge bg-secondary ms-1">{{ stats().total }}</span>
         </button>
         <button
+          i18n="@@tasks.filter.pending"
           class="btn"
           [class.btn-warning]="filter() === 'pending'"
           [class.btn-outline-secondary]="filter() !== 'pending'"
@@ -73,6 +75,7 @@
           Pending <span class="badge bg-secondary ms-1">{{ stats().pending }}</span>
         </button>
         <button
+          i18n="@@tasks.filter.completed"
           class="btn"
           [class.btn-success]="filter() === 'completed'"
           [class.btn-outline-secondary]="filter() !== 'completed'"
@@ -81,6 +84,7 @@
           Completed <span class="badge bg-secondary ms-1">{{ stats().completed }}</span>
         </button>
         <button
+          i18n="@@tasks.filter.overdue"
           class="btn"
           [class.btn-danger]="filter() === 'overdue'"
           [class.btn-outline-secondary]="filter() !== 'overdue'"
@@ -98,6 +102,7 @@
         <input
           type="text"
           class="form-control border-start-0"
+          i18n-placeholder
           placeholder="Search tasks..."
           (input)="setSearchTerm($any($event.target).value)"
         />
@@ -112,9 +117,9 @@
   @if (loading()) {
     <div class="text-center py-5">
       <div class="spinner-border text-primary" role="status">
-        <span class="visually-hidden">Loading...</span>
+        <span i18n class="visually-hidden">Loading...</span>
       </div>
-      <p class="mt-2 text-muted">Loading tasks...</p>
+      <p i18n class="mt-2 text-muted">Loading tasks...</p>
     </div>
   }
 
@@ -124,10 +129,10 @@
       <div class="d-flex align-items-center">
         <i aria-hidden="true" class="bi bi-exclamation-triangle-fill icon-2x me-3"></i>
         <div class="flex-grow-1">
-          <h5 class="alert-heading">Error loading tasks</h5>
+          <h5 i18n class="alert-heading">Error loading tasks</h5>
           <p class="mb-0">{{ error() }}</p>
         </div>
-        <button class="btn btn-outline-danger ms-3" (click)="retry()">
+        <button i18n class="btn btn-outline-danger ms-3" (click)="retry()">
           <i aria-hidden="true" class="bi bi-arrow-repeat me-2"></i>Retry
         </button>
       </div>
@@ -139,8 +144,8 @@
     @if (!hasTasksInAnyCategory()) {
       <div class="text-center py-5">
         <i aria-hidden="true" class="bi bi-list-check icon-3x text-muted mb-3"></i>
-        <h4 class="text-muted">No tasks found</h4>
-        <p class="text-muted">
+        <h4 i18n class="text-muted">No tasks found</h4>
+        <p i18n class="text-muted">
           @if (filter() !== 'all') {
             Try changing the filter or
           }
@@ -156,7 +161,7 @@
             <div class="card-header bg-transparent border-0">
               <div class="d-flex align-items-center">
                 <i aria-hidden="true" class="bi bi-sun-fill text-warning icon-2x me-2"></i>
-                <h4 class="fw-bold mb-0">Daily</h4>
+                <h4 i18n class="fw-bold mb-0">Daily</h4>
                 <span class="badge bg-primary rounded-pill ms-2">{{ dailyTasks().length }}</span>
               </div>
             </div>
@@ -175,8 +180,8 @@
                 </div>
               } @else {
                 <div class="text-center py-4">
-                  <p class="text-muted mb-2">No daily tasks</p>
-                  <button class="btn btn-sm btn-outline-primary" (click)="openNewTaskModal()">
+                  <p i18n class="text-muted mb-2">No daily tasks</p>
+                  <button i18n class="btn btn-sm btn-outline-primary" (click)="openNewTaskModal()">
                     <i aria-hidden="true" class="bi bi-plus-lg me-1"></i>Add Daily Task
                   </button>
                 </div>
@@ -191,7 +196,7 @@
             <div class="card-header bg-transparent border-0">
               <div class="d-flex align-items-center">
                 <i aria-hidden="true" class="bi bi-calendar-week text-info icon-2x me-2"></i>
-                <h4 class="fw-bold mb-0">Weekly</h4>
+                <h4 i18n class="fw-bold mb-0">Weekly</h4>
                 <span class="badge bg-primary rounded-pill ms-2">{{ weeklyTasks().length }}</span>
               </div>
             </div>
@@ -210,8 +215,8 @@
                 </div>
               } @else {
                 <div class="text-center py-4">
-                  <p class="text-muted mb-2">No weekly tasks</p>
-                  <button class="btn btn-sm btn-outline-primary" (click)="openNewTaskModal()">
+                  <p i18n class="text-muted mb-2">No weekly tasks</p>
+                  <button i18n class="btn btn-sm btn-outline-primary" (click)="openNewTaskModal()">
                     <i aria-hidden="true" class="bi bi-plus-lg me-1"></i>Add Weekly Task
                   </button>
                 </div>
@@ -226,7 +231,7 @@
             <div class="card-header bg-transparent border-0">
               <div class="d-flex align-items-center">
                 <i aria-hidden="true" class="bi bi-calendar3 text-success icon-2x me-2"></i>
-                <h4 class="fw-bold mb-0">Monthly</h4>
+                <h4 i18n class="fw-bold mb-0">Monthly</h4>
                 <span class="badge bg-primary rounded-pill ms-2">{{ monthlyTasks().length }}</span>
               </div>
             </div>
@@ -245,8 +250,8 @@
                 </div>
               } @else {
                 <div class="text-center py-4">
-                  <p class="text-muted mb-2">No monthly tasks</p>
-                  <button class="btn btn-sm btn-outline-primary" (click)="openNewTaskModal()">
+                  <p i18n class="text-muted mb-2">No monthly tasks</p>
+                  <button i18n class="btn btn-sm btn-outline-primary" (click)="openNewTaskModal()">
                     <i aria-hidden="true" class="bi bi-plus-lg me-1"></i>Add Monthly Task
                   </button>
                 </div>

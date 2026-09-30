@@ -1,4 +1,5 @@
 import { addDays, daysBetween, startOfDay } from '../../../shared/utils/date';
+import { currentLocale } from '../../../shared/utils/locale';
 import { averageGoalProgress, goalStats } from '../../goals/domain/goal.rules';
 import { GoalStatus, GoalView } from '../../goals/goal.model';
 import { reminderStats } from '../../reminders/domain/reminder.rules';
@@ -51,23 +52,23 @@ export function dashboardStats(tasks: TaskView[], goals: GoalView[], reminders: 
  * Tareas creadas y con vencimiento en cada uno de los últimos 7 días naturales (hora local).
  * La API no guarda cuándo se completa una tarea, así que no se puede mostrar "completadas por día".
  */
-export function taskActivityChart(tasks: readonly TaskView[], now: Date): ChartData {
+export function taskActivityChart(tasks: readonly TaskView[], now: Date, locale = currentLocale()): ChartData {
   const days = Array.from({ length: 7 }, (_, i) => addDays(now, i - 6));
   const countByDay = (dates: string[]) =>
     days.map(day => dates.filter(date => date && daysBetween(day, date) === 0).length);
 
   return {
-    labels: days.map(day => day.toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric' })),
+    labels: days.map(day => day.toLocaleDateString(locale, { weekday: 'short', day: 'numeric' })),
     datasets: [
       {
-        label: 'Tasks Due',
+        label: $localize`Tasks Due`,
         data: countByDay(tasks.map(t => t.dueDate)),
         backgroundColor: 'rgba(40, 167, 69, 0.1)',
         borderColor: '#28a745',
         fill: true
       },
       {
-        label: 'New Tasks',
+        label: $localize`New Tasks`,
         data: countByDay(tasks.map(t => t.createdDate)),
         backgroundColor: 'rgba(0, 123, 255, 0.1)',
         borderColor: '#007bff',
@@ -81,10 +82,15 @@ export function taskActivityChart(tasks: readonly TaskView[], now: Date): ChartD
 export function goalStatusChart(goals: readonly GoalView[]): ChartData {
   const order: GoalStatus[] = ['completed', 'inProgress', 'notStarted', 'overdue'];
   return {
-    labels: ['Completed', 'In Progress', 'Not Started', 'Overdue'],
+    labels: [
+      $localize`:@@goals.status.completed:Completed`,
+      $localize`:@@goals.status.inProgress:In Progress`,
+      $localize`:@@goals.status.notStarted:Not Started`,
+      $localize`:@@goals.status.overdue:Overdue`
+    ],
     datasets: [
       {
-        label: 'Goals',
+        label: $localize`Goals`,
         data: order.map(status => goals.filter(g => g.status === status).length),
         backgroundColor: ['#28a745', '#ffc107', '#6c757d', '#dc3545']
       }
@@ -96,10 +102,10 @@ export function goalStatusChart(goals: readonly GoalView[]): ChartData {
 export function upcomingRemindersChart(reminders: readonly ReminderView[]): ChartData {
   const { today, tomorrow, thisWeek, later } = reminderStats(reminders);
   return {
-    labels: ['Today', 'Tomorrow', 'This Week', 'Later'],
+    labels: [$localize`Today`, $localize`Tomorrow`, $localize`This Week`, $localize`Later`],
     datasets: [
       {
-        label: 'Upcoming Reminders',
+        label: $localize`Upcoming Reminders`,
         data: [today, tomorrow, thisWeek, later],
         backgroundColor: ['#ffc107', '#17a2b8', '#007bff', '#6c757d']
       }

@@ -9,7 +9,7 @@
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title fw-bold" id="new-task-dialog-title">
+        <h5 i18n class="modal-title fw-bold" id="new-task-dialog-title">
           <i aria-hidden="true" class="bi bi-list-check me-2"></i>
           Create New Task
         </h5>
@@ -18,6 +18,7 @@
           class="btn-close"
           (click)="closeModal()"
           [disabled]="submitting()"
+          i18n-aria-label
           aria-label="Close"
         ></button>
       </div>
@@ -26,7 +27,7 @@
         <form [formGroup]="taskForm" (ngSubmit)="onSubmit()" novalidate>
           <!-- Task Title -->
           <div class="mb-3">
-            <label class="form-label fw-semibold" for="new-task-taskName">
+            <label i18n class="form-label fw-semibold" for="new-task-taskName">
               Task Title <span class="text-danger">*</span>
             </label>
             <input
@@ -35,16 +36,17 @@
               class="form-control"
               formControlName="taskName"
               [class.is-invalid]="taskForm.get('taskName')?.invalid && taskForm.get('taskName')?.touched"
+              i18n-placeholder
               placeholder="Enter task title"
             />
             @if (taskForm.get('taskName')?.invalid && taskForm.get('taskName')?.touched) {
-              <div class="invalid-feedback">Task title is required (minimum 3 characters)</div>
+              <div i18n class="invalid-feedback">Task title is required (minimum 3 characters)</div>
             }
           </div>
 
           <!-- Frequency -->
           <div class="mb-3">
-            <label class="form-label fw-semibold" for="new-task-frequency">
+            <label i18n class="form-label fw-semibold" for="new-task-frequency">
               Frequency <span class="text-danger">*</span>
             </label>
             <select
@@ -63,7 +65,7 @@
           <div class="row">
             <div class="col-6">
               <div class="mb-3">
-                <label class="form-label fw-semibold" for="new-task-startDate">
+                <label i18n class="form-label fw-semibold" for="new-task-startDate">
                   Start Date <span class="text-danger">*</span>
                 </label>
                 <input
@@ -74,13 +76,13 @@
                   [class.is-invalid]="taskForm.get('startDate')?.invalid && taskForm.get('startDate')?.touched"
                 />
                 @if (taskForm.get('startDate')?.invalid && taskForm.get('startDate')?.touched) {
-                  <div class="invalid-feedback">Start date is required</div>
+                  <div i18n class="invalid-feedback">Start date is required</div>
                 }
               </div>
             </div>
             <div class="col-6">
               <div class="mb-3">
-                <label class="form-label fw-semibold" for="new-task-dueDate">
+                <label i18n class="form-label fw-semibold" for="new-task-dueDate">
                   Due Date <span class="text-danger">*</span>
                 </label>
                 <input
@@ -94,10 +96,10 @@
                   "
                 />
                 @if (taskForm.get('dueDate')?.hasError('required') && taskForm.get('dueDate')?.touched) {
-                  <div class="invalid-feedback">Due date is required</div>
+                  <div i18n class="invalid-feedback">Due date is required</div>
                 }
                 @if (taskForm.hasError('dueDateBeforeStart')) {
-                  <div class="invalid-feedback d-block">Due date cannot be before start date</div>
+                  <div i18n class="invalid-feedback d-block">Due date cannot be before start date</div>
                 }
               </div>
             </div>
@@ -105,12 +107,13 @@
 
           <!-- Description -->
           <div class="mb-3">
-            <label class="form-label fw-semibold" for="new-task-description">Description</label>
+            <label i18n class="form-label fw-semibold" for="new-task-description">Description</label>
             <textarea
               id="new-task-description"
               class="form-control"
               formControlName="description"
               rows="3"
+              i18n-placeholder
               placeholder="Enter task description (optional)"
             ></textarea>
           </div>
@@ -118,10 +121,11 @@
       </div>
 
       <div class="modal-footer">
-        <button type="button" class="btn btn-outline-secondary" (click)="closeModal()" [disabled]="submitting()">
+        <button i18n type="button" class="btn btn-outline-secondary" (click)="closeModal()" [disabled]="submitting()">
           Cancel
         </button>
         <button
+          i18n
           type="button"
           class="btn btn-primary"
           (click)="onSubmit()"

@@ -53,6 +53,11 @@ describe('reminder rules', () => {
       expect(timeRemaining(reminder(at(2026, 6, 13, 15, 0)), now)).toBe('3 days');
       expect(timeRemaining(reminder(at(2026, 6, 10, 14, 0)), now)).toBe('Overdue');
     });
+
+    it('uses the plural rules of the given locale', () => {
+      expect(timeRemaining(reminder(at(2026, 6, 10, 15, 1)), now, 'es')).toBe('1 minuto');
+      expect(timeRemaining(reminder(at(2026, 6, 13, 15, 0)), now, 'es')).toBe('3 días');
+    });
   });
 
   describe('toReminderView', () => {

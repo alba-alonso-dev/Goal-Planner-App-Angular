@@ -1,11 +1,11 @@
 <div class="container py-3">
   <!-- Header con título y botón de refresh -->
   <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="fw-bold slide-in">
+    <h1 i18n class="fw-bold slide-in">
       <i aria-hidden="true" class="bi bi-speedometer2 me-2"></i>
       Dashboard
     </h1>
-    <button class="btn btn-outline-primary" (click)="refresh()" [disabled]="loading()">
+    <button i18n class="btn btn-outline-primary" (click)="refresh()" [disabled]="loading()">
       <i aria-hidden="true" class="bi bi-arrow-repeat me-2" [class.spin]="loading()"></i>
       Refresh
     </button>
@@ -15,9 +15,9 @@
   @if (loading()) {
     <div class="text-center py-5">
       <div class="spinner-border text-primary" role="status">
-        <span class="visually-hidden">Loading...</span>
+        <span i18n class="visually-hidden">Loading...</span>
       </div>
-      <p class="mt-2 text-muted">Loading dashboard data...</p>
+      <p i18n class="mt-2 text-muted">Loading dashboard data...</p>
     </div>
   }
 
@@ -27,10 +27,10 @@
       <div class="d-flex align-items-center">
         <i aria-hidden="true" class="bi bi-exclamation-triangle-fill icon-2x me-3"></i>
         <div class="flex-grow-1">
-          <h5 class="alert-heading">Error loading dashboard</h5>
+          <h5 i18n class="alert-heading">Error loading dashboard</h5>
           <p class="mb-0">{{ error() }}</p>
         </div>
-        <button class="btn btn-outline-danger ms-3" (click)="refresh()">
+        <button i18n class="btn btn-outline-danger ms-3" (click)="refresh()">
           <i aria-hidden="true" class="bi bi-arrow-repeat me-2"></i>Retry
         </button>
       </div>
@@ -46,7 +46,7 @@
           <div class="card-body">
             <div class="d-flex justify-content-between align-items-start">
               <div>
-                <h6 class="card-title text-muted mb-2">Total Tasks</h6>
+                <h6 i18n class="card-title text-muted mb-2">Total Tasks</h6>
                 <h2 class="card-text mb-0">{{ stats().totalTasks }}</h2>
                 <div class="small text-muted mt-2">
                   <span class="text-success me-2">
@@ -65,15 +65,15 @@
               </div>
             </div>
             <div class="mt-3 small">
-              <span class="badge bg-light text-dark me-1">
+              <span i18n class="badge bg-light text-dark me-1">
                 <i aria-hidden="true" class="bi bi-sun-fill text-warning"></i> Daily:
                 {{ stats().tasksByFrequency.daily }}
               </span>
-              <span class="badge bg-light text-dark me-1">
+              <span i18n class="badge bg-light text-dark me-1">
                 <i aria-hidden="true" class="bi bi-calendar-week-fill text-info"></i> Weekly:
                 {{ stats().tasksByFrequency.weekly }}
               </span>
-              <span class="badge bg-light text-dark">
+              <span i18n class="badge bg-light text-dark">
                 <i aria-hidden="true" class="bi bi-calendar-month-fill text-success"></i> Monthly:
                 {{ stats().tasksByFrequency.monthly }}
               </span>
@@ -88,7 +88,7 @@
           <div class="card-body">
             <div class="d-flex justify-content-between align-items-start">
               <div>
-                <h6 class="card-title text-muted mb-2">Goals</h6>
+                <h6 i18n class="card-title text-muted mb-2">Goals</h6>
                 <h2 class="card-text mb-0">{{ stats().totalGoals }}</h2>
                 <div class="small text-muted mt-2">
                   <span class="text-success me-2">
@@ -108,7 +108,7 @@
             </div>
             <div class="mt-3">
               <div class="d-flex justify-content-between small mb-1">
-                <span>Average Progress</span>
+                <span i18n>Average Progress</span>
                 <span class="fw-bold">{{ stats().averageGoalProgress }}%</span>
               </div>
               <div class="progress" style="height: 6px">
@@ -116,6 +116,7 @@
                   class="progress-bar"
                   [style.width.%]="stats().averageGoalProgress"
                   role="progressbar"
+                  i18n-aria-label
                   aria-label="Average goal progress"
                   [attr.aria-valuenow]="stats().averageGoalProgress"
                   aria-valuemin="0"
@@ -133,7 +134,7 @@
           <div class="card-body">
             <div class="d-flex justify-content-between align-items-start">
               <div>
-                <h6 class="card-title text-muted mb-2">Reminders</h6>
+                <h6 i18n class="card-title text-muted mb-2">Reminders</h6>
                 <h2 class="card-text mb-0">{{ stats().totalReminders }}</h2>
                 <div class="small text-muted mt-2">
                   <span class="text-success me-2">
@@ -151,7 +152,7 @@
                 <i aria-hidden="true" class="bi bi-bell icon-2x"></i>
               </div>
             </div>
-            <div class="mt-3 small">
+            <div i18n class="mt-3 small">
               <i aria-hidden="true" class="bi bi-sun-fill text-warning me-1"></i> Today:
               {{ stats().remindersByTime.today }}
               &nbsp;&nbsp;&nbsp;&nbsp;
@@ -171,14 +172,14 @@
           <div class="card-body">
             <div class="d-flex justify-content-between align-items-start">
               <div>
-                <h6 class="card-title text-muted mb-2">Completion Rate</h6>
+                <h6 i18n class="card-title text-muted mb-2">Completion Rate</h6>
                 <h2 class="card-text mb-0">{{ stats().completionRate }}%</h2>
                 <div class="small text-muted mt-2">
-                  <span class="text-success me-2">
+                  <span i18n class="text-success me-2">
                     <i aria-hidden="true" class="bi bi-check-all"></i>
                     {{ stats().completedTasks + stats().completedGoals + stats().acknowledgedReminders }} done
                   </span>
-                  <span class="text-primary">
+                  <span i18n class="text-primary">
                     <i aria-hidden="true" class="bi bi-grid-3x3-gap-fill"></i> {{ stats().totalItems }} total
                   </span>
                 </div>
@@ -189,7 +190,7 @@
             </div>
             <div class="mt-3">
               <div class="d-flex justify-content-between small mb-1">
-                <span>Average Progress</span>
+                <span i18n>Average Progress</span>
                 <span class="fw-bold">{{ stats().completionRate }}%</span>
               </div>
               <div class="progress" style="height: 6px">
@@ -197,6 +198,7 @@
                   class="progress-bar"
                   [style.width.%]="stats().completionRate"
                   role="progressbar"
+                  i18n-aria-label
                   aria-label="Task completion rate"
                   [attr.aria-valuenow]="stats().completionRate"
                   aria-valuemin="0"
@@ -215,7 +217,7 @@
         <div class="card dashboard-card">
           <div class="card-body">
             <div class="d-flex justify-content-between align-items-center mb-4">
-              <h5 class="card-title mb-0">
+              <h5 i18n class="card-title mb-0">
                 <i aria-hidden="true" class="bi bi-bar-chart-line-fill me-2"></i>
                 Task Activity <small class="text-muted fw-normal">(last 7 days)</small>
               </h5>
@@ -231,11 +233,11 @@
               <table class="table table-hover mb-0">
                 <thead>
                   <tr>
-                    <th>Task Name</th>
-                    <th>Frequency</th>
-                    <th>Due Date</th>
-                    <th>Status</th>
-                    <th>Progress</th>
+                    <th i18n>Task Name</th>
+                    <th i18n>Frequency</th>
+                    <th i18n>Due Date</th>
+                    <th i18n>Status</th>
+                    <th i18n>Progress</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -255,15 +257,21 @@
                         ></i>
                         {{ task.taskName }}
                       </td>
-                      <td>{{ task.frequency }}</td>
-                      <td>{{ task.dueDate | date: 'dd/MM/yyyy' }}</td>
+                      <td>
+                        <ng-container i18n>{task.frequency, select,
+                          Daily {Daily}
+                          Weekly {Weekly}
+                          Monthly {Monthly}
+                        }</ng-container>
+                      </td>
+                      <td>{{ task.dueDate | date: 'mediumDate' }}</td>
                       <td>
                         @if (task.isCompleted) {
-                          <span class="badge bg-success">Completed</span>
+                          <span i18n class="badge bg-success">Completed</span>
                         } @else if (task.isOverdue) {
-                          <span class="badge bg-danger">Overdue</span>
+                          <span i18n class="badge bg-danger">Overdue</span>
                         } @else {
-                          <span class="badge text-bg-warning">Pending</span>
+                          <span i18n class="badge text-bg-warning">Pending</span>
                         }
                       </td>
                       <td style="width: 150px">
@@ -283,7 +291,7 @@
                     <tr>
                       <td colspan="5" class="text-center py-4">
                         <i aria-hidden="true" class="bi bi-inbox icon-2x d-block mb-2 text-muted"></i>
-                        <span class="text-muted">No tasks found</span>
+                        <span i18n class="text-muted">No tasks found</span>
                       </td>
                     </tr>
                   }
@@ -301,7 +309,7 @@
       <div class="col-md-7 mb-4">
         <div class="card dashboard-card h-100">
           <div class="card-body">
-            <h5 class="card-title mb-4">
+            <h5 i18n class="card-title mb-4">
               <i aria-hidden="true" class="bi bi-exclamation-circle me-2"></i>
               Needs Attention
             </h5>
@@ -333,7 +341,7 @@
               } @empty {
                 <div class="text-center py-4">
                   <i aria-hidden="true" class="bi bi-check2-circle icon-2x d-block mb-2 text-success"></i>
-                  <span class="text-muted">Nothing overdue</span>
+                  <span i18n class="text-muted">Nothing overdue</span>
                 </div>
               }
             </div>
@@ -345,7 +353,7 @@
       <div class="col-md-5 mb-4">
         <div class="card dashboard-card h-100">
           <div class="card-body">
-            <h5 class="card-title mb-4">
+            <h5 i18n class="card-title mb-4">
               <i aria-hidden="true" class="bi bi-pie-chart-fill me-2"></i>
               Goal Progress
             </h5>
@@ -355,15 +363,15 @@
             <div class="row mt-4 text-center">
               <div class="col-4">
                 <span class="badge bg-success d-block p-2 mb-1">{{ stats().completedGoals }}</span>
-                <small class="text-muted">Completed</small>
+                <small i18n class="text-muted">Completed</small>
               </div>
               <div class="col-4">
                 <span class="badge text-bg-warning d-block p-2 mb-1">{{ stats().activeGoals }}</span>
-                <small class="text-muted">In Progress</small>
+                <small i18n class="text-muted">In Progress</small>
               </div>
               <div class="col-4">
                 <span class="badge bg-danger d-block p-2 mb-1">{{ stats().overdueGoals }}</span>
-                <small class="text-muted">Overdue</small>
+                <small i18n class="text-muted">Overdue</small>
               </div>
             </div>
           </div>
@@ -376,7 +384,7 @@
       <div class="col-12">
         <div class="card dashboard-card">
           <div class="card-body">
-            <h5 class="card-title mb-4">
+            <h5 i18n class="card-title mb-4">
               <i aria-hidden="true" class="bi bi-bell-fill me-2 text-warning"></i>
               Upcoming Reminders
             </h5>

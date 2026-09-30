@@ -1,4 +1,5 @@
 import { daysBetween } from '../../../shared/utils/date';
+import { currentLocale } from '../../../shared/utils/locale';
 import { ReminderBucket, ReminderFilter, ReminderResponse, ReminderStats, ReminderView } from '../reminder.model';
 
 // Reglas de negocio de los recordatorios. Funciones puras: todo lo que depende del tiempo recibe `now`.
@@ -19,18 +20,20 @@ export function reminderBucket(reminder: ReminderResponse, now: Date): ReminderB
   return 'later';
 }
 
-const plural = (value: number, unit: string) => `${value} ${unit}${value !== 1 ? 's' : ''}`;
+/** "45 minutes" / "45 minutos": Intl resuelve el plural de cada idioma. */
+const duration = (value: number, unit: 'minute' | 'hour' | 'day', locale: string) =>
+  new Intl.NumberFormat(locale, { style: 'unit', unit, unitDisplay: 'long' }).format(value);
 
 /** Texto corto con el tiempo que falta: "Overdue", "45 minutes", "3 hours", "2 days". */
-export function timeRemaining(reminder: ReminderResponse, now: Date): string {
+export function timeRemaining(reminder: ReminderResponse, now: Date, locale = currentLocale()): string {
   const diff = new Date(reminder.reminderDateTime).getTime() - now.getTime();
-  if (diff < 0) return 'Overdue';
-  if (diff < HOUR) return plural(Math.floor(diff / MINUTE), 'minute');
-  if (diff < 24 * HOUR) return plural(Math.floor(diff / HOUR), 'hour');
-  return plural(Math.floor(diff / (24 * HOUR)), 'day');
+  if (diff < 0) return $localize`Overdue`;
+  if (diff < HOUR) return duration(Math.floor(diff / MINUTE), 'minute', locale);
+  if (diff < 24 * HOUR) return duration(Math.floor(diff / HOUR), 'hour', locale);
+  return duration(Math.floor(diff / (24 * HOUR)), 'day', locale);
 }
 
-export function toReminderView(reminder: ReminderResponse, now: Date): ReminderView {
+export function toReminderView(reminder: ReminderResponse, now: Date, locale = currentLocale()): ReminderView {
   const bucket = reminderBucket(reminder, now);
   const days = daysBetween(now, reminder.reminderDateTime);
   return {
@@ -40,14 +43,7 @@ export function toReminderView(reminder: ReminderResponse, now: Date): ReminderV
     isOverdue: bucket === 'overdue',
     isToday: days === 0,
     isTomorrow: days === 1,
-    timeRemaining: timeRemaining(reminder, now),
-    formattedDateTime: new Date(reminder.reminderDateTime).toLocaleString('es-ES', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    })
+    timeRemaining: timeRemaining(reminder, now, locale)
   };
 }
 

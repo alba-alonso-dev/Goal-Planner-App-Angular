@@ -4,17 +4,22 @@
       <!-- Logo y copyright -->
       <div class="col-md-4 text-center text-md-start mb-3 mb-md-0">
         <h5 class="fw-bold mb-1"><i aria-hidden="true" class="bi bi-check-all me-2 text-primary"></i>TaskMaster Pro</h5>
-        <small class="text-white-50"> &copy; {{ currentYear }} Todos los derechos reservados. </small>
+        <small class="text-white-50" i18n>&copy; {{ currentYear }} All rights reserved.</small>
+        @for (language of otherLanguages; track language.code) {
+          <a class="small text-white-50 ms-2" [href]="'/' + language.code + '/'" [attr.lang]="language.code">
+            <i aria-hidden="true" class="bi bi-translate me-1"></i>{{ language.label }}
+          </a>
+        }
       </div>
 
       <!-- Enlaces rápidos -->
       <div class="col-md-4 text-center mb-3 mb-md-0">
         <div class="d-flex justify-content-center gap-4">
-          <a routerLink="/" class="text-white-50 text-decoration-none hover-text-primary">Home</a>
-          <a routerLink="/dashboard" class="text-white-50 text-decoration-none hover-text-primary">Dashboard</a>
-          <a routerLink="/tasks" class="text-white-50 text-decoration-none hover-text-primary">Tasks</a>
-          <a routerLink="/goals" class="text-white-50 text-decoration-none hover-text-primary">Goals</a>
-          <a routerLink="/reminders" class="text-white-50 text-decoration-none hover-text-primary">Reminders</a>
+          <a routerLink="/home" class="text-white-50 text-decoration-none hover-text-primary" i18n>Home</a>
+          <a routerLink="/dashboard" class="text-white-50 text-decoration-none hover-text-primary" i18n>Dashboard</a>
+          <a routerLink="/tasks" class="text-white-50 text-decoration-none hover-text-primary" i18n>Tasks</a>
+          <a routerLink="/goals" class="text-white-50 text-decoration-none hover-text-primary" i18n>Goals</a>
+          <a routerLink="/reminders" class="text-white-50 text-decoration-none hover-text-primary" i18n>Reminders</a>
         </div>
       </div>
 

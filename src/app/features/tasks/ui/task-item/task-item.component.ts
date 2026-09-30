@@ -27,7 +27,7 @@ export class TaskItemComponent {
 
   onDelete(event: Event) {
     event.stopPropagation();
-    if (confirm(`Are you sure you want to delete "${this.task().taskName}"?`)) {
+    if (confirm($localize`Are you sure you want to delete "${this.task().taskName}:TASK_NAME:"?`)) {
       this.delete.emit(this.task().taskId);
     }
   }
@@ -52,11 +52,15 @@ export class TaskItemComponent {
   }
 
   getStatusText(): string {
-    if (this.task().isCompleted) return 'Completed';
-    if (this.task().isOverdue) return 'Overdue';
-    return 'Pending';
+    if (this.task().isCompleted) return $localize`Completed`;
+    if (this.task().isOverdue) return $localize`Overdue`;
+    return $localize`Pending`;
   }
 
   // Para usar en el template
   protected Math = Math;
+
+  protected completeLabel(taskName: string): string {
+    return $localize`Mark ${taskName}:TASK_NAME: as completed`;
+  }
 }

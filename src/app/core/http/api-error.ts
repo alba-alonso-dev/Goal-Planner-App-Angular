@@ -18,14 +18,14 @@ export class ApiError extends Error {
 }
 
 const STATUS_MESSAGES: Record<number, string> = {
-  0: 'Error de red: No se puede conectar al servidor',
-  400: 'Error de validación: Los datos enviados no son correctos',
-  401: 'No autorizado: Por favor, inicia sesión de nuevo',
-  404: 'Recurso no encontrado',
-  500: 'Error interno del servidor'
+  0: $localize`Network error: the server cannot be reached`,
+  400: $localize`Validation error: the submitted data is not valid`,
+  401: $localize`Not authorized: please log in again`,
+  404: $localize`Resource not found`,
+  500: $localize`Internal server error`
 };
 
-const DEFAULT_MESSAGE = 'Error connecting to the server';
+const DEFAULT_MESSAGE = $localize`Error connecting to the server`;
 
 export function toApiError(error: HttpErrorResponse): ApiError {
   const details = parseBody(error.error);

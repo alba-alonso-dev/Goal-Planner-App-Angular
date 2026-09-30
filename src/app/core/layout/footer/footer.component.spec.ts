@@ -23,4 +23,10 @@ describe('FooterComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  it('should link to the other published language', () => {
+    const link: HTMLAnchorElement = fixture.nativeElement.querySelector('a[lang]');
+    expect(link.getAttribute('href')).toBe('/es/');
+    expect(link.textContent).toContain('Español');
+  });
 });
