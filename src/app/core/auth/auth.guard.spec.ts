@@ -39,13 +39,13 @@ describe('authGuard', () => {
       })
     );
 
-    expect(executeGuard(route, state)).toBeTrue();
+    expect(executeGuard(route, state)).toBe(true);
   });
 
   it('should redirect to /home when no user is logged in', () => {
     const result = executeGuard(route, state);
 
-    expect(result instanceof UrlTree).toBeTrue();
+    expect(result instanceof UrlTree).toBe(true);
     expect(TestBed.inject(Router).serializeUrl(result as UrlTree)).toBe('/home');
   });
 });

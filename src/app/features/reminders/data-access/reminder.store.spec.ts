@@ -39,10 +39,10 @@ describe('ReminderStore', () => {
 
   it('acknowledges optimistically and reverts on failure', () => {
     store.toggleAcknowledgement(1).subscribe({ error: () => undefined });
-    expect(store.reminders()[0].isAcknowledged).toBeTrue();
+    expect(store.reminders()[0].isAcknowledged).toBe(true);
 
     httpTesting.expectOne('/api/updateReminder/1').flush(null, { status: 500, statusText: 'Server Error' });
-    expect(store.reminders()[0].isAcknowledged).toBeFalse();
+    expect(store.reminders()[0].isAcknowledged).toBe(false);
   });
 
   it('deletes without reloading the list', () => {

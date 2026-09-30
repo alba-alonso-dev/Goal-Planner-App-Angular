@@ -29,7 +29,7 @@ describe('ReminderApi', () => {
 
     const req = httpTesting.expectOne('/api/createReminder');
     expect(req.request.body).toEqual(
-      jasmine.objectContaining({
+      expect.objectContaining({
         reminderId: 0,
         userId: 1,
         isAcknowledged: false,

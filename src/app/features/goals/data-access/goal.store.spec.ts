@@ -51,7 +51,7 @@ describe('GoalStore', () => {
     store.load();
     httpTesting.expectOne(r => r.url === '/api/getAllGoalsByUser').flush([]);
     expect(store.goals()).toEqual([]);
-    expect(store.loading()).toBeFalse();
+    expect(store.loading()).toBe(false);
   });
 
   it('toggles a milestone optimistically and marks the goal achieved when all are done', () => {
@@ -60,9 +60,9 @@ describe('GoalStore', () => {
     store.toggleMilestone(1, 2).subscribe();
 
     expect(store.goals()[0].progress).toBe(100);
-    expect(store.goals()[0].isAchieved).toBeTrue();
+    expect(store.goals()[0].isAchieved).toBe(true);
     const req = httpTesting.expectOne('/api/updateGoalWithMilestones/1');
-    expect(req.request.body.isAchieved).toBeTrue();
+    expect(req.request.body.isAchieved).toBe(true);
     req.flush({});
   });
 
@@ -73,7 +73,7 @@ describe('GoalStore', () => {
 
     store.toggleMilestone(1, 1).subscribe();
 
-    expect(store.goals()[0].isAchieved).toBeFalse();
+    expect(store.goals()[0].isAchieved).toBe(false);
     httpTesting.expectOne('/api/updateGoalWithMilestones/1').flush({});
   });
 
@@ -84,7 +84,7 @@ describe('GoalStore', () => {
     httpTesting.expectOne('/api/updateGoalWithMilestones/1').flush(null, { status: 500, statusText: 'Server Error' });
 
     expect(store.goals()[0].progress).toBe(50);
-    expect(store.goals()[0].isAchieved).toBeFalse();
+    expect(store.goals()[0].isAchieved).toBe(false);
   });
 
   it('refreshes only the edited goal after an update (to get new milestone ids)', () => {

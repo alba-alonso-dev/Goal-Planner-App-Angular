@@ -7,7 +7,7 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "test:ci": "ng test --watch=false --browsers=ChromeHeadlessCI",
+    "test:ci": "ng test --watch=false",
     "lint": "ng lint",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
@@ -32,26 +32,20 @@
     "zone.js": "~0.15.0"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "^22.2.0",
+    "@angular/build": "^22.2.0",
     "@angular/cli": "^22.2.0",
     "@angular/compiler-cli": "^22.2.0",
-    "@types/jasmine": "~5.1.0",
-    "@types/node": "^18.18.0",
+    "@types/node": "^22.20.4",
     "angular-eslint": "22.5.0",
     "eslint": "^9.28.0",
     "eslint-config-prettier": "^10.1.8",
     "husky": "^9.1.7",
-    "istanbul-lib-instrument": "^6.0.3",
-    "jasmine-core": "~5.6.0",
-    "karma": "~6.4.0",
-    "karma-chrome-launcher": "~3.2.0",
-    "karma-coverage": "~2.2.0",
-    "karma-jasmine": "~5.1.0",
-    "karma-jasmine-html-reporter": "~2.1.0",
+    "jsdom": "^30.1.1",
     "lint-staged": "^15.5.2",
     "prettier": "^3.9.9",
     "typescript": "~6.0.3",
-    "typescript-eslint": "^8.33.1"
+    "typescript-eslint": "^8.33.1",
+    "vitest": "^5.0.0"
   },
   "lint-staged": {
     "*.{ts,html}": [
@@ -59,5 +53,8 @@
       "prettier --write"
     ],
     "*.{css,json,md,yml}": "prettier --write"
+  },
+  "engines": {
+    "node": ">=22.22.3"
   }
 }

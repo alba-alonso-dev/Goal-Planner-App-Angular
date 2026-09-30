@@ -31,7 +31,7 @@ describe('TaskApi', () => {
 
     api.getAll().subscribe({ error: (e: unknown) => (captured = e) });
 
-    expect(captured instanceof ApiError).toBeTrue();
+    expect(captured instanceof ApiError).toBe(true);
     expect((captured as ApiError).status).toBe(401);
   });
 
@@ -59,7 +59,7 @@ describe('TaskApi', () => {
     const req = httpTesting.expectOne('/api/updateTask/7');
     expect(req.request.method).toBe('PUT');
     expect(req.request.body).toEqual(
-      jasmine.objectContaining({
+      expect.objectContaining({
         taskId: 7,
         userId: 1,
         taskName: 'Leer',
@@ -77,7 +77,7 @@ describe('TaskApi', () => {
 
     api.create({ ...mockTaskResponse, dueDate: 'not a date' }).subscribe({ error: (e: unknown) => (captured = e) });
 
-    expect(captured instanceof Error).toBeTrue();
+    expect(captured instanceof Error).toBe(true);
     httpTesting.expectNone('/api/createTask');
   });
 });

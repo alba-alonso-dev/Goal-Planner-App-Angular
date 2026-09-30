@@ -32,11 +32,11 @@ describe('task rules', () => {
   describe('overdue / days remaining', () => {
     it('is not overdue on its due day, even late in the day', () => {
       expect(daysUntilDue(task(), now)).toBe(0);
-      expect(isTaskOverdue(task(), now)).toBeFalse();
+      expect(isTaskOverdue(task(), now)).toBe(false);
     });
 
     it('is overdue from the next calendar day', () => {
-      expect(isTaskOverdue(task(), at(2026, 1, 11, 0, 1))).toBeTrue();
+      expect(isTaskOverdue(task(), at(2026, 1, 11, 0, 1))).toBe(true);
       expect(daysUntilDue(task(), at(2026, 1, 13))).toBe(-3);
     });
 
@@ -45,14 +45,14 @@ describe('task rules', () => {
     });
 
     it('is never overdue once completed', () => {
-      expect(isTaskOverdue(task({ isCompleted: true, dueDate: day(2025, 1, 1) }), now)).toBeFalse();
+      expect(isTaskOverdue(task({ isCompleted: true, dueDate: day(2025, 1, 1) }), now)).toBe(false);
     });
   });
 
   describe('toTaskView', () => {
     it('derives progress, days remaining and overdue state', () => {
       const view = toTaskView(task({ dueDate: day(2026, 1, 8) }), now);
-      expect(view).toEqual(jasmine.objectContaining({ progress: 0, daysRemaining: -2, isOverdue: true }));
+      expect(view).toEqual(expect.objectContaining({ progress: 0, daysRemaining: -2, isOverdue: true }));
       expect(toTaskView(task({ isCompleted: true }), now).progress).toBe(100);
     });
 
@@ -91,10 +91,10 @@ describe('task rules', () => {
     });
 
     it('searches name and description case-insensitively, ignoring surrounding spaces', () => {
-      expect(matchesTaskSearch(task(), '  LEER ')).toBeTrue();
-      expect(matchesTaskSearch(task(), 'angular')).toBeTrue();
-      expect(matchesTaskSearch(task(), 'python')).toBeFalse();
-      expect(matchesTaskSearch(task(), '')).toBeTrue();
+      expect(matchesTaskSearch(task(), '  LEER ')).toBe(true);
+      expect(matchesTaskSearch(task(), 'angular')).toBe(true);
+      expect(matchesTaskSearch(task(), 'python')).toBe(false);
+      expect(matchesTaskSearch(task(), '')).toBe(true);
     });
   });
 

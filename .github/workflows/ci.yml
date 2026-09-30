@@ -19,7 +19,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version-file: .nvmrc
           cache: npm
 
       - name: Install dependencies
@@ -36,6 +36,12 @@ jobs:
 
       - name: Unit tests
         run: npm run test:ci
+
+      # Las reglas de fechas dependen del huso horario: se repiten en uno al oeste de UTC
+      - name: Unit tests (America/Los_Angeles)
+        run: npm run test:ci
+        env:
+          TZ: America/Los_Angeles
 
       - name: Production build
         run: npm run build

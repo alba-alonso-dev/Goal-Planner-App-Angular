@@ -90,7 +90,7 @@ describe('dashboard rules', () => {
     const stats = dashboardStats(tasks, goals, reminders);
 
     expect(stats).toEqual(
-      jasmine.objectContaining({
+      expect.objectContaining({
         totalTasks: 3,
         completedTasks: 1,
         pendingTasks: 1,

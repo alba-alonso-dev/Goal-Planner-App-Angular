@@ -45,7 +45,7 @@ describe('ReminderListComponent', () => {
     flushList();
     fixture.detectChanges();
 
-    expect(component.loading()).toBeFalse();
+    expect(component.loading()).toBe(false);
     expect(fixture.nativeElement.textContent).toContain(mockReminder.title);
   });
 
@@ -56,7 +56,7 @@ describe('ReminderListComponent', () => {
     fixture.detectChanges();
 
     const req = httpTesting.expectOne(`/api/updateReminder/${mockReminder.reminderId}`);
-    expect(req.request.body.isAcknowledged).toBeTrue();
+    expect(req.request.body.isAcknowledged).toBe(true);
     expect(component.stats().acknowledged).toBe(1);
     req.flush({});
     httpTesting.expectNone(r => r.url === '/api/getReminders');
@@ -76,16 +76,16 @@ describe('ReminderListComponent', () => {
 
   it('should keep the create modal open and notify when creation fails', () => {
     flushList();
-    const notifyError = spyOn(TestBed.inject(NotificationService), 'error');
+    const notifyError = vi.spyOn(TestBed.inject(NotificationService), 'error').mockReturnValue(0);
     component.openNewReminderModal();
 
     component.onReminderCreated({ title: 'Test', description: '', reminderDateTime: '2030-01-01T10:00' });
-    expect(component.creating()).toBeTrue();
+    expect(component.creating()).toBe(true);
 
     httpTesting.expectOne('/api/createReminder').flush(null, { status: 500, statusText: 'Server Error' });
 
-    expect(component.creating()).toBeFalse();
-    expect(component.showNewReminderModal()).toBeTrue();
+    expect(component.creating()).toBe(false);
+    expect(component.showNewReminderModal()).toBe(true);
     expect(component.error()).toBeNull();
     expect(notifyError).toHaveBeenCalled();
   });

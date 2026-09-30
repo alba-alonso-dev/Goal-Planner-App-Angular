@@ -10,25 +10,25 @@ describe('date validators', () => {
       );
 
     it('flags an end date before the start date', () => {
-      expect(form('2026-06-10', '2026-06-09').hasError('dueDateBeforeStart')).toBeTrue();
+      expect(form('2026-06-10', '2026-06-09').hasError('dueDateBeforeStart')).toBe(true);
     });
 
     it('accepts the same day and later days', () => {
-      expect(form('2026-06-10', '2026-06-10').valid).toBeTrue();
-      expect(form('2026-06-10', '2026-07-01').valid).toBeTrue();
+      expect(form('2026-06-10', '2026-06-10').valid).toBe(true);
+      expect(form('2026-06-10', '2026-07-01').valid).toBe(true);
     });
 
     it('ignores empty or invalid dates (left to the required validator)', () => {
-      expect(form('', '2026-06-01').valid).toBeTrue();
-      expect(form('2026-06-10', 'nope').valid).toBeTrue();
+      expect(form('', '2026-06-01').valid).toBe(true);
+      expect(form('2026-06-10', 'nope').valid).toBe(true);
     });
 
     it('re-evaluates when either field changes', () => {
       const f = form('2026-06-10', '2026-06-09');
       f.controls.startDate.setValue('2026-06-01');
-      expect(f.valid).toBeTrue();
+      expect(f.valid).toBe(true);
       f.controls.dueDate.setValue('2026-05-31');
-      expect(f.hasError('dueDateBeforeStart')).toBeTrue();
+      expect(f.hasError('dueDateBeforeStart')).toBe(true);
     });
   });
 
@@ -50,8 +50,8 @@ describe('date validators', () => {
     });
 
     it('is valid when every milestone is within range or there are none', () => {
-      expect(form('2026-06-15').valid).toBeTrue();
-      expect(form().valid).toBeTrue();
+      expect(form('2026-06-15').valid).toBe(true);
+      expect(form().valid).toBe(true);
     });
   });
 
@@ -60,18 +60,18 @@ describe('date validators', () => {
 
     it('flags a date and time before now', () => {
       const control = new FormControl('2026-06-10T11:59', notInPastValidator({ now }));
-      expect(control.hasError('pastDate')).toBeTrue();
+      expect(control.hasError('pastDate')).toBe(true);
       control.setValue('2026-06-10T12:01');
-      expect(control.valid).toBeTrue();
+      expect(control.valid).toBe(true);
     });
 
     it('with onlyWhenChanged, accepts an untouched past value (editing an overdue reminder)', () => {
       const control = new FormControl('2026-06-01T09:00', notInPastValidator({ onlyWhenChanged: true, now }));
-      expect(control.valid).toBeTrue();
+      expect(control.valid).toBe(true);
 
       control.markAsDirty();
       control.updateValueAndValidity();
-      expect(control.hasError('pastDate')).toBeTrue();
+      expect(control.hasError('pastDate')).toBe(true);
     });
   });
 });

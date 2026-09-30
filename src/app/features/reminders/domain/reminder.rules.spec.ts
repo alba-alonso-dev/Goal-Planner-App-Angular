@@ -58,12 +58,12 @@ describe('reminder rules', () => {
   describe('toReminderView', () => {
     it('marks a past pending reminder as overdue but still "today"', () => {
       const view = toReminderView(reminder(at(2026, 6, 10, 9)), now);
-      expect(view).toEqual(jasmine.objectContaining({ bucket: 'overdue', isOverdue: true, isToday: true }));
+      expect(view).toEqual(expect.objectContaining({ bucket: 'overdue', isOverdue: true, isToday: true }));
     });
 
     it('an acknowledged past reminder is not overdue', () => {
       const view = toReminderView(reminder(at(2026, 6, 1), { isAcknowledged: true }), now);
-      expect(view.isOverdue).toBeFalse();
+      expect(view.isOverdue).toBe(false);
       expect(view.bucket).toBeNull();
     });
   });
@@ -106,9 +106,9 @@ describe('reminder rules', () => {
     });
 
     it('searches title and description', () => {
-      expect(matchesReminderSearch(upcoming, 'MÉDICO')).toBeTrue();
-      expect(matchesReminderSearch(upcoming, 'cita')).toBeTrue();
-      expect(matchesReminderSearch(upcoming, 'dentista')).toBeFalse();
+      expect(matchesReminderSearch(upcoming, 'MÉDICO')).toBe(true);
+      expect(matchesReminderSearch(upcoming, 'cita')).toBe(true);
+      expect(matchesReminderSearch(upcoming, 'dentista')).toBe(false);
     });
   });
 });

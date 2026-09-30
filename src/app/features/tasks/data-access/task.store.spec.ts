@@ -41,9 +41,9 @@ describe('TaskStore', () => {
     it('exposes views with derived fields and stats', () => {
       loadWith([{ ...mockTaskResponse, dueDate: new Date(2026, 5, 1).toISOString() }]);
 
-      expect(store.tasks()[0].isOverdue).toBeTrue();
+      expect(store.tasks()[0].isOverdue).toBe(true);
       expect(store.stats()).toEqual({ total: 1, completed: 0, pending: 0, overdue: 1 });
-      expect(store.loading()).toBeFalse();
+      expect(store.loading()).toBe(false);
     });
 
     it('does not request again once loaded, unless forced', () => {
@@ -62,7 +62,7 @@ describe('TaskStore', () => {
       listRequest().flush(null, { status: 500, statusText: 'Server Error' });
 
       expect(store.error()).toBeTruthy();
-      expect(store.loading()).toBeFalse();
+      expect(store.loading()).toBe(false);
     });
   });
 
@@ -72,11 +72,11 @@ describe('TaskStore', () => {
     it('toggles completion immediately with a single PUT', () => {
       store.toggleCompletion(1).subscribe();
 
-      expect(store.tasks()[0].isCompleted).toBeTrue();
+      expect(store.tasks()[0].isCompleted).toBe(true);
       const req = httpTesting.expectOne('/api/updateTask/1');
-      expect(req.request.body.isCompleted).toBeTrue();
+      expect(req.request.body.isCompleted).toBe(true);
       req.flush({});
-      expect(store.tasks()[0].isCompleted).toBeTrue();
+      expect(store.tasks()[0].isCompleted).toBe(true);
     });
 
     it('rolls back only the failed task', () => {
@@ -87,7 +87,7 @@ describe('TaskStore', () => {
       httpTesting.expectOne('/api/updateTask/2').flush({});
       httpTesting.expectOne('/api/updateTask/1').flush(null, { status: 500, statusText: 'Server Error' });
 
-      expect(failed).toBeTrue();
+      expect(failed).toBe(true);
       expect(store.tasks().map(t => t.isCompleted)).toEqual([false, true]);
     });
 
