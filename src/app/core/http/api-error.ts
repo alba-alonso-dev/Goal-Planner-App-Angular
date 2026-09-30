@@ -55,6 +55,8 @@ function extractServerMessage(details: unknown): string | undefined {
   if (details && typeof details === 'object') {
     const { message, title } = details as { message?: unknown; title?: unknown };
     if (typeof message === 'string' && message) return message;
+    // Los errores de validación del backend (NestJS) llegan como lista de mensajes
+    if (Array.isArray(message) && message.length) return message.join('. ');
     if (typeof title === 'string' && title) return title;
   }
   return undefined;

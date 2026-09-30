@@ -1,4 +1,4 @@
-import { addDays, daysBetween } from '../../../shared/utils/date';
+import { addDays, daysBetween, startOfDay } from '../../../shared/utils/date';
 import { averageGoalProgress, goalStats } from '../../goals/domain/goal.rules';
 import { GoalStatus, GoalView } from '../../goals/goal.model';
 import { reminderStats } from '../../reminders/domain/reminder.rules';
@@ -122,7 +122,7 @@ export function needsAttention(
         type: 'task',
         action: 'overdue',
         title: task.taskName,
-        timestamp: new Date(task.dueDate),
+        timestamp: startOfDay(task.dueDate), // día local (new Date('YYYY-MM-DD') sería medianoche UTC)
         icon: 'bi bi-exclamation-triangle-fill',
         color: 'text-danger',
         link: '/tasks'
@@ -134,7 +134,7 @@ export function needsAttention(
         type: 'goal',
         action: 'overdue',
         title: goal.goalName,
-        timestamp: new Date(goal.endDate),
+        timestamp: startOfDay(goal.endDate),
         icon: 'bi bi-flag-fill',
         color: 'text-danger',
         link: '/goals'

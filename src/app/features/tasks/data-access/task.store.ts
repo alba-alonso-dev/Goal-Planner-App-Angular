@@ -38,17 +38,12 @@ export class TaskStore {
   }
 
   create(input: TaskInput): Observable<TaskResponse> {
-    return this.collection.afterSuccess(this.api.create(input), created => {
-      // Si la API devuelve la tarea con su id se inserta; si no, se recarga la lista
-      if (created?.taskId > 0) this.collection.upsert({ ...this.api.toRequest(0, input, this.userId()), ...created });
-      else this.load({ force: true });
-    });
+    return this.collection.afterSuccess(this.api.create(input), created => this.collection.upsert(created));
   }
 
-  update(taskId: number, input: TaskInput): Observable<unknown> {
-    return this.collection.afterSuccess(this.api.update(taskId, input), () =>
-      this.collection.upsert(this.api.toRequest(taskId, input, this.userId()))
-    );
+  /** No optimista (el formulario muestra un spinner): se aplica lo que devuelve el servidor. */
+  update(taskId: number, input: TaskInput): Observable<TaskResponse> {
+    return this.collection.afterSuccess(this.api.update(taskId, input), updated => this.collection.upsert(updated));
   }
 
   /** Optimista: la casilla cambia al momento y se revierte si la API falla. */
@@ -61,9 +56,5 @@ export class TaskStore {
   /** Optimista: desaparece al momento y vuelve a su sitio si la API falla. */
   delete(taskId: number): Observable<void> {
     return this.collection.optimisticRemove(taskId, this.api.delete(taskId));
-  }
-
-  private userId(): number {
-    return this.auth.loggedUser()?.userId ?? 0;
   }
 }

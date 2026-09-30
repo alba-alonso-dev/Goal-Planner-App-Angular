@@ -1,82 +1,50 @@
-// auth.service.ts
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, defer, tap, throwError } from 'rxjs';
+import { Observable, catchError, finalize, map, of, tap } from 'rxjs';
 import { LoginData, RegisterData, User } from './user.model';
 import { API_BASE_URL } from '../config/api.config';
-import { ApiError } from '../http/api-error';
 
-const STORAGE_KEY = 'user';
-
-@Injectable({
-  providedIn: 'root'
-})
+/**
+ * Sesión del usuario. El token vive en una cookie HttpOnly que gestiona el backend: el navegador la
+ * envía sola y JavaScript no puede leerla. Aquí solo se guarda el perfil, y nunca en localStorage:
+ * al arrancar se pregunta al servidor quién es el usuario (`restoreSession`).
+ */
+@Injectable({ providedIn: 'root' })
 export class AuthService {
   private http = inject(HttpClient);
   private apiUrl = inject(API_BASE_URL);
 
-  // Señal que almacena el usuario logueado (null si no lo está)
-  private readonly _loggedUser = signal<User | null>(this.readStoredUser());
+  private readonly _loggedUser = signal<User | null>(null);
   readonly loggedUser = this._loggedUser.asReadonly();
 
-  login(credentials: LoginData) {
-    return this.http.post<User>(`${this.apiUrl}/login`, credentials).pipe(tap(user => this.setSession(user)));
+  /** Recupera la sesión de la cookie (si la hay). Nunca falla: sin sesión deja el usuario a null. */
+  restoreSession(): Observable<User | null> {
+    return this.http.get<User>(`${this.apiUrl}/auth/me`).pipe(
+      catchError(() => of(null)),
+      tap(user => this._loggedUser.set(user))
+    );
   }
 
-  register(data: RegisterData) {
-    return this.http.post<User>(`${this.apiUrl}/register`, data).pipe(tap(user => this.setSession(user)));
+  login(credentials: LoginData): Observable<User> {
+    return this.http.post<User>(`${this.apiUrl}/auth/login`, credentials).pipe(tap(user => this._loggedUser.set(user)));
   }
 
-  logout() {
+  /** El backend abre la sesión al registrar: no hace falta un login posterior. */
+  register(data: RegisterData): Observable<User> {
+    return this.http.post<User>(`${this.apiUrl}/auth/register`, data).pipe(tap(user => this._loggedUser.set(user)));
+  }
+
+  /** Borra la cookie en el servidor y la sesión local (esta última aunque la petición falle). */
+  logout(): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/auth/logout`, {}).pipe(
+      catchError(() => of(undefined)),
+      map(() => undefined),
+      finalize(() => this.clearSession())
+    );
+  }
+
+  /** Olvida la sesión local sin llamar al servidor (p. ej. cuando éste ya respondió 401). */
+  clearSession(): void {
     this._loggedUser.set(null);
-    try {
-      localStorage.removeItem(STORAGE_KEY);
-    } catch {
-      // Storage no disponible
-    }
-  }
-
-  /**
-   * Ejecuta `request` con el usuario autenticado, o emite un `ApiError` 401 si no hay sesión.
-   * Cualquier excepción síncrona al construir la petición se emite como error del observable.
-   */
-  withUser<T>(request: (user: User) => Observable<T>): Observable<T> {
-    return defer(() => {
-      const user = this._loggedUser();
-      return user ? request(user) : throwError(() => new ApiError(401, 'User not authenticated'));
-    });
-  }
-
-  private setSession(user: User) {
-    // Nunca persistir la contraseña aunque la API la devuelva
-    const { password: _password, ...safeUser } = user as User & { password?: string };
-    this._loggedUser.set(safeUser);
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(safeUser));
-    } catch {
-      // Storage no disponible: la sesión dura lo que la pestaña
-    }
-  }
-
-  // Un valor corrupto o un storage no disponible no debe romper el arranque de la app
-  private readStoredUser(): User | null {
-    try {
-      const savedUser = localStorage.getItem(STORAGE_KEY);
-      if (!savedUser) {
-        return null;
-      }
-      const parsed = JSON.parse(savedUser);
-      if (parsed && typeof parsed.userId === 'number') {
-        return parsed as User;
-      }
-    } catch {
-      // Ignorado: se trata como sesión inexistente
-    }
-    try {
-      localStorage.removeItem(STORAGE_KEY);
-    } catch {
-      // Storage no disponible
-    }
-    return null;
   }
 }

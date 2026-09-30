@@ -11,6 +11,7 @@ import {
 } from '@angular/router';
 
 import { authGuard } from './auth.guard';
+import { signInTestUser } from '../../../testing/fixtures';
 
 describe('authGuard', () => {
   const executeGuard: CanActivateFn = (...guardParameters) =>
@@ -20,25 +21,13 @@ describe('authGuard', () => {
   const state = {} as RouterStateSnapshot;
 
   beforeEach(() => {
-    localStorage.removeItem('user');
     TestBed.configureTestingModule({
       providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([])]
     });
   });
 
-  afterEach(() => localStorage.removeItem('user'));
-
   it('should allow navigation when a user is logged in', () => {
-    localStorage.setItem(
-      'user',
-      JSON.stringify({
-        userId: 1,
-        emailId: 'test@example.com',
-        fullName: 'Test',
-        mobileNo: '600000000'
-      })
-    );
-
+    signInTestUser();
     expect(executeGuard(route, state)).toBe(true);
   });
 

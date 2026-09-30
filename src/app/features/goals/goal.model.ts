@@ -1,26 +1,22 @@
-export interface MilestoneRequest {
+export interface MilestoneResponse {
   milestoneId: number;
   milestoneName: string;
   description: string;
+  /** Día natural `YYYY-MM-DD`. */
   targetDate: string;
   isCompleted: boolean;
 }
 
-export interface GoalRequest {
+/** Goal tal como lo devuelve la API (listado y detalle incluyen los milestones). */
+export interface GoalResponse {
   goalId: number;
   goalName: string;
   description: string;
+  /** Días naturales `YYYY-MM-DD`. */
   startDate: string;
   endDate: string;
   isAchieved: boolean;
   userId: number;
-  milestones: MilestoneRequest[];
-}
-
-export type MilestoneResponse = MilestoneRequest;
-
-/** Goal tal como lo devuelve la API. El listado no incluye los milestones; el detalle sí. */
-export interface GoalResponse extends Omit<GoalRequest, 'milestones'> {
   milestones?: MilestoneResponse[];
 }
 
@@ -48,10 +44,10 @@ export interface GoalStats {
 export type GoalFilter = 'all' | 'active' | 'completed' | 'overdue';
 
 // Datos que aportan los formularios para crear/actualizar un goal
-export type MilestoneInput = Pick<MilestoneRequest, 'milestoneName' | 'targetDate'> &
-  Partial<Pick<MilestoneRequest, 'milestoneId' | 'description' | 'isCompleted'>>;
+export type MilestoneInput = Pick<MilestoneResponse, 'milestoneName' | 'targetDate'> &
+  Partial<Pick<MilestoneResponse, 'milestoneId' | 'description' | 'isCompleted'>>;
 
-export type GoalInput = Pick<GoalRequest, 'goalName' | 'startDate' | 'endDate'> &
-  Partial<Pick<GoalRequest, 'description' | 'isAchieved'>> & {
+export type GoalInput = Pick<GoalResponse, 'goalName' | 'startDate' | 'endDate'> &
+  Partial<Pick<GoalResponse, 'description' | 'isAchieved'>> & {
     milestones?: MilestoneInput[];
   };

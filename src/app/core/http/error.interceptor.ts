@@ -19,8 +19,9 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
         return throwError(() => error);
       }
 
+      // La sesión caducó o se cerró en otro sitio: se olvida la local y se vuelve a la portada
       if (error.status === 401 && authService.loggedUser()) {
-        authService.logout();
+        authService.clearSession();
         router.navigate(['/home']);
       }
 

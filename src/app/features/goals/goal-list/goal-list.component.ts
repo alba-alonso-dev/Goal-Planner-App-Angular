@@ -101,12 +101,8 @@ export class GoalListComponent implements OnInit {
     this.notificationService.success('Goal updated successfully', 'Success');
   }
 
-  /** Abre el detalle al momento y trae los milestones en segundo plano (el listado no los incluye). */
   viewGoalDetails(goal: GoalView) {
     this.selectedGoalId.set(goal.goalId);
-    this.store.loadDetails(goal.goalId).subscribe({
-      error: (error: ApiError) => this.notificationService.error(error.message, 'Error loading goal details')
-    });
   }
 
   closeDetailsModal() {

@@ -27,6 +27,11 @@ export function toApiDate(value: string | Date): string {
   return toValidDate(value).toISOString();
 }
 
+/** Día natural `YYYY-MM-DD` que espera la API para los campos sin hora (vencimientos, fechas de goals). */
+export function toApiDay(value: string | Date): string {
+  return toDateInputValue(value);
+}
+
 /** `YYYY-MM-DD` en hora local, para `<input type="date">`. */
 export function toDateInputValue(value: string | Date = new Date()): string {
   const date = toValidDate(value);

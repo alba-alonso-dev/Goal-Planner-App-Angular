@@ -102,20 +102,18 @@ export class TaskDetailsComponent {
     this.submitting.set(true);
     this.error.set(null);
 
-    this.store
-      .update(this.task().taskId, { ...this.editForm.getRawValue(), createdDate: this.task().createdDate })
-      .subscribe({
-        next: () => {
-          // El store ya tiene la tarea actualizada; el padre la vuelve a pasar como input
-          this.submitting.set(false);
-          this.editMode.set(false);
-          this.taskUpdated.emit();
-        },
-        error: (error: ApiError) => {
-          this.error.set(error.message || 'Error updating task');
-          this.submitting.set(false);
-        }
-      });
+    this.store.update(this.task().taskId, this.editForm.getRawValue()).subscribe({
+      next: () => {
+        // El store ya tiene la tarea actualizada; el padre la vuelve a pasar como input
+        this.submitting.set(false);
+        this.editMode.set(false);
+        this.taskUpdated.emit();
+      },
+      error: (error: ApiError) => {
+        this.error.set(error.message || 'Error updating task');
+        this.submitting.set(false);
+      }
+    });
   }
 
   deleteTask() {

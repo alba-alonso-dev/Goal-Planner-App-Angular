@@ -1,53 +1,46 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { AuthService } from '../../../core/auth/auth.service';
+import { Observable, defer } from 'rxjs';
 import { API_BASE_URL } from '../../../core/config/api.config';
 import { toApiDate } from '../../../shared/utils/date';
-import { ReminderInput, ReminderRequest, ReminderResponse } from '../reminder.model';
+import { ReminderInput, ReminderResponse } from '../reminder.model';
 
-/** Acceso HTTP a los recordatorios. Sin estado ni reglas de negocio: eso vive en ReminderStore y en domain/. */
+/**
+ * Acceso HTTP a /api/reminders. Sin estado ni reglas de negocio (eso vive en ReminderStore y en domain/).
+ * El usuario lo determina el backend a partir de la cookie de sesión.
+ */
 @Injectable({ providedIn: 'root' })
 export class ReminderApi {
   private http = inject(HttpClient);
-  private authService = inject(AuthService);
-  private apiUrl = inject(API_BASE_URL);
+  private url = `${inject(API_BASE_URL)}/reminders`;
 
   getAll(): Observable<ReminderResponse[]> {
-    return this.authService.withUser(user =>
-      this.http.get<ReminderResponse[]>(`${this.apiUrl}/getReminders`, { params: { userId: user.userId } })
-    );
+    return this.http.get<ReminderResponse[]>(this.url);
   }
 
   getById(reminderId: number): Observable<ReminderResponse> {
-    return this.http.get<ReminderResponse>(`${this.apiUrl}/getReminder/${reminderId}`);
+    return this.http.get<ReminderResponse>(`${this.url}/${reminderId}`);
   }
 
   create(input: ReminderInput): Observable<ReminderResponse> {
-    return this.authService.withUser(user =>
-      this.http.post<ReminderResponse>(`${this.apiUrl}/createReminder`, this.toRequest(0, input, user.userId))
-    );
+    return defer(() => this.http.post<ReminderResponse>(this.url, this.toBody(input)));
   }
 
-  update(reminderId: number, input: ReminderInput): Observable<unknown> {
-    return this.authService.withUser(user =>
-      this.http.put(`${this.apiUrl}/updateReminder/${reminderId}`, this.toRequest(reminderId, input, user.userId))
-    );
+  update(reminderId: number, input: ReminderInput): Observable<ReminderResponse> {
+    return defer(() => this.http.put<ReminderResponse>(`${this.url}/${reminderId}`, this.toBody(input)));
   }
 
-  delete(reminderId: number): Observable<unknown> {
-    return this.http.delete(`${this.apiUrl}/deleteReminder/${reminderId}`);
+  delete(reminderId: number): Observable<void> {
+    return this.http.delete<void>(`${this.url}/${reminderId}`);
   }
 
-  /** Cuerpo que espera la API. Lanza si la fecha no es válida (se emite como error del observable). */
-  toRequest(reminderId: number, input: ReminderInput, userId: number): ReminderRequest {
+  /** Cuerpo que espera la API: el instante en ISO 8601 (UTC). Lanza si la fecha no es válida. */
+  toBody(input: ReminderInput) {
     return {
-      reminderId,
       title: input.title.trim(),
       description: input.description?.trim() || '',
       reminderDateTime: toApiDate(input.reminderDateTime),
-      isAcknowledged: input.isAcknowledged ?? false,
-      userId
+      isAcknowledged: input.isAcknowledged ?? false
     };
   }
 }

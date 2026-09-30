@@ -1,12 +1,10 @@
+/** Perfil público del usuario autenticado (el backend nunca devuelve la contraseña). */
 export interface User {
   userId: number;
   emailId: string;
   fullName: string;
   mobileNo: string;
   createdDate?: string;
-  projectName?: string;
-  extraId?: number;
-  // No incluimos password por seguridad
 }
 
 export interface LoginData {

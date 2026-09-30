@@ -6,6 +6,7 @@ import { provideRouter, Router } from '@angular/router';
 import { errorInterceptor } from './error.interceptor';
 import { ApiError } from './api-error';
 import { AuthService } from '../auth/auth.service';
+import { signInTestUser } from '../../../testing/fixtures';
 
 describe('errorInterceptor', () => {
   let http: HttpClient;
@@ -23,11 +24,7 @@ describe('errorInterceptor', () => {
     httpTesting = TestBed.inject(HttpTestingController);
   };
 
-  beforeEach(() => localStorage.removeItem('user'));
-  afterEach(() => {
-    httpTesting.verify();
-    localStorage.removeItem('user');
-  });
+  afterEach(() => httpTesting.verify());
 
   it('should map HTTP errors to ApiError with a user-facing message and server message', () => {
     setup();
@@ -45,6 +42,23 @@ describe('errorInterceptor', () => {
     expect(error.serverMessage).toBe('Email already registered');
   });
 
+  it('should join the validation messages returned by the backend', () => {
+    setup();
+    let captured: unknown;
+    http.get('/api/test').subscribe({ error: e => (captured = e) });
+
+    httpTesting
+      .expectOne('/api/test')
+      .flush(
+        { statusCode: 400, message: ['emailId must be an email', 'password must be at least 8 characters long'] },
+        { status: 400, statusText: 'Bad Request' }
+      );
+
+    expect((captured as ApiError).serverMessage).toBe(
+      'emailId must be an email. password must be at least 8 characters long'
+    );
+  });
+
   it('should parse JSON error bodies sent as text', () => {
     setup();
     let captured: unknown;
@@ -56,8 +70,8 @@ describe('errorInterceptor', () => {
   });
 
   it('should log out and redirect to /home on 401 when a user is logged in', () => {
-    localStorage.setItem('user', JSON.stringify({ userId: 1, emailId: 'a@b.c', fullName: 'A', mobileNo: '1' }));
     setup();
+    signInTestUser();
     const router = TestBed.inject(Router);
     const navigate = vi.spyOn(router, 'navigate').mockResolvedValue(true);
 
