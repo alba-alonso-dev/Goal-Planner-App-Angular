@@ -11,10 +11,16 @@
         <div class="modal-body p-4">
           <div class="text-center mb-4">
             <h4 class="modal-title fw-bold" id="authModalTitle">
-              @if (showLogin()) {
-                <ng-container i18n>Welcome Back!</ng-container>
-              } @else {
-                <ng-container i18n>Create your account</ng-container>
+              @switch (view()) {
+                @case ('login') {
+                  <ng-container i18n>Welcome Back!</ng-container>
+                }
+                @case ('register') {
+                  <ng-container i18n>Create your account</ng-container>
+                }
+                @case ('forgot') {
+                  <ng-container i18n>Reset your password</ng-container>
+                }
               }
             </h4>
             <button
@@ -33,114 +39,168 @@
             <div class="alert alert-success py-2" role="status">{{ message }}</div>
           }
 
-          @if (showLogin()) {
-            <form id="loginForm" class="needs-validation">
-              <div class="mb-3">
-                <input
-                  type="email"
-                  name="emailId"
-                  [(ngModel)]="loginObj.emailId"
-                  class="form-control"
-                  i18n-placeholder
-                  placeholder="Email"
-                  required
-                />
-              </div>
-              <div class="mb-3">
-                <input
-                  type="password"
-                  class="form-control"
-                  name="password"
-                  [(ngModel)]="loginObj.password"
-                  i18n-placeholder
-                  placeholder="Password"
-                  required
-                />
-              </div>
-              <button type="button" (click)="onLogin()" class="btn btn-primary w-100 mb-3" [disabled]="isLoading()">
-                @if (isLoading()) {
-                  <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
-                }
-                <ng-container i18n>Login</ng-container>
-              </button>
-              <p class="text-center">
-                <ng-container i18n>Don't have an account?</ng-container>
-                <button
-                  type="button"
-                  id="showSignup"
-                  class="btn btn-link p-0 align-baseline text-decoration-none"
-                  (click)="toggleForm()"
-                  i18n
-                >
-                  Sign Up
+          @switch (view()) {
+            @case ('login') {
+              <form id="loginForm" class="needs-validation" (ngSubmit)="onLogin()">
+                <div class="mb-3">
+                  <input
+                    type="email"
+                    name="emailId"
+                    autocomplete="username"
+                    [(ngModel)]="loginObj.emailId"
+                    class="form-control"
+                    i18n-placeholder
+                    placeholder="Email"
+                    required
+                  />
+                </div>
+                <div class="mb-2">
+                  <input
+                    type="password"
+                    class="form-control"
+                    name="password"
+                    autocomplete="current-password"
+                    [(ngModel)]="loginObj.password"
+                    i18n-placeholder
+                    placeholder="Password"
+                    required
+                  />
+                </div>
+                <div class="text-end mb-3">
+                  <button
+                    type="button"
+                    class="btn btn-link btn-sm p-0 text-decoration-none"
+                    (click)="showView('forgot')"
+                    i18n
+                  >
+                    Forgot your password?
+                  </button>
+                </div>
+                <button type="submit" class="btn btn-primary w-100 mb-3" [disabled]="isLoading()">
+                  @if (isLoading()) {
+                    <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+                  }
+                  <ng-container i18n>Login</ng-container>
                 </button>
-              </p>
-            </form>
-          } @else {
-            <form id="signupForm" class="needs-validation">
-              <div class="mb-3">
-                <input
-                  type="text"
-                  name="fullName"
-                  [(ngModel)]="registerObj.fullName"
-                  class="form-control"
-                  i18n-placeholder
-                  placeholder="Full Name"
-                  required
-                />
-              </div>
-              <div class="mb-3">
-                <input
-                  type="email"
-                  name="emailId"
-                  [(ngModel)]="registerObj.emailId"
-                  class="form-control"
-                  i18n-placeholder
-                  placeholder="Email"
-                  required
-                />
-              </div>
-              <div class="mb-3">
-                <input
-                  type="password"
-                  name="password"
-                  [(ngModel)]="registerObj.password"
-                  class="form-control"
-                  i18n-placeholder
-                  placeholder="Password"
-                  required
-                />
-              </div>
-              <div class="mb-3">
-                <input
-                  type="tel"
-                  name="mobileNo"
-                  [(ngModel)]="registerObj.mobileNo"
-                  class="form-control"
-                  i18n-placeholder
-                  placeholder="Mobile number"
-                  required
-                />
-              </div>
-              <button type="button" class="btn btn-primary w-100 mb-3" (click)="onRegister()" [disabled]="isLoading()">
-                @if (isLoading()) {
-                  <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
-                }
-                <ng-container i18n>Sign Up</ng-container>
-              </button>
-              <p class="text-center">
-                <ng-container i18n>Already have an account?</ng-container>
-                <button
-                  type="button"
-                  id="showLogin"
-                  class="btn btn-link p-0 align-baseline text-decoration-none"
-                  (click)="toggleForm()"
-                  i18n
-                >
-                  Login
+                <p class="text-center">
+                  <ng-container i18n>Don't have an account?</ng-container>
+                  <button
+                    type="button"
+                    id="showSignup"
+                    class="btn btn-link p-0 align-baseline text-decoration-none"
+                    (click)="showView('register')"
+                    i18n
+                  >
+                    Sign Up
+                  </button>
+                </p>
+              </form>
+            }
+            @case ('register') {
+              <form id="signupForm" class="needs-validation" (ngSubmit)="onRegister()">
+                <div class="mb-3">
+                  <input
+                    type="text"
+                    name="fullName"
+                    autocomplete="name"
+                    [(ngModel)]="registerObj.fullName"
+                    class="form-control"
+                    i18n-placeholder
+                    placeholder="Full Name"
+                    required
+                  />
+                </div>
+                <div class="mb-3">
+                  <input
+                    type="email"
+                    name="emailId"
+                    autocomplete="email"
+                    [(ngModel)]="registerObj.emailId"
+                    class="form-control"
+                    i18n-placeholder
+                    placeholder="Email"
+                    required
+                  />
+                </div>
+                <div class="mb-3">
+                  <input
+                    type="password"
+                    name="password"
+                    autocomplete="new-password"
+                    [(ngModel)]="registerObj.password"
+                    class="form-control"
+                    i18n-placeholder
+                    placeholder="Password"
+                    required
+                  />
+                </div>
+                <div class="mb-3">
+                  <input
+                    type="tel"
+                    name="mobileNo"
+                    autocomplete="tel"
+                    [(ngModel)]="registerObj.mobileNo"
+                    class="form-control"
+                    i18n-placeholder
+                    placeholder="Mobile number"
+                    required
+                  />
+                </div>
+                <button type="submit" class="btn btn-primary w-100 mb-3" [disabled]="isLoading()">
+                  @if (isLoading()) {
+                    <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+                  }
+                  <ng-container i18n>Sign Up</ng-container>
                 </button>
-              </p>
-            </form>
+                <p class="text-center">
+                  <ng-container i18n>Already have an account?</ng-container>
+                  <button
+                    type="button"
+                    id="showLogin"
+                    class="btn btn-link p-0 align-baseline text-decoration-none"
+                    (click)="showView('login')"
+                    i18n
+                  >
+                    Login
+                  </button>
+                </p>
+              </form>
+            }
+            @case ('forgot') {
+              <form id="forgotForm" (ngSubmit)="onForgotPassword()">
+                <p i18n class="text-muted small">
+                  Enter the email of your account and we will send you a link to choose a new password.
+                </p>
+                <div class="mb-3">
+                  <input
+                    type="email"
+                    name="forgotEmail"
+                    autocomplete="email"
+                    [(ngModel)]="forgotEmail"
+                    class="form-control"
+                    i18n-placeholder
+                    placeholder="Email"
+                    required
+                  />
+                </div>
+                <button type="submit" class="btn btn-primary w-100 mb-3" [disabled]="isLoading() || !forgotEmail">
+                  @if (isLoading()) {
+                    <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+                  }
+                  <ng-container i18n>Send link</ng-container>
+                </button>
+                <p class="text-center">
+                  <button
+                    type="button"
+                    class="btn btn-link p-0 align-baseline text-decoration-none"
+                    (click)="showView('login')"
+                    i18n
+                  >
+                    Back to login
+                  </button>
+                </p>
+              </form>
+            }
           }
         </div>
       </div>

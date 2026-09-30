@@ -74,3 +74,19 @@ export const mockReminderResponse: ReminderResponse = {
 export const mockGoal = toGoalView(mockGoalResponse, FIXED_NOW);
 export const mockTask = toTaskView(mockTaskResponse, FIXED_NOW);
 export const mockReminder = toReminderView(mockReminderResponse, FIXED_NOW);
+
+/** Escribe en un campo como lo haría el usuario (dispara `input` para que lo vea el formulario). */
+export function typeInto(root: HTMLElement, selector: string, value: string): void {
+  const field = root.querySelector<HTMLInputElement>(selector);
+  if (!field) throw new Error(`No field matches ${selector}`);
+  field.value = value;
+  field.dispatchEvent(new Event('input'));
+  field.dispatchEvent(new Event('blur'));
+}
+
+/** Pulsa el botón cuyo texto contiene `text`. */
+export function clickButton(root: HTMLElement, text: string): void {
+  const button = [...root.querySelectorAll<HTMLButtonElement>('button')].find(b => b.textContent?.includes(text));
+  if (!button) throw new Error(`No button with text "${text}"`);
+  button.click();
+}

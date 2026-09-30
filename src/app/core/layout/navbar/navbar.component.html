@@ -44,9 +44,9 @@
       </ul>
 
       @if (authService.loggedUser(); as user) {
-        <button class="btn btn-outline-light me-2" disabled>
+        <a class="btn btn-outline-light me-2" routerLink="/account" routerLinkActive="active">
           <i aria-hidden="true" class="bi bi-person-fill me-2"></i>{{ user.emailId }}
-        </button>
+        </a>
         <button class="btn btn-secondary" (click)="logout()">
           <i aria-hidden="true" class="bi bi-box-arrow-right me-2"></i><ng-container i18n>Logout</ng-container>
         </button>
@@ -61,5 +61,9 @@
 
 <!-- El modal (y @angular/forms) se descarga solo cuando hace falta; se precarga cuando el navegador está ocioso -->
 @defer (when modalVisible(); prefetch on idle) {
-  <app-login-modal [visible]="modalVisible()" (closed)="closeModal()"></app-login-modal>
+  <app-login-modal
+    [visible]="modalVisible()"
+    [initialView]="loginPrompt.view() ?? 'login'"
+    (closed)="closeModal()"
+  ></app-login-modal>
 }

@@ -10,6 +10,12 @@ export const routes: Routes = [
     component: LayoutComponent, // Todas las rutas usan el mismo layout
     children: [
       { path: 'home', component: HomeComponent }, // Home público (eager: es la página de entrada)
+      // Enlace del email de recuperación (público)
+      {
+        path: 'reset-password',
+        loadComponent: () =>
+          import('./core/auth/reset-password/reset-password.component').then(m => m.ResetPasswordComponent)
+      },
       // Cada feature privada se carga bajo demanda con sus propias rutas
       {
         path: '',
@@ -24,6 +30,10 @@ export const routes: Routes = [
           {
             path: 'reminders',
             loadChildren: () => import('./features/reminders/reminders.routes').then(m => m.REMINDERS_ROUTES)
+          },
+          {
+            path: 'account',
+            loadChildren: () => import('./features/account/account.routes').then(m => m.ACCOUNT_ROUTES)
           }
         ]
       }

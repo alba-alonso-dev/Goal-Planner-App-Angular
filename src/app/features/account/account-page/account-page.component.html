@@ -1,0 +1,84 @@
+<div class="container py-3">
+  <h1 i18n class="fw-bold mb-4"><i aria-hidden="true" class="bi bi-person-circle me-2"></i> My account</h1>
+
+  <div class="row g-4">
+    <div class="col-lg-5">
+      <section class="card border-0 shadow-sm h-100" aria-labelledby="account-profile-title">
+        <div class="card-body p-4">
+          <h2 i18n id="account-profile-title" class="h5 fw-bold mb-3">Profile</h2>
+          @if (user(); as user) {
+            <dl class="mb-0">
+              <dt i18n class="text-muted small">Name</dt>
+              <dd>{{ user.fullName }}</dd>
+              <dt i18n class="text-muted small">Email</dt>
+              <dd>{{ user.emailId }}</dd>
+              <dt i18n class="text-muted small">Mobile number</dt>
+              <dd class="mb-0">{{ user.mobileNo }}</dd>
+            </dl>
+          }
+        </div>
+      </section>
+    </div>
+
+    <div class="col-lg-7">
+      <section class="card border-0 shadow-sm" aria-labelledby="account-password-title">
+        <div class="card-body p-4">
+          <h2 i18n id="account-password-title" class="h5 fw-bold mb-1">Change password</h2>
+          <p i18n class="text-muted small">Your other sessions will be closed; this one stays open.</p>
+
+          @if (passwordError(); as message) {
+            <div class="alert alert-danger py-2" role="alert">{{ message }}</div>
+          }
+
+          <form [formGroup]="passwordForm" (ngSubmit)="changePassword()" novalidate>
+            <div class="mb-3">
+              <label i18n class="form-label fw-semibold" for="account-current-password">Current password</label>
+              <input
+                id="account-current-password"
+                type="password"
+                class="form-control"
+                formControlName="current"
+                autocomplete="current-password"
+                [class.is-invalid]="passwordForm.controls.current.invalid && passwordForm.controls.current.touched"
+              />
+            </div>
+            <div class="mb-3">
+              <label i18n class="form-label fw-semibold" for="account-new-password">New password</label>
+              <input
+                id="account-new-password"
+                type="password"
+                class="form-control"
+                formControlName="password"
+                autocomplete="new-password"
+                [class.is-invalid]="passwordForm.controls.password.invalid && passwordForm.controls.password.touched"
+              />
+              @if (passwordForm.controls.password.invalid && passwordForm.controls.password.touched) {
+                <div i18n class="invalid-feedback">Use at least {{ minLength }} characters</div>
+              }
+            </div>
+            <div class="mb-4">
+              <label i18n class="form-label fw-semibold" for="account-confirm-password">Repeat the new password</label>
+              <input
+                id="account-confirm-password"
+                type="password"
+                class="form-control"
+                formControlName="confirm"
+                autocomplete="new-password"
+                [class.is-invalid]="passwordForm.hasError('passwordMismatch') && passwordForm.controls.confirm.touched"
+              />
+              @if (passwordForm.hasError('passwordMismatch') && passwordForm.controls.confirm.touched) {
+                <div i18n class="invalid-feedback">The passwords do not match</div>
+              }
+            </div>
+            <button type="submit" class="btn btn-primary" [disabled]="saving()">
+              @if (saving()) {
+                <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+              }
+              <ng-container i18n>Change password</ng-container>
+            </button>
+          </form>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>

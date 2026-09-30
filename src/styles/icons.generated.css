@@ -145,6 +145,9 @@
 .bi-info-circle-fill::before {
   content: '\f430';
 }
+.bi-key::before {
+  content: '\f44f';
+}
 .bi-linkedin::before {
   content: '\f472';
 }
@@ -162,6 +165,9 @@
 }
 .bi-people-fill::before {
   content: '\f4cf';
+}
+.bi-person-circle::before {
+  content: '\f4d7';
 }
 .bi-person-fill::before {
   content: '\f4da';

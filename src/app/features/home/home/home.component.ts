@@ -1,5 +1,7 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { RouterModule } from '@angular/router';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { Router, RouterModule } from '@angular/router';
+import { AuthService } from '../../../core/auth/auth.service';
+import { AuthView, LoginPromptService } from '../../../core/auth/login-prompt.service';
 
 @Component({
   selector: 'app-home',
@@ -10,6 +12,19 @@ import { RouterModule } from '@angular/router';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class HomeComponent {
+  private auth = inject(AuthService);
+  private loginPrompt = inject(LoginPromptService);
+  private router = inject(Router);
+
+  /** Botones principales: abren el modal de acceso, o el dashboard si ya hay sesión. */
+  start(view: AuthView) {
+    if (this.auth.loggedUser()) {
+      this.router.navigate(['/dashboard']);
+    } else {
+      this.loginPrompt.open(view);
+    }
+  }
+
   // Features de la aplicación
   features = [
     {

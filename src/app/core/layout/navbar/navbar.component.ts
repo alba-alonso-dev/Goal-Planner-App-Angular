@@ -1,9 +1,10 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
 import { filter } from 'rxjs';
 import { LoginModalComponent } from '../../auth/login-modal/login-modal.component';
 import { AuthService } from '../../auth/auth.service';
+import { LoginPromptService } from '../../auth/login-prompt.service';
 
 @Component({
   selector: 'app-navbar',
@@ -17,7 +18,8 @@ export class NavbarComponent {
   readonly authService = inject(AuthService);
   private router = inject(Router);
 
-  readonly modalVisible = signal(false);
+  readonly loginPrompt = inject(LoginPromptService);
+  readonly modalVisible = computed(() => this.loginPrompt.view() !== null);
   // Menú colapsable en pantallas pequeñas (no se carga el JS de Bootstrap)
   readonly menuOpen = signal(false);
 
@@ -37,11 +39,11 @@ export class NavbarComponent {
 
   openModal() {
     this.menuOpen.set(false);
-    this.modalVisible.set(true);
+    this.loginPrompt.open('login');
   }
 
   closeModal() {
-    this.modalVisible.set(false);
+    this.loginPrompt.close();
   }
 
   logout() {

@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, catchError, finalize, map, of, tap } from 'rxjs';
 import { LoginData, RegisterData, User } from './user.model';
 import { API_BASE_URL } from '../config/api.config';
+import { currentLocale } from '../../shared/utils/locale';
 
 /**
  * Sesión del usuario. El token vive en una cookie HttpOnly que gestiona el backend: el navegador la
@@ -41,6 +42,22 @@ export class AuthService {
       map(() => undefined),
       finalize(() => this.clearSession())
     );
+  }
+
+  /** Cambia la contraseña. El servidor cierra las demás sesiones y renueva la de este dispositivo. */
+  changePassword(currentPassword: string, newPassword: string): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/auth/change-password`, { currentPassword, newPassword });
+  }
+
+  /** Pide el email de recuperación, en el idioma de la interfaz. Responde igual exista o no la cuenta. */
+  requestPasswordReset(emailId: string): Observable<void> {
+    const locale = currentLocale().startsWith('es') ? 'es' : 'en';
+    return this.http.post<void>(`${this.apiUrl}/auth/forgot-password`, { emailId, locale });
+  }
+
+  /** Restablece la contraseña con el token del email. Todas las sesiones quedan cerradas. */
+  resetPassword(token: string, newPassword: string): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/auth/reset-password`, { token, newPassword });
   }
 
   /** Olvida la sesión local sin llamar al servidor (p. ej. cuando éste ya respondió 401). */

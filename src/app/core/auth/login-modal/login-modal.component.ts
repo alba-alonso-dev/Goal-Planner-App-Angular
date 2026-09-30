@@ -1,11 +1,11 @@
-import { ChangeDetectionStrategy, Component, inject, input, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, linkedSignal, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { AuthService } from '../auth.service';
-import { LoginData, RegisterData } from '../user.model';
 import { Router } from '@angular/router';
 import { ApiError } from '../../http/api-error';
-
 import { DialogDirective } from '../../../shared/ui/dialog.directive';
+import { AuthService } from '../auth.service';
+import { AuthView } from '../login-prompt.service';
+import { LoginData, RegisterData } from '../user.model';
 
 @Component({
   selector: 'app-login-modal',
@@ -15,51 +15,34 @@ import { DialogDirective } from '../../../shared/ui/dialog.directive';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class LoginModalComponent {
-  readonly visible = input(false);
-  readonly closed = output<void>();
-
-  // Signal para alternar entre login (true) y registro (false)
-  showLogin = signal<boolean>(true);
-
-  // Usamos la interfaz LoginData
-  loginObj: LoginData = {
-    emailId: '',
-    password: ''
-  };
-
-  // Usamos la interfaz RegisterData
-  registerObj: RegisterData = {
-    fullName: '',
-    emailId: '',
-    password: '',
-    mobileNo: ''
-  };
-
-  // Para mostrar mensajes de error/éxito
-  errorMessage = signal<string | null>(null);
-  successMessage = signal<string | null>(null);
-  isLoading = signal<boolean>(false);
-
   private authService = inject(AuthService);
   private router = inject(Router);
 
-  // Cierra el modal (emite el evento al padre)
+  readonly visible = input(false);
+  /** Vista con la que se abre; el usuario puede cambiarla después. */
+  readonly initialView = input<AuthView>('login');
+  readonly closed = output<void>();
+
+  readonly view = linkedSignal(() => this.initialView());
+
+  loginObj: LoginData = { emailId: '', password: '' };
+  registerObj: RegisterData = { fullName: '', emailId: '', password: '', mobileNo: '' };
+  forgotEmail = '';
+
+  readonly errorMessage = signal<string | null>(null);
+  readonly successMessage = signal<string | null>(null);
+  readonly isLoading = signal(false);
+
   closeModal() {
     this.closed.emit();
-    // Limpiar mensajes al cerrar
-    this.errorMessage.set(null);
-    this.successMessage.set(null);
+    this.clearMessages();
   }
 
-  // Alternar entre login y registro
-  toggleForm() {
-    this.showLogin.update(value => !value);
-    // Limpiar mensajes al cambiar de formulario
-    this.errorMessage.set(null);
-    this.successMessage.set(null);
+  showView(view: AuthView) {
+    this.view.set(view);
+    this.clearMessages();
   }
 
-  // Método llamado al enviar login
   onLogin() {
     this.isLoading.set(true);
     this.errorMessage.set(null);
@@ -67,24 +50,21 @@ export class LoginModalComponent {
     this.authService.login(this.loginObj).subscribe({
       next: () => {
         this.isLoading.set(false);
-        this.closeModal(); // Cierra el modal
-        this.router.navigate(['/dashboard']); // Navega al dashboard
+        this.closeModal();
+        this.router.navigate(['/dashboard']);
       },
       error: (err: ApiError) => {
         this.isLoading.set(false);
         this.errorMessage.set(err.serverMessage || $localize`Could not log in. Please try again.`);
-        console.error('Login error', err);
       }
     });
   }
 
-  // Método llamado al enviar registro
+  // El backend abre la sesión al registrar: no hace falta un login posterior
   onRegister() {
     this.isLoading.set(true);
-    this.errorMessage.set(null);
-    this.successMessage.set(null);
+    this.clearMessages();
 
-    // El backend abre la sesión al registrar: no hace falta un login posterior
     this.authService.register(this.registerObj).subscribe({
       next: () => {
         this.isLoading.set(false);
@@ -94,12 +74,28 @@ export class LoginModalComponent {
       error: (err: ApiError) => {
         this.isLoading.set(false);
         this.errorMessage.set(err.serverMessage || $localize`Could not sign up. Please try again.`);
-        console.error('Register error', err);
       }
     });
   }
 
-  // Método para limpiar mensajes
+  onForgotPassword() {
+    this.isLoading.set(true);
+    this.clearMessages();
+
+    this.authService.requestPasswordReset(this.forgotEmail).subscribe({
+      next: () => {
+        this.isLoading.set(false);
+        this.successMessage.set(
+          $localize`If an account exists for that email, you will receive a link to reset your password in a few minutes.`
+        );
+      },
+      error: (err: ApiError) => {
+        this.isLoading.set(false);
+        this.errorMessage.set(err.serverMessage || $localize`Could not send the link. Please try again.`);
+      }
+    });
+  }
+
   clearMessages() {
     this.errorMessage.set(null);
     this.successMessage.set(null);

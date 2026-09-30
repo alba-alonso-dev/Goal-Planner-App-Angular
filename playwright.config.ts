@@ -1,4 +1,5 @@
 import { defineConfig, devices } from '@playwright/test';
+import { OUTBOX_DIR } from './e2e/outbox';
 
 const CI = !!process.env['CI'];
 
@@ -28,7 +29,10 @@ export default defineConfig({
       env: {
         DATABASE_URL: process.env['E2E_DATABASE_URL'] ?? 'postgres://goal:goal@localhost:5432/goal_planner_e2e',
         // Los tests registran muchos usuarios desde la misma IP
-        AUTH_RATE_LIMIT: '10000'
+        AUTH_RATE_LIMIT: '10000',
+        // Sin SMTP: los emails se guardan como JSON y los tests leen el enlace de ahí
+        MAIL_OUTBOX_DIR: OUTBOX_DIR,
+        APP_URL: 'http://localhost:4300'
       }
     },
     {
