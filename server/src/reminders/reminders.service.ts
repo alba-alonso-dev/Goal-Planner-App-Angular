@@ -25,7 +25,10 @@ export class RemindersService {
 
   async update(userId: number, id: number, dto: ReminderDto): Promise<Reminder> {
     const reminder = await this.findOne(userId, id);
-    return this.reminders.save(Object.assign(reminder, this.fields(dto)));
+    const fields = this.fields(dto);
+    // Si cambia la hora, se vuelve a notificar cuando llegue la nueva
+    if (fields.remindAt!.getTime() !== reminder.remindAt.getTime()) fields.notifiedAt = null;
+    return this.reminders.save(Object.assign(reminder, fields));
   }
 
   async remove(userId: number, id: number): Promise<void> {

@@ -7,9 +7,11 @@ import { User } from '../users/user.entity.js';
 import { PasswordResetToken } from '../auth/password-reset-token.entity.js';
 import { InitialSchema1759200000000 } from './migrations/1759200000000-initial-schema.js';
 import { PasswordReset1759300000000 } from './migrations/1759300000000-password-reset.js';
+import { WebPush1759400000000 } from './migrations/1759400000000-web-push.js';
+import { PushSubscriptionEntity } from '../push/push-subscription.entity.js';
 
-export const ENTITIES = [User, Task, Goal, Milestone, Reminder, PasswordResetToken];
-export const MIGRATIONS = [InitialSchema1759200000000, PasswordReset1759300000000];
+export const ENTITIES = [User, Task, Goal, Milestone, Reminder, PasswordResetToken, PushSubscriptionEntity];
+export const MIGRATIONS = [InitialSchema1759200000000, PasswordReset1759300000000, WebPush1759400000000];
 
 /**
  * Opciones de TypeORM. El esquema lo definen las migraciones (nunca `synchronize`), que se aplican

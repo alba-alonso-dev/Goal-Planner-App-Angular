@@ -36,6 +36,10 @@ export class Reminder {
   @Column({ name: 'is_acknowledged', type: 'boolean', default: false })
   isAcknowledged!: boolean;
 
+  /** Cuándo se envió la notificación push (null: pendiente). */
+  @Column({ name: 'notified_at', type: 'timestamptz', nullable: true })
+  notifiedAt!: Date | null;
+
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt!: Date;
 }

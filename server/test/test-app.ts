@@ -5,6 +5,7 @@ import { DataSource } from 'typeorm';
 import { AppModule } from '../src/app.module.js';
 import { configureApp } from '../src/configure-app.js';
 import { MailService, OutgoingMail } from '../src/mail/mail.service.js';
+import { PushPayload, PushResult, PushSender, PushTarget } from '../src/push/push-sender.js';
 
 /** Base de datos de tests: nunca la de desarrollo. */
 export const TEST_DATABASE_URL =
@@ -13,14 +14,29 @@ export const TEST_DATABASE_URL =
 /** Emails "enviados" por la aplicación de test (MailService sustituido). */
 export const sentMails: OutgoingMail[] = [];
 
+/** Notificaciones push "enviadas" (PushSender sustituido). `pushResult` simula la respuesta del servicio. */
+export const sentPushes: { target: PushTarget; payload: PushPayload }[] = [];
+export const pushResult: { next: PushResult } = { next: 'sent' };
+
 export async function createTestApp(): Promise<INestApplication> {
   process.env['DATABASE_URL'] = TEST_DATABASE_URL;
   process.env['NODE_ENV'] = 'test';
   // Los tests registran muchos usuarios seguidos; el límite real se prueba aparte
   process.env['AUTH_RATE_LIMIT'] = '1000';
+  // Push activado con claves de prueba; el planificador se invoca a mano en los tests
+  process.env['VAPID_PUBLIC_KEY'] = 'test-public-key';
+  process.env['VAPID_PRIVATE_KEY'] = 'test-private-key';
+  process.env['PUSH_INTERVAL_SECONDS'] = '0';
   const moduleRef = await Test.createTestingModule({ imports: [AppModule] })
     .overrideProvider(MailService)
     .useValue({ send: async (mail: OutgoingMail) => void sentMails.push(mail) })
+    .overrideProvider(PushSender)
+    .useValue({
+      send: async (target: PushTarget, payload: PushPayload) => {
+        sentPushes.push({ target, payload });
+        return pushResult.next;
+      }
+    })
     .compile();
   const app = configureApp(moduleRef.createNestApplication());
   await app.init();

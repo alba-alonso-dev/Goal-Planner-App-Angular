@@ -15,6 +15,10 @@ export interface AppConfig {
   mailFrom: string;
   /** Desarrollo/tests: carpeta donde se guarda cada email enviado como JSON. */
   mailOutboxDir: string | null;
+  /** Claves VAPID de Web Push (`npm run vapid`); sin ellas las notificaciones push están desactivadas. */
+  vapid: { publicKey: string; privateKey: string; subject: string } | null;
+  /** Cada cuántos segundos se buscan recordatorios vencidos que notificar (0: nunca, p. ej. en tests). */
+  pushIntervalSeconds: number;
 }
 
 export const APP_CONFIG = Symbol('APP_CONFIG');
@@ -52,6 +56,15 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
     appUrl: appUrl.replace(/\/+$/, ''),
     smtpUrl,
     mailFrom: env['MAIL_FROM'] ?? 'Goal Planner <no-reply@goal-planner.local>',
-    mailOutboxDir: env['MAIL_OUTBOX_DIR'] || null
+    mailOutboxDir: env['MAIL_OUTBOX_DIR'] || null,
+    vapid:
+      env['VAPID_PUBLIC_KEY'] && env['VAPID_PRIVATE_KEY']
+        ? {
+            publicKey: env['VAPID_PUBLIC_KEY'],
+            privateKey: env['VAPID_PRIVATE_KEY'],
+            subject: env['VAPID_SUBJECT'] ?? 'mailto:admin@goal-planner.local'
+          }
+        : null,
+    pushIntervalSeconds: Number(env['PUSH_INTERVAL_SECONDS'] ?? 30)
   };
 }
