@@ -26,7 +26,7 @@ export default defineConfig({
       reuseExistingServer: !CI,
       timeout: 120_000,
       env: {
-        DATABASE_URL: process.env['E2E_DATABASE_URL'] ?? 'postgres://goal@localhost:5433/goal_planner_e2e',
+        DATABASE_URL: process.env['E2E_DATABASE_URL'] ?? 'postgres://goal:goal@localhost:5432/goal_planner_e2e',
         // Los tests registran muchos usuarios desde la misma IP
         AUTH_RATE_LIMIT: '10000'
       }

@@ -2,35 +2,37 @@
 
 Aplicación web para **planificar objetivos, dividirlos en hitos, organizar tareas recurrentes y no olvidar recordatorios**, con un dashboard de progreso.
 
-Construida con **Angular 19** (standalone components + signals), Bootstrap 5 y Chart.js, sobre la API pública [FreeProjectAPI · GoalTracker](https://api.freeprojectapi.com).
+Monorepo con el **frontend en Angular 22** (standalone, signals, zoneless) y un **backend propio en NestJS + PostgreSQL** (`server/`). Interfaz en inglés y español.
 
-> ⚠️ **Estado del proyecto:** prototipo / proyecto de aprendizaje. Consulta [Estado actual y limitaciones conocidas](#-estado-actual-y-limitaciones-conocidas) y la [revisión de arquitectura](docs/ARCHITECTURE_REVIEW.md) antes de usarlo con datos reales.
+> La [revisión de arquitectura](docs/ARCHITECTURE_REVIEW.md) recoge el análisis inicial del proyecto, la hoja de ruta por fases y las decisiones tomadas en cada una.
 
 ---
 
 ## ✨ Funcionalidades
 
-| Módulo            | Qué permite                                                                                                                                                                           |
-| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Autenticación** | Registro, login (con login automático tras registrarse) y logout. Rutas privadas protegidas por guard.                                                                                |
-| **Goals**         | Crear, editar y ver objetivos con fechas de inicio/fin e **hitos (milestones)**. Progreso calculado a partir de los hitos completados. Filtros por estado y búsqueda.                 |
-| **Tasks**         | Tareas **diarias, semanales o mensuales**, agrupadas por frecuencia y colapsables. Marcar como completadas, editar, eliminar, filtrar (pendientes / completadas / vencidas) y buscar. |
-| **Reminders**     | Recordatorios con fecha y hora, tiempo restante, marcado como "acknowledged", detección de vencidos y agrupación (hoy, mañana, esta semana…).                                         |
-| **Dashboard**     | KPIs globales, tasa de completado y gráficas de tareas (7 días), estado de goals y próximos recordatorios.                                                                            |
-| **Home**          | Landing pública con presentación de funcionalidades.                                                                                                                                  |
+| Módulo            | Qué permite                                                                                                                                                             |
+| ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Autenticación** | Registro (abre la sesión), login y logout. La sesión vive en una cookie `HttpOnly` y se restaura al recargar. Rutas privadas protegidas por guard.                      |
+| **Goals**         | Objetivos con fechas de inicio y fin e **hitos (milestones)**. El progreso se calcula a partir de los hitos completados. Filtros por estado y búsqueda.                 |
+| **Tasks**         | Tareas **diarias, semanales o mensuales**, agrupadas por frecuencia. Marcar como completadas, editar, eliminar, filtrar (pendientes / completadas / vencidas) y buscar. |
+| **Reminders**     | Recordatorios con fecha y hora, tiempo restante y agrupación (hoy, mañana, esta semana…). **Aviso en la app y notificación del sistema** cuando vencen.                 |
+| **Dashboard**     | KPIs globales, tasa de completado y gráficas de tareas (7 días), estado de los goals y próximos recordatorios.                                                          |
+| **Home**          | Landing pública con la presentación del producto.                                                                                                                       |
+| **Idiomas**       | Inglés y español, con fechas, plurales y tiempos relativos según el idioma.                                                                                             |
 
 ---
 
 ## 🧱 Stack
 
-| Capa      | Tecnología                                                                    |
-| --------- | ----------------------------------------------------------------------------- |
-| Framework | Angular 19.2 · standalone components · signals · control flow (`@if`, `@for`) |
-| Lenguaje  | TypeScript 5.7 (`strict`, `strictTemplates`)                                  |
-| UI        | Bootstrap 5.3 (SCSS a medida) y Bootstrap Icons (npm, solo los iconos usados) |
-| Gráficas  | Chart.js 4                                                                    |
-| HTTP      | `HttpClient` + RxJS 7.8                                                       |
-| Tests     | Karma + Jasmine · CI con GitHub Actions                                       |
+| Capa     | Tecnología                                                                                                  |
+| -------- | ----------------------------------------------------------------------------------------------------------- |
+| Frontend | Angular 22 · standalone · signals · zoneless · `OnPush` · control flow · TypeScript 6 (`strict`)            |
+| UI       | Bootstrap 5.3 (SCSS a medida) · Bootstrap Icons (solo los usados) · Chart.js 4                              |
+| i18n     | `@angular/localize` (en-US de origen, traducción al español)                                                |
+| Backend  | NestJS 12 · TypeORM · PostgreSQL 16 · JWT en cookie `HttpOnly` · `class-validator` · helmet · rate limiting |
+| Tests    | Vitest (frontend y backend) · e2e del backend con PostgreSQL real · Playwright + axe-core (pila completa)   |
+| Calidad  | ESLint + angular-eslint (accesibilidad en plantillas) · oxlint (backend) · Prettier · husky + lint-staged   |
+| CI       | GitHub Actions: frontend, backend y e2e en jobs separados                                                   |
 
 ---
 
@@ -38,38 +40,88 @@ Construida con **Angular 19** (standalone components + signals), Bootstrap 5 y C
 
 ### Requisitos
 
-- **Node.js** 18.19+ / 20.11+ / 22 (requisitos de Angular 19)
-- **npm** 9+
+- **Node.js ≥ 22.22.3** (lo exige Angular CLI 22; ver `.nvmrc`).
+- **npm 11** para el backend (`server/` fija `packageManager: npm@11`; con npm 10 `npm ci` falla). Si tu npm es anterior, usa `npx -y npm@11 ci`.
+- **PostgreSQL 16**. Lo más cómodo es Docker: `docker compose up -d` crea la base de datos de la app y las de los tests (usuario y contraseña `goal`).
 
-### Instalación y arranque
+### Primer arranque
 
 ```bash
 git clone https://github.com/alba-alonso-dev/Goal-Planner-App-Angular.git
 cd Goal-Planner-App-Angular
+
+docker compose up -d                 # PostgreSQL en localhost:5432
+
+# Backend → http://localhost:3000/api
+cd server
+npx -y npm@11 ci
+cp .env.example .env                 # ajusta DATABASE_URL si no usas docker compose
+npm run start:dev                    # aplica las migraciones al arrancar
+cd ..
+
+# Frontend → http://localhost:4200 (en otra terminal)
 npm ci
-npm start            # ng serve → http://localhost:4200
+npm start                            # ng serve redirige /api al backend (proxy.conf.json)
 ```
 
-La aplicación usa directamente la API pública, así que no hace falta levantar ningún backend. Crea una cuenta desde el botón de login de la barra de navegación.
+Crea una cuenta desde el botón **Login** de la barra de navegación. Para ver la interfaz en español en desarrollo: `npm run start:es`.
 
-### Scripts
+### Variables de entorno del backend
 
-| Comando           | Descripción                                                                                     |
-| ----------------- | ----------------------------------------------------------------------------------------------- |
-| `npm start`       | Servidor de desarrollo con recarga en caliente (`ng serve`).                                    |
-| `npm run build`   | Build de producción en `dist/goal-planer/`.                                                     |
-| `npm run watch`   | Build de desarrollo en modo watch.                                                              |
-| `npm test`        | Tests unitarios con Karma (Chrome, modo watch).                                                 |
-| `npm run test:ci` | Tests en Chrome headless, una sola ejecución (el que usa la CI).                                |
-| `npm run lint`    | ESLint (TypeScript, plantillas y accesibilidad).                                                |
-| `npm run format`  | Formatea el código con Prettier (`format:check` solo comprueba).                                |
-| `npm run icons`   | Regenera `src/styles/icons.generated.css` con los iconos usados (`icons:check` solo comprueba). |
+| Variable              | Por defecto                     | Descripción                                                                      |
+| --------------------- | ------------------------------- | -------------------------------------------------------------------------------- |
+| `DATABASE_URL`        | — (obligatoria)                 | Cadena de conexión de PostgreSQL.                                                |
+| `JWT_SECRET`          | secreto de desarrollo           | **Obligatoria en producción** (mínimo 32 caracteres): `openssl rand -base64 48`. |
+| `PORT`                | `3000`                          | Puerto HTTP.                                                                     |
+| `SESSION_TTL_SECONDS` | `604800` (7 días)               | Duración de la sesión.                                                           |
+| `AUTH_RATE_LIMIT`     | `10`                            | Intentos de login/registro por minuto y cliente (el resto de la API: 300/min).   |
+| `COOKIE_SECURE`       | `true` si `NODE_ENV=production` | Enviar la cookie de sesión solo por HTTPS.                                       |
 
-> `test:ci` necesita Chrome/Chromium instalado; si no está en el `PATH`, indica su ruta con `CHROME_BIN`.
+### Scripts del frontend (raíz)
+
+| Comando                | Descripción                                                                                     |
+| ---------------------- | ----------------------------------------------------------------------------------------------- |
+| `npm start`            | `ng serve` en inglés, con proxy de `/api` a `localhost:3000`.                                   |
+| `npm run start:es`     | Lo mismo, en español.                                                                           |
+| `npm run build`        | Build de producción en `dist/goal-planer/browser/{en,es}/`. Falla si falta una traducción.      |
+| `npm test`             | Tests unitarios con Vitest en modo watch (`test:ci`: una sola ejecución).                       |
+| `npm run e2e`          | Tests de Playwright sobre la pila completa (ver [Tests](#-tests)).                              |
+| `npm run lint`         | ESLint (TypeScript, plantillas y accesibilidad).                                                |
+| `npm run format`       | Formatea con Prettier (`format:check` solo comprueba).                                          |
+| `npm run icons`        | Regenera `src/styles/icons.generated.css` con los iconos usados (`icons:check` solo comprueba). |
+| `npm run i18n:extract` | Regenera el catálogo de textos `src/locale/messages.json`.                                      |
+
+### Scripts del backend (`server/`)
+
+| Comando                                      | Descripción                                                          |
+| -------------------------------------------- | -------------------------------------------------------------------- |
+| `npm run start:dev`                          | Servidor con recarga.                                                |
+| `npm run build` / `npm run start:prod`       | Compila a `dist/` y lo arranca.                                      |
+| `npm test`                                   | Tests unitarios (Vitest).                                            |
+| `npm run test:e2e`                           | Tests de la API contra PostgreSQL (`TEST_DATABASE_URL`).             |
+| `npm run lint` / `npm run typecheck`         | oxlint y comprobación de tipos.                                      |
+| `npm run migration:run` / `migration:revert` | Aplica o revierte migraciones a mano (al arrancar se aplican solas). |
+
+---
+
+## 🧪 Tests
+
+| Nivel                   | Qué cubre                                                                                                                                              | Cómo se ejecuta                 |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------- |
+| Unitarios (frontend)    | Reglas de dominio, stores, APIs, validadores, interceptor, guard, directiva de diálogo, avisos de recordatorios. También con `TZ=America/Los_Angeles`. | `npm run test:ci`               |
+| Unitarios (backend)     | Hash de contraseñas, validadores, reglas de goals.                                                                                                     | `cd server && npm test`         |
+| e2e de la API           | Registro/login/sesión, rate limit, CRUD de cada recurso, validación y **aislamiento entre usuarios** (IDOR → 404).                                     | `cd server && npm run test:e2e` |
+| e2e de la pila completa | Playwright en Chromium: flujos de auth, tareas, goals y recordatorios, aislamiento y **axe-core (WCAG 2.1 A/AA)** en las páginas principales.          | `npm run e2e`                   |
+
+`npm run e2e` compila y arranca el backend contra `E2E_DATABASE_URL` (por defecto `goal_planner_e2e` del `docker compose`) y un `ng serve` en el puerto 4300. La primera vez instala Chromium con `npx playwright install chromium`.
 
 ### Integración continua
 
-`.github/workflows/ci.yml` ejecuta en cada push a `main` y en cada Pull Request: `npm ci` → `lint` → `format:check` → `icons:check` → `test:ci` → `build`.
+`.github/workflows/ci.yml` se ejecuta en cada push a `main` y en cada Pull Request, con tres jobs:
+
+- **Frontend**: `lint` → `format:check` → `icons:check` → tests (dos husos horarios) → catálogo i18n al día → `build` (en + es).
+- **Backend**: `npm ci` (npm 11) → `lint` → `typecheck` → tests → e2e contra un servicio PostgreSQL → `build`.
+- **e2e**: Playwright contra backend + PostgreSQL + frontend; si falla, sube el informe como artefacto.
 
 En local, un hook de **husky** ejecuta `lint-staged` (ESLint + Prettier sobre los archivos preparados) antes de cada commit. Para ignorar en `git blame` el commit de formateo masivo: `git config blame.ignoreRevsFile .git-blame-ignore-revs`.
 
@@ -77,47 +129,39 @@ En local, un hook de **husky** ejecuta `lint-staged` (ESLint + Prettier sobre lo
 
 ## 🗂️ Estructura del proyecto
 
-Organizada por **features**: cada una contiene su página, sus componentes de presentación, su acceso a datos, su estado y sus reglas de negocio.
-
 ```
-src/
-├── index.html                 # Shell HTML (sin dependencias de CDN)
-├── main.ts                    # bootstrapApplication(AppComponent, appConfig)
-├── styles.css                 # Estilos globales, variables CSS y tamaños de icono
-├── styles/
-│   ├── bootstrap.scss         # Bootstrap con solo los módulos y utilidades en uso
-│   └── icons.generated.css    # Generado por scripts/generate-icons.mjs (no editar)
-├── environments/              # environment.ts (prod) / environment.development.ts (ng serve)
-├── testing/fixtures.ts        # Datos de prueba, reloj fijo y sesión de test para los specs
-└── app/
-    ├── app.config.ts          # Providers: router, HttpClient + errorInterceptor
-    ├── app.routes.ts          # Layout + home; cada feature privada con loadChildren y authGuard
-    ├── core/                  # Singletons transversales
-    │   ├── auth/              # AuthService, authGuard, User, login-modal
-    │   ├── config/            # Token API_BASE_URL
-    │   ├── http/              # ApiError + errorInterceptor (normaliza errores, logout en 401)
-    │   ├── layout/            # layout, navbar, footer
-    │   ├── notifications/     # NotificationService + toast-container
-    │   └── time/              # ClockService: la hora actual como signal (tick cada minuto)
-    ├── shared/                # Código reutilizable sin dependencias de features
-    │   ├── data-access/       # EntityCollection: colección con signals, caché y cambios optimistas
-    │   ├── forms/             # Validadores de fechas (orden, rango de milestones, no en el pasado)
-    │   └── utils/date.ts      # Helpers de fecha en hora local
-    └── features/
-        ├── home/              # Landing pública
-        ├── dashboard/         # Página + domain/dashboard.rules.ts (stats, gráficas, "needs attention")
-        └── tasks/ | goals/ | reminders/
-            ├── <x>.routes.ts          # Rutas de la feature (lazy)
-            ├── <x>.model.ts           # DTO de la API, *View (con campos derivados), *Input, filtros
-            ├── <x>-list/              # Página (contenedor): lee del store y orquesta
-            ├── ui/                    # Presentación: <x>-item, <x>-details, new-<x>
-            ├── data-access/
-            │   ├── <x>.api.ts         # HTTP puro: construye peticiones, sin estado
-            │   └── <x>.store.ts       # Estado: fuente única de verdad, vistas derivadas, mutaciones
-            └── domain/<x>.rules.ts    # Reglas de negocio en funciones puras (+ tests)
+├── src/                          # Frontend (Angular)
+│   ├── main.ts / index.html
+│   ├── locale/                   # messages.json (generado) y messages.es.json (traducción)
+│   ├── styles/                   # Bootstrap a medida + iconos generados
+│   ├── testing/fixtures.ts       # Datos, reloj fijo y sesión de test para los specs
+│   └── app/
+│       ├── app.config.ts         # Zoneless, router, HttpClient + errorInterceptor, restaurar sesión, avisos
+│       ├── app.routes.ts         # Layout + home; cada feature privada con loadChildren y authGuard
+│       ├── core/                 # auth, config (API_BASE_URL), http (ApiError), layout, notifications, time (ClockService)
+│       ├── shared/               # EntityCollection, validadores de fechas, appDialog, utils (fechas, locale)
+│       └── features/
+│           ├── home/ · dashboard/
+│           └── tasks/ | goals/ | reminders/
+│               ├── <x>.routes.ts · <x>.model.ts
+│               ├── <x>-list/            # Página (contenedor)
+│               ├── ui/                  # Presentación: <x>-item, <x>-details, new-<x>
+│               ├── data-access/         # <x>.api.ts (HTTP) y <x>.store.ts (estado)
+│               └── domain/<x>.rules.ts  # Reglas de negocio puras (+ tests)
+├── server/                       # Backend (NestJS)
+│   ├── src/
+│   │   ├── auth/                 # Registro/login/logout/me, guard global de sesión, scrypt
+│   │   ├── tasks/ goals/ reminders/  # Entidad, DTO validado, mapper, servicio y controlador
+│   │   ├── users/ · common/ · config/
+│   │   └── database/             # Opciones de TypeORM, data source y migraciones SQL
+│   ├── test/                     # e2e de la API (supertest + PostgreSQL)
+│   └── db-init/                  # Bases de datos de test para docker compose
+├── e2e/                          # Playwright (pila completa + accesibilidad)
+├── docker-compose.yml            # PostgreSQL para desarrollo
+└── docs/ARCHITECTURE_REVIEW.md
 ```
 
-### Rutas
+### Rutas del frontend
 
 | Ruta         | Componente              | Acceso         |
 | ------------ | ----------------------- | -------------- |
@@ -128,7 +172,19 @@ src/
 | `/reminders` | `ReminderListComponent` | 🔒 Autenticado |
 | `**`         | → `/home`               | —              |
 
-Todas las rutas se renderizan dentro de `LayoutComponent` (navbar + contenido + footer + toasts). Cada feature privada se carga bajo demanda con sus propias rutas (`loadChildren`) y el `authGuard` se declara una sola vez en la ruta padre; Chart.js solo se descarga al abrir el dashboard.
+Cada feature privada se carga bajo demanda (`loadChildren`) y el `authGuard` se declara una sola vez en la ruta padre; Chart.js solo se descarga al abrir el dashboard y el modal de login (con `@angular/forms`) cuando se abre.
+
+### API REST (`/api`)
+
+| Recurso   | Endpoints                                                                                                |
+| --------- | -------------------------------------------------------------------------------------------------------- |
+| Auth      | `POST auth/register` · `POST auth/login` · `POST auth/logout` · `GET auth/me`                            |
+| Tasks     | `GET tasks` · `GET tasks/:id` · `POST tasks` · `PUT tasks/:id` · `DELETE tasks/:id`                      |
+| Goals     | `GET goals` · `GET goals/:id` · `POST goals` · `PUT goals/:id` · `DELETE goals/:id` (con sus milestones) |
+| Reminders | `GET reminders` · `GET reminders/:id` · `POST reminders` · `PUT reminders/:id` · `DELETE reminders/:id`  |
+| Salud     | `GET health`                                                                                             |
+
+Todos los endpoints salvo `auth/register`, `auth/login` y `health` requieren sesión, y el usuario sale siempre de ella: nunca se envía `userId`.
 
 ---
 
@@ -139,50 +195,43 @@ Todas las rutas se renderizan dentro de `LayoutComponent` (navbar + contenido + 
         │  lee signals / llama acciones          ▲ input() / output()
         ▼                                        │
  data-access/<x>.store.ts ──────────────────────┘
-   • EntityCollection: datos crudos de la API (caché por sesión)
-   • vistas = domain/<x>.rules.ts (datos, ClockService.now())
+   • EntityCollection: datos del servidor (caché por sesión)
+   • vistas = domain/<x>.rules.ts (datos, ClockService.now(), locale)
    • acciones: create / update / toggle / delete (optimistas con rollback)
         │
         ▼
- data-access/<x>.api.ts  ── HttpClient + errorInterceptor ──►  api.freeprojectapi.com/api/GoalTracker/*
-
- dashboard ── computed sobre TaskStore + GoalStore + ReminderStore + domain/dashboard.rules.ts
+ data-access/<x>.api.ts ── HttpClient (fetch) + errorInterceptor ──► /api (NestJS) ──► PostgreSQL
 ```
 
-**Decisiones clave**
+**Frontend**
 
-- **Stores por feature como fuente única de verdad** (`TaskStore`, `GoalStore`, `ReminderStore`). Las páginas y el dashboard leen de ellos, así que un cambio hecho en una pantalla se ve en todas sin volver a pedir datos. Cada lista se pide **una vez por sesión**; el botón _Refresh_ del dashboard fuerza la recarga.
-- **Actualizaciones optimistas**: marcar/desmarcar tareas, recordatorios y milestones, y borrar, se reflejan al momento y se revierten (solo esa entidad) si la API falla. Crear y editar actualizan únicamente la entidad afectada.
-- **Reglas de negocio puras** en `domain/`: vencimientos, progreso, estados, estadísticas, filtros y agrupaciones se prueban sin Angular. Las fechas límite de tareas y goals son días naturales (vencen al terminar el día).
-- **Campos derivados vivos**: las vistas (`TaskView`, `GoalView`, `ReminderView`) se calculan a partir de `ClockService.now()`, que avanza cada minuto; "vencido" o "en 2 horas" no se quedan congelados.
-- **Sesión**: al cambiar de usuario (logout/login) los stores se vacían y se descartan las respuestas que lleguen tarde. `AuthService.withUser()` construye las peticiones que necesitan usuario y emite un `ApiError` 401 si no hay sesión.
-- **Standalone + signals + `OnPush`** en todos los componentes, con `input()`/`output()`; los modales de detalle reciben la entidad del store (se selecciona por id).
-- **Formularios reactivos tipados** con validadores de grupo reutilizables (`shared/forms`) para las reglas que cruzan campos.
-- **Errores HTTP**: `errorInterceptor` convierte cualquier error en `ApiError` (`status`, `message` para el usuario, `serverMessage`) y cierra la sesión ante un 401.
-- **Fechas**: los valores de `<input type="date">`/`datetime-local` se interpretan en **hora local** y se envían a la API en ISO 8601. Una fecha inválida produce un error en lugar de sustituirse por "hoy".
+- **Stores por feature como fuente única de verdad** (`TaskStore`, `GoalStore`, `ReminderStore`): las páginas y el dashboard leen de ellos, así que un cambio en una pantalla se ve en todas sin volver a pedir datos. Cada lista se pide una vez por sesión; _Refresh_ en el dashboard fuerza la recarga.
+- **Actualizaciones optimistas** al marcar y borrar, que se revierten (solo esa entidad) si la API falla.
+- **Reglas de negocio puras** en `domain/`, probadas sin Angular y en varios husos horarios. Las fechas límite son días naturales (vencen al terminar el día).
+- **Campos derivados vivos**: las vistas se calculan a partir de `ClockService.now()`, que avanza al cambiar el minuto; "vencido" o "en 2 horas" no se quedan congelados. `ReminderAlertsService` usa el mismo reloj para avisar de los recordatorios que vencen.
+- **Zoneless + signals + `OnPush`** en todos los componentes, con `input()`/`output()`.
+- **Sesión**: `AuthService` la restaura al arrancar con `GET /api/auth/me`; un 401 de la API cierra la sesión en el cliente y vuelve a `/home`. Al cambiar de usuario los stores se vacían y se descartan las respuestas tardías.
+- **Accesibilidad**: los modales usan la directiva `appDialog` (foco atrapado, Escape, devolución del foco); el lint aplica las reglas de accesibilidad de plantillas y los e2e pasan axe-core.
+- **i18n en tiempo de build**: cada idioma es un build (`/en/`, `/es/`). Los textos se marcan con `i18n` en las plantillas y con `$localize` en TS; las fechas usan `DatePipe` e `Intl` con el locale activo.
 
-### Endpoints consumidos
+**Backend**
 
-| Recurso   | Endpoints (`/api/GoalTracker/...`)                                                                                                 |
-| --------- | ---------------------------------------------------------------------------------------------------------------------------------- |
-| Auth      | `POST login`, `POST register`                                                                                                      |
-| Goals     | `GET getAllGoalsByUser?userId=`, `GET getGoal/{id}`, `POST createGoalWithMilestones`, `PUT updateGoalWithMilestones/{id}`          |
-| Tasks     | `GET getAllTasks?userId=`, `GET getTask/{id}`, `POST createTask`, `PUT updateTask/{id}`, `DELETE deleteTask/{id}`                  |
-| Reminders | `GET getReminders?userId=`, `GET getReminder/{id}`, `POST createReminder`, `PUT updateReminder/{id}`, `DELETE deleteReminder/{id}` |
+- **Autenticación**: JWT (HS256) en la cookie `gp_session` (`HttpOnly`, `SameSite=Strict`, `Secure` en producción, `path=/api`). Contraseñas con scrypt y sal por usuario; el login tarda lo mismo exista o no el usuario.
+- **Autorización por propietario**: un guard global exige sesión (salvo rutas `@Public()`); los servicios filtran siempre por el usuario de la sesión y responden 404 ante recursos ajenos.
+- **Validación en la frontera** con DTOs (`whitelist`: los campos desconocidos, como un `userId`, se descartan): fechas `YYYY-MM-DD` para días naturales y ISO 8601 con zona para los recordatorios; el orden de fechas y los hitos dentro del rango del goal se validan también en el servidor.
+- **Esquema con migraciones SQL** explícitas (`synchronize` desactivado) y restricciones `CHECK` en la base de datos.
+- **Endurecimiento**: helmet, rate limit global (300/min) y más estricto en login/registro.
 
 ---
 
-## 🚧 Estado actual y limitaciones conocidas
+## 🚧 Limitaciones conocidas
 
-Resumen de la [revisión de arquitectura completa](docs/ARCHITECTURE_REVIEW.md):
-
-- 📦 **Tamaño del bundle**: bundle inicial de 496 kB (~113 kB transferidos), con poco margen respecto al aviso de 500 kB. Si una plantilla empieza a usar un componente o utilidad de Bootstrap excluido, hay que añadirlo en `src/styles/bootstrap.scss`.
-- ♿ **Accesibilidad**: las reglas de accesibilidad de plantillas se aplican como error en el lint. Queda pendiente la gestión del foco en los modales (`role="dialog"`, foco atrapado, cierre con Escape).
-- 🧪 **Tests**: las reglas de dominio, los stores, las APIs, los validadores, el interceptor y el guard tienen tests de comportamiento (se ejecutan también en otros husos horarios). La mayoría de componentes de UI solo tienen un test de creación y no hay tests e2e.
-- 🔐 **Seguridad**: no hay token; la sesión es el perfil de usuario en `localStorage` y la API identifica al usuario por `userId` en la petición. **No usar con datos sensibles.**
-- 📊 **Dashboard**: la API no guarda cuándo se completa una tarea, así que la gráfica muestra tareas creadas y con vencimiento por día, y "Needs Attention" lista solo elementos vencidos.
-- 🗃️ No se pueden borrar ni archivar goals (la API no lo permite).
-- 🌐 Textos mezclados en inglés y español; fechas formateadas con locale `es-ES` fijo.
+- 🔔 Los avisos de recordatorios solo llegan con la aplicación abierta en alguna pestaña. Las notificaciones con la app cerrada (Web Push con Service Worker, claves VAPID y un planificador en el backend) quedan como trabajo futuro.
+- 🌐 Los mensajes de validación del backend llegan en inglés y se muestran tal cual en ambos idiomas. Cambiar de idioma recarga la app en otro subdirectorio: en producción, el servidor web debe servir `/en/` y `/es/` y redirigir `/` según el idioma del navegador.
+- 📦 El bundle inicial pesa 516 kB (~118 kB transferidos). El runtime de i18n añade ~24 kB, así que el aviso del presupuesto está en 550 kB. Si una plantilla empieza a usar un componente o utilidad de Bootstrap excluido, hay que añadirlo en `src/styles/bootstrap.scss`.
+- 📊 No se guarda cuándo se completa una tarea: la gráfica del dashboard muestra tareas creadas y con vencimiento por día.
+- 🗃️ La API permite borrar goals, pero la interfaz todavía no lo ofrece. Tampoco hay recuperación de contraseña.
+- 🚢 No hay configuración de despliegue (contenedores, hosting de los estáticos).
 
 ---
 
@@ -190,27 +239,29 @@ Resumen de la [revisión de arquitectura completa](docs/ARCHITECTURE_REVIEW.md):
 
 Detalle y justificación en [`docs/ARCHITECTURE_REVIEW.md`](docs/ARCHITECTURE_REVIEW.md#4-hoja-de-ruta-propuesta).
 
-1. ✅ **Estabilizar** — build y tests en verde, limpieza de dependencias no usadas, CI con GitHub Actions.
-2. ✅ **Fundamentos** — `environment` + `API_BASE_URL`, interceptor de errores, helpers compartidos, ESLint/Prettier, `OnPush` e `input()/output()`, dashboard sin datos simulados.
-3. ✅ **Arquitectura por features** — `core/ shared/ features/`, stores con signals como fuente única de verdad, actualizaciones optimistas, lógica de dominio en funciones puras testeadas, validaciones cruzadas de fechas.
-4. **Producto** — backend con autenticación real, i18n, accesibilidad, e2e con Playwright, notificaciones push.
+1. ✅ **Estabilizar**: build y tests en verde, limpieza de dependencias, CI.
+2. ✅ **Fundamentos**: configuración de la API, interceptor de errores, ESLint/Prettier, `OnPush` e `input()/output()`, dashboard sin datos simulados.
+3. ✅ **Arquitectura por features**: `core/ shared/ features/`, stores con signals, actualizaciones optimistas, reglas de dominio puras y validaciones de fechas.
+4. ✅ **Producto y plataforma**: Angular 22 zoneless con Vitest, backend NestJS + PostgreSQL con sesión segura, e2e con Playwright, accesibilidad (diálogos, contraste, axe), i18n en/es y avisos de recordatorios.
+5. **Siguiente**: despliegue, Web Push, recuperación de contraseña, borrar/archivar goals desde la UI y más tests de componentes.
 
 ---
 
 ## 🤝 Contribuir
 
 1. Crea una rama desde `main`: `git checkout -b feature/mi-cambio`.
-2. Asegúrate de que `npm run lint`, `npm run test:ci` y `npm run build` pasan (el hook de pre-commit formatea y corrige lo que puede).
+2. Comprueba que pasan `npm run lint`, `npm run test:ci`, `npm run build` y, si tocas el backend, `npm run lint`, `npm test` y `npm run test:e2e` en `server/`. El hook de pre-commit formatea y corrige lo que puede.
 3. Abre un Pull Request describiendo el cambio.
 
 Convenciones del proyecto:
 
-- Iconos: `<i class="bi bi-<nombre>"></i>` de [Bootstrap Icons](https://icons.getbootstrap.com/); tras añadir uno nuevo, `npm run icons`.
+- **Textos**: todo texto visible se marca con `i18n` (o `i18n-placeholder`, `i18n-aria-label`…) en las plantillas y con `` $localize`…` `` en TS. Después, `npm run i18n:extract` y añade la traducción en `src/locale/messages.es.json` (el build falla si falta). Usa plurales ICU en lugar de concatenar `'s'`, e `i18n="@@id"` cuando el mismo texto inglés necesite traducciones distintas.
+- **Fechas**: formatos del `DatePipe` que dependan del locale (`mediumDate`, `shortTime`…) y los helpers de `shared/utils/date.ts`; nunca un locale fijo.
+- Iconos: `<i aria-hidden="true" class="bi bi-<nombre>"></i>` de [Bootstrap Icons](https://icons.getbootstrap.com/); tras añadir uno nuevo, `npm run icons`.
 - Código nuevo dentro de su feature (`features/<x>/`): la página en `<x>-list/`, la presentación en `ui/`, el HTTP en `data-access/<x>.api.ts`, el estado en `data-access/<x>.store.ts` y las reglas en `domain/` (con tests). Lo transversal va en `core/` y lo reutilizable en `shared/`.
-- Los componentes no llaman a las APIs: usan el store de su feature. Las reglas de negocio no viven en componentes ni stores, sino en funciones puras de `domain/`.
-- Componentes standalone (`ng generate component features/<x>/ui/<nombre>`), siempre con `OnPush` (lo exige ESLint).
-- `inject()` para dependencias, `input()`/`output()` para la API de los componentes y signals para el estado de UI.
-- URLs de la API solo a través de `API_BASE_URL`; errores HTTP como `ApiError`; fechas con los helpers de `shared/utils/date.ts`.
+- Los componentes no llaman a las APIs: usan el store de su feature. Las reglas de negocio viven en funciones puras de `domain/`, no en componentes ni stores.
+- Componentes standalone, siempre con `OnPush` (lo exige ESLint); los modales, con la directiva `appDialog`.
+- Backend: cada recurso con DTO validado, servicio que filtra por el usuario de la sesión y tests e2e que incluyan el acceso a datos de otro usuario. Los cambios de esquema van en una migración nueva.
 
 ---
 

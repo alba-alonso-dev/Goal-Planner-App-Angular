@@ -6,7 +6,8 @@ import { AppModule } from '../src/app.module.js';
 import { configureApp } from '../src/configure-app.js';
 
 /** Base de datos de tests: nunca la de desarrollo. */
-export const TEST_DATABASE_URL = process.env['TEST_DATABASE_URL'] ?? 'postgres://goal@localhost:5433/goal_planner_test';
+export const TEST_DATABASE_URL =
+  process.env['TEST_DATABASE_URL'] ?? 'postgres://goal:goal@localhost:5432/goal_planner_test';
 
 export async function createTestApp(): Promise<INestApplication> {
   process.env['DATABASE_URL'] = TEST_DATABASE_URL;
