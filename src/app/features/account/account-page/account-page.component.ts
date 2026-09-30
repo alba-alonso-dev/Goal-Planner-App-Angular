@@ -3,9 +3,10 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { AuthService } from '../../../core/auth/auth.service';
 import { ApiError } from '../../../core/http/api-error';
 import { NotificationService } from '../../../core/notifications/notification.service';
+import { PushService } from '../../../core/notifications/push.service';
 import { PASSWORD_MIN_LENGTH, passwordsMatchValidator } from '../../../shared/forms/password-validators';
 
-/** Página de la cuenta: datos del perfil y cambio de contraseña. */
+/** Página de la cuenta: perfil, notificaciones push y cambio de contraseña. */
 @Component({
   selector: 'app-account-page',
   imports: [ReactiveFormsModule],
@@ -16,6 +17,7 @@ export class AccountPageComponent {
   private auth = inject(AuthService);
   private notifications = inject(NotificationService);
 
+  readonly push = inject(PushService);
   readonly user = this.auth.loggedUser;
   readonly minLength = PASSWORD_MIN_LENGTH;
 
@@ -33,6 +35,11 @@ export class AccountPageComponent {
 
   readonly saving = signal(false);
   readonly passwordError = signal<string | null>(null);
+
+  togglePush() {
+    const action = this.push.state() === 'on' ? this.push.disable() : this.push.enable();
+    action.catch(() => this.notifications.error($localize`Could not enable notifications.`));
+  }
 
   changePassword() {
     if (this.passwordForm.invalid) {

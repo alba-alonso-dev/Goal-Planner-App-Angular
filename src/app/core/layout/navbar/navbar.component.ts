@@ -1,7 +1,8 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
-import { filter } from 'rxjs';
+import { filter, from, switchMap } from 'rxjs';
+import { PushService } from '../../notifications/push.service';
 import { LoginModalComponent } from '../../auth/login-modal/login-modal.component';
 import { AuthService } from '../../auth/auth.service';
 import { LoginPromptService } from '../../auth/login-prompt.service';
@@ -19,6 +20,7 @@ export class NavbarComponent {
   private router = inject(Router);
 
   readonly loginPrompt = inject(LoginPromptService);
+  private push = inject(PushService);
   readonly modalVisible = computed(() => this.loginPrompt.view() !== null);
   // Menú colapsable en pantallas pequeñas (no se carga el JS de Bootstrap)
   readonly menuOpen = signal(false);
@@ -47,6 +49,9 @@ export class NavbarComponent {
   }
 
   logout() {
-    this.authService.logout().subscribe(() => this.router.navigate(['/home']));
+    // Primero se da de baja el push de este navegador (con la sesión aún abierta)
+    from(this.push.forgetBrowser())
+      .pipe(switchMap(() => this.authService.logout()))
+      .subscribe(() => this.router.navigate(['/home']));
   }
 }

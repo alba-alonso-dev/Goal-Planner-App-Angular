@@ -21,6 +21,58 @@
     </div>
 
     <div class="col-lg-7">
+      <section class="card border-0 shadow-sm mb-4" aria-labelledby="account-push-title">
+        <div class="card-body p-4">
+          <h2 i18n id="account-push-title" class="h5 fw-bold mb-1">Reminder notifications</h2>
+          <p i18n class="text-muted small">
+            Get a notification on this device when a reminder is due, even if the app is closed.
+          </p>
+          @switch (push.state()) {
+            @case ('on') {
+              <p i18n class="text-success mb-3" role="status">
+                <i aria-hidden="true" class="bi bi-bell-fill me-2"></i>Notifications are on for this device.
+              </p>
+              <button
+                i18n
+                type="button"
+                class="btn btn-outline-secondary"
+                (click)="togglePush()"
+                [disabled]="push.busy()"
+              >
+                Turn off
+              </button>
+            }
+            @case ('off') {
+              <button
+                i18n
+                type="button"
+                class="btn btn-outline-primary"
+                (click)="togglePush()"
+                [disabled]="push.busy()"
+              >
+                <i aria-hidden="true" class="bi bi-bell me-2"></i>Turn on notifications
+              </button>
+            }
+            @case ('denied') {
+              <p i18n class="text-danger-emphasis mb-0">
+                Notifications are blocked for this site. Allow them in your browser settings to turn them on.
+              </p>
+            }
+            @case ('unsupported') {
+              <p i18n class="text-muted mb-0">This browser does not support push notifications.</p>
+            }
+            @case ('unavailable') {
+              <p i18n class="text-muted mb-0">
+                Push notifications are not configured on this server. You will still be alerted while the app is open.
+              </p>
+            }
+            @default {
+              <span class="spinner-border spinner-border-sm text-primary" aria-hidden="true"></span>
+            }
+          }
+        </div>
+      </section>
+
       <section class="card border-0 shadow-sm" aria-labelledby="account-password-title">
         <div class="card-body p-4">
           <h2 i18n id="account-password-title" class="h5 fw-bold mb-1">Change password</h2>

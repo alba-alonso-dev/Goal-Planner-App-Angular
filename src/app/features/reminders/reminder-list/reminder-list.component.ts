@@ -7,6 +7,7 @@ import { NewReminderComponent } from '../ui/new-reminder/new-reminder.component'
 import { ReminderDetailsComponent } from '../ui/reminder-details/reminder-details.component';
 import { ReminderStore } from '../data-access/reminder.store';
 import { ReminderAlertsService } from '../data-access/reminder-alerts.service';
+import { PushService } from '../../../core/notifications/push.service';
 import { selectReminders } from '../domain/reminder.rules';
 import { ReminderFilter, ReminderInput, ReminderView } from '../reminder.model';
 import { ApiError } from '../../../core/http/api-error';
@@ -31,6 +32,22 @@ import { NotificationService } from '../../../core/notifications/notification.se
 export class ReminderListComponent implements OnInit {
   private store = inject(ReminderStore);
   protected readonly alerts = inject(ReminderAlertsService);
+  protected readonly push = inject(PushService);
+
+  /** Con Web Push, avisos aunque la app esté cerrada; si no, solo con la pestaña abierta. */
+  protected readonly canEnableNotifications = computed(() => {
+    const state = this.push.state();
+    if (state === 'off') return true;
+    return (state === 'unavailable' || state === 'unsupported') && this.alerts.canRequestPermission();
+  });
+
+  protected enableNotifications() {
+    if (this.push.state() === 'off') {
+      this.push.enable().catch(() => this.notificationService.error($localize`Could not enable notifications.`));
+    } else {
+      this.alerts.requestPermission();
+    }
+  }
   private notificationService = inject(NotificationService);
 
   readonly filter = signal<ReminderFilter>('all');

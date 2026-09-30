@@ -9,8 +9,14 @@
       <p i18n class="text-muted">Never miss important dates and tasks</p>
     </div>
     <div class="col-md-4 text-end">
-      @if (alerts.canRequestPermission()) {
-        <button i18n class="btn btn-outline-secondary me-2" type="button" (click)="alerts.requestPermission()">
+      @if (canEnableNotifications()) {
+        <button
+          i18n
+          class="btn btn-outline-secondary me-2"
+          type="button"
+          (click)="enableNotifications()"
+          [disabled]="push.busy()"
+        >
           <i aria-hidden="true" class="bi bi-bell me-2"></i>
           Enable notifications
         </button>

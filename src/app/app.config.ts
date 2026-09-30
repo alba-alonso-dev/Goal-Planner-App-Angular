@@ -10,6 +10,7 @@ import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { routes } from './app.routes';
 import { AuthService } from './core/auth/auth.service';
 import { errorInterceptor } from './core/http/error.interceptor';
+import { PushService } from './core/notifications/push.service';
 import { ReminderAlertsService } from './features/reminders/data-access/reminder-alerts.service';
 
 export const appConfig: ApplicationConfig = {
@@ -21,6 +22,8 @@ export const appConfig: ApplicationConfig = {
     // Antes de la primera navegación se sabe si hay sesión, así el guard decide con datos reales
     provideAppInitializer(() => inject(AuthService).restoreSession()),
     // Avisos de recordatorios en cualquier página mientras la app está abierta
-    provideEnvironmentInitializer(() => inject(ReminderAlertsService))
+    provideEnvironmentInitializer(() => inject(ReminderAlertsService)),
+    // Resincroniza la suscripción push de este navegador al recuperar la sesión
+    provideEnvironmentInitializer(() => inject(PushService))
   ]
 };
