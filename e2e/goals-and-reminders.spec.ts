@@ -1,6 +1,6 @@
 import { expect, navigateTo, test } from './fixtures';
 
-test('goal milestones: range validation and achievement persisted', async ({ page }) => {
+test('goal milestones: range validation, achievement persisted and delete', async ({ page }) => {
   await page.goto('/dashboard');
   await navigateTo(page, 'Goals');
 
@@ -26,6 +26,13 @@ test('goal milestones: range validation and achievement persisted', async ({ pag
   await page.reload();
   await page.getByRole('button', { name: 'View Details' }).click();
   await expect(page.getByRole('dialog').getByText('100%').first()).toBeVisible();
+
+  // Borrar (con confirmación) y comprobar que no vuelve al recargar
+  page.once('dialog', confirm => confirm.accept());
+  await page.getByRole('dialog').getByRole('button', { name: 'Delete' }).click();
+  await expect(page.getByText('Aprender Angular 22')).toBeHidden();
+  await page.reload();
+  await expect(page.getByText('No goals found')).toBeVisible();
 });
 
 test('reminders: create, acknowledge (persisted) and delete', async ({ page }) => {

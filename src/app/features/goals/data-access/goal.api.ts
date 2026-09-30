@@ -33,6 +33,11 @@ export class GoalApi {
     return defer(() => this.http.put<GoalResponse>(`${this.url}/${goalId}`, this.toBody(input)));
   }
 
+  /** Borra el goal y sus milestones. */
+  delete(goalId: number): Observable<void> {
+    return this.http.delete<void>(`${this.url}/${goalId}`);
+  }
+
   /** Cuerpo que espera la API. Lanza si alguna fecha no es válida (se emite como error del observable). */
   toBody(input: GoalInput) {
     const milestones = (input.milestones ?? []).map(m => ({

@@ -93,4 +93,23 @@ describe('GoalStore', () => {
     expect(store.goals().map(g => g.goalId)).toEqual([1, 2]);
     httpTesting.expectNone({ method: 'GET', url: '/api/goals' });
   });
+
+  it('removes a goal immediately and deletes it with a single DELETE', () => {
+    loadGoal();
+    store.delete(mockGoalResponse.goalId).subscribe();
+    expect(store.goals()).toEqual([]);
+
+    httpTesting.expectOne({ method: 'DELETE', url: `/api/goals/${mockGoalResponse.goalId}` }).flush(null);
+    expect(store.goals()).toEqual([]);
+  });
+
+  it('restores the goal if the delete fails', () => {
+    loadGoal();
+    store.delete(mockGoalResponse.goalId).subscribe({ error: () => undefined });
+
+    httpTesting
+      .expectOne(`/api/goals/${mockGoalResponse.goalId}`)
+      .flush(null, { status: 500, statusText: 'Server Error' });
+    expect(store.goals().map(g => g.goalId)).toEqual([mockGoalResponse.goalId]);
+  });
 });

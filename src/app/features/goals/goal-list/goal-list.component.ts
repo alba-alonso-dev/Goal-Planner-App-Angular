@@ -109,6 +109,14 @@ export class GoalListComponent implements OnInit {
     this.selectedGoalId.set(null);
   }
 
+  deleteGoal(goalId: number) {
+    this.closeDetailsModal();
+    this.store.delete(goalId).subscribe({
+      next: () => this.notificationService.success($localize`Goal deleted successfully`, $localize`Success`),
+      error: (error: ApiError) => this.notificationService.error(error.message, $localize`Error deleting goal`)
+    });
+  }
+
   retry() {
     this.store.load({ force: true });
   }

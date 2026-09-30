@@ -245,6 +245,11 @@
 
 <!-- Modal para ver detalles del goal -->
 @if (showDetailsModal() && selectedGoal(); as selected) {
-  <app-goal-details [goal]="selected" (closed)="closeDetailsModal()" (goalUpdated)="onGoalUpdated()">
+  <app-goal-details
+    [goal]="selected"
+    (closed)="closeDetailsModal()"
+    (goalUpdated)="onGoalUpdated()"
+    (delete)="deleteGoal($event)"
+  >
   </app-goal-details>
 }

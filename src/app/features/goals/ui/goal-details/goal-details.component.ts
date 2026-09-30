@@ -24,6 +24,7 @@ export class GoalDetailsComponent {
   readonly goal = input.required<GoalView>();
   readonly closed = output<void>();
   readonly goalUpdated = output<void>();
+  readonly delete = output<number>();
 
   private fb = inject(FormBuilder);
   private store = inject(GoalStore);
@@ -194,6 +195,12 @@ export class GoalDetailsComponent {
 
   closeModal() {
     this.closed.emit();
+  }
+
+  deleteGoal() {
+    if (confirm($localize`Are you sure you want to delete "${this.goal().goalName}:GOAL_NAME:" and its milestones?`)) {
+      this.delete.emit(this.goal().goalId);
+    }
   }
 
   getProgressColor(progress = 0): string {

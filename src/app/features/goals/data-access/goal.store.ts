@@ -46,6 +46,11 @@ export class GoalStore {
     return this.collection.afterSuccess(this.api.update(goalId, input), updated => this.collection.upsert(updated));
   }
 
+  /** Optimista: desaparece al momento y vuelve a su posición si la API falla. */
+  delete(goalId: number): Observable<void> {
+    return this.collection.optimisticRemove(goalId, this.api.delete(goalId));
+  }
+
   /** Optimista: marca/desmarca un milestone (y recalcula si el goal está conseguido); se revierte si falla. */
   toggleMilestone(goalId: number, milestoneId: number): Observable<void> {
     const goal = this.find(goalId);
