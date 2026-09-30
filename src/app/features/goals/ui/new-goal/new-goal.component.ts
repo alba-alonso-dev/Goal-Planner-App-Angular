@@ -1,5 +1,4 @@
 import { ChangeDetectionStrategy, Component, inject, input, output } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { GoalInput } from '../../goal.model';
 import { toDateInputValue } from '../../../../shared/utils/date';
@@ -14,7 +13,7 @@ type MilestoneForm = FormGroup<{
 @Component({
   selector: 'app-new-goal',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [ReactiveFormsModule],
   templateUrl: './new-goal.component.html',
   styleUrls: ['./new-goal.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush

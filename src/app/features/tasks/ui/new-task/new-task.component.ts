@@ -1,5 +1,4 @@
 import { ChangeDetectionStrategy, Component, inject, input, output } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TaskInput, TaskResponse } from '../../task.model';
 import { addDays, toDateInputValue } from '../../../../shared/utils/date';
@@ -10,7 +9,7 @@ type Frequency = TaskResponse['frequency'];
 @Component({
   selector: 'app-new-task',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [ReactiveFormsModule],
   templateUrl: './new-task.component.html',
   styleUrls: ['./new-task.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush

@@ -1,5 +1,4 @@
 import { ChangeDetectionStrategy, Component, inject, input, output } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ReminderInput } from '../../reminder.model';
 import { toDateTimeInputValue } from '../../../../shared/utils/date';
@@ -8,7 +7,7 @@ import { notInPastValidator } from '../../../../shared/forms/date-validators';
 @Component({
   selector: 'app-new-reminder',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [ReactiveFormsModule],
   templateUrl: './new-reminder.component.html',
   styleUrls: ['./new-reminder.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush

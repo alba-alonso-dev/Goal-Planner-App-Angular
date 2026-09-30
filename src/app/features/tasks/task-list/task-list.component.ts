@@ -1,5 +1,4 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TaskStore } from '../data-access/task.store';
@@ -14,7 +13,7 @@ import { TaskDetailsComponent } from '../ui/task-details/task-details.component'
 @Component({
   selector: 'app-task-list',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, NewTaskComponent, TaskItemComponent, TaskDetailsComponent],
+  imports: [RouterModule, FormsModule, NewTaskComponent, TaskItemComponent, TaskDetailsComponent],
   templateUrl: './task-list.component.html',
   styleUrls: ['./task-list.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
