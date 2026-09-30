@@ -53,3 +53,74 @@ test.describe('authenticated pages', () => {
     });
   }
 });
+
+base('reset password page has no WCAG A/AA violations', async ({ page }) => {
+  await page.goto(`/reset-password?token=${'a'.repeat(43)}`);
+  await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+  await expectNoViolations(page);
+});
+
+test.describe('dialogs and account', () => {
+  test.beforeEach(async ({ page }) => {
+    const day = new Date(Date.now() + 86_400_000).toISOString().slice(0, 10);
+    await page.request.post('/api/tasks', {
+      data: { taskName: 'Axe task', frequency: 'Daily', startDate: day, dueDate: day }
+    });
+    await page.request.post('/api/goals', {
+      data: {
+        goalName: 'Axe goal',
+        startDate: day,
+        endDate: day,
+        milestones: [{ milestoneName: 'Axe milestone', targetDate: day }]
+      }
+    });
+    await page.request.post('/api/reminders', {
+      data: { title: 'Axe reminder', reminderDateTime: new Date(Date.now() + 86_400_000).toISOString() }
+    });
+    await page.goto('/dashboard');
+  });
+
+  /** Abre un diálogo, lo analiza (también en modo edición si lo tiene) y lo cierra. */
+  async function checkDialog(page: Page, open: () => Promise<void>, editButton?: string) {
+    await open();
+    const dialog = page.getByRole('dialog');
+    await expect(dialog).toBeVisible();
+    await expectNoViolations(page);
+    if (editButton) {
+      await dialog.getByRole('button', { name: editButton }).click();
+      await expectNoViolations(page);
+    }
+    await page.keyboard.press('Escape');
+    await expect(dialog).toBeHidden();
+  }
+
+  test('task dialogs', async ({ page }) => {
+    await navigateTo(page, 'Tasks');
+    await checkDialog(page, () => page.getByRole('button', { name: 'New Task' }).click());
+    await checkDialog(page, () => page.getByRole('button', { name: 'View Details' }).first().click(), 'Edit');
+  });
+
+  test('goal dialogs', async ({ page }) => {
+    await navigateTo(page, 'Goals');
+    await checkDialog(page, async () => {
+      await page.getByRole('button', { name: 'New Goal' }).click();
+      await page
+        .getByRole('dialog')
+        .getByRole('button', { name: /Add milestone/i })
+        .click();
+    });
+    await checkDialog(page, () => page.getByRole('button', { name: 'View Details' }).first().click(), 'Edit Goal');
+  });
+
+  test('reminder dialogs', async ({ page }) => {
+    await navigateTo(page, 'Reminders');
+    await checkDialog(page, () => page.getByRole('button', { name: 'New Reminder' }).click());
+    await checkDialog(page, () => page.getByRole('button', { name: 'View details' }).first().click(), 'Edit');
+  });
+
+  test('account page', async ({ page, user }) => {
+    await page.locator('nav').getByRole('link', { name: user.emailId }).click();
+    await expect(page.getByRole('heading', { name: 'My account' })).toBeVisible();
+    await expectNoViolations(page);
+  });
+});

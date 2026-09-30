@@ -1,7 +1,10 @@
 import { signal } from '@angular/core';
-import { HttpTestingController } from '@angular/common/http/testing';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { provideRouter } from '@angular/router';
 import { TestBed } from '@angular/core/testing';
 import { AuthService } from '../app/core/auth/auth.service';
+import { errorInterceptor } from '../app/core/http/error.interceptor';
 import { ClockService } from '../app/core/time/clock.service';
 import { toGoalView } from '../app/features/goals/domain/goal.rules';
 import { GoalResponse } from '../app/features/goals/goal.model';
@@ -89,4 +92,29 @@ export function clickButton(root: HTMLElement, text: string): void {
   const button = [...root.querySelectorAll<HTMLButtonElement>('button')].find(b => b.textContent?.includes(text));
   if (!button) throw new Error(`No button with text "${text}"`);
   button.click();
+}
+
+/** Elige una opción de un <select> como lo haría el usuario. */
+export function selectOption(root: HTMLElement, selector: string, value: string): void {
+  const select = root.querySelector<HTMLSelectElement>(selector);
+  if (!select) throw new Error(`No select matches ${selector}`);
+  select.value = value;
+  select.dispatchEvent(new Event('change'));
+}
+
+/** Botón cuyo texto contiene `text` (para comprobar si está deshabilitado). */
+export function findButton(root: HTMLElement, text: string): HTMLButtonElement {
+  const button = [...root.querySelectorAll<HTMLButtonElement>('button')].find(b => b.textContent?.includes(text));
+  if (!button) throw new Error(`No button with text "${text}"`);
+  return button;
+}
+
+/** Providers habituales de los tests de componentes con datos: HTTP de test (con el interceptor real), router y reloj fijo. */
+export function provideDataTesting() {
+  return [
+    provideHttpClient(withInterceptors([errorInterceptor])),
+    provideHttpClientTesting(),
+    provideRouter([]),
+    provideFixedClock()
+  ];
 }

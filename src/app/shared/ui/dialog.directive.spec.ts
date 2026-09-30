@@ -7,7 +7,7 @@ import { DialogDirective } from './dialog.directive';
   template: `
     <button id="opener" (click)="open.set(true)">Open</button>
     @if (open()) {
-      <div appDialog appDialogLabelledBy="title" (appDialogDismiss)="open.set(false)">
+      <div tabindex="-1" appDialog appDialogLabelledBy="title" (appDialogDismiss)="open.set(false)">
         <h2 id="title">Title</h2>
         <button id="close">Close</button>
         <input id="name" />
@@ -56,5 +56,31 @@ describe('DialogDirective', () => {
 
     expect(fixture.nativeElement.querySelector('[appDialog]')).toBeNull();
     expect(document.activeElement).toBe(opener);
+  });
+
+  it('still handles the keyboard when the focus is lost (e.g. the focused button disappears)', async () => {
+    const { fixture, dialog } = await openDialog();
+    (document.activeElement as HTMLElement).blur();
+    expect(document.activeElement).toBe(document.body);
+
+    key(document.body, { key: 'Tab' });
+    expect(dialog.contains(document.activeElement)).toBe(true);
+
+    (document.activeElement as HTMLElement).blur();
+    key(document.body, { key: 'Escape' });
+    await fixture.whenStable();
+    expect(fixture.nativeElement.querySelector('[appDialog]')).toBeNull();
+  });
+
+  it('handles Escape inside the dialog only once', async () => {
+    const { fixture, dialog } = await openDialog();
+    const dismissed = vi.fn();
+    fixture.debugElement.children
+      .find(child => child.nativeElement === dialog)!
+      .injector.get(DialogDirective)
+      .dismiss.subscribe(dismissed);
+
+    key(dialog, { key: 'Escape' });
+    expect(dismissed).toHaveBeenCalledTimes(1);
   });
 });

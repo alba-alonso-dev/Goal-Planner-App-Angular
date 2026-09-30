@@ -9,6 +9,7 @@ $enable-dark-mode: false;
 // fondos `bg-light` no llegaban al contraste 4.5:1 de WCAG AA (lo comprueba e2e/a11y.spec.ts)
 $primary: #0b5ed7;
 $secondary: #5c636a;
+$danger: #bb2d3b;
 
 // 1. Configuración
 @import 'bootstrap/scss/functions';

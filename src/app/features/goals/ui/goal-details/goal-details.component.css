@@ -4,11 +4,6 @@
   overflow: hidden;
 }
 
-.modal-header {
-  border-bottom: 1px solid #dee2e6;
-  background-color: #f8f9fa;
-}
-
 .modal-footer {
   border-top: 1px solid #dee2e6;
   background-color: #f8f9fa;

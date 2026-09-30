@@ -16,6 +16,8 @@ const FOCUSABLE = [
  * - Al abrirse lleva el foco al primer campo del formulario (o al primer elemento enfocable).
  * - Tab / Shift+Tab no salen del diálogo.
  * - Escape emite `appDialogDismiss`.
+ * - Si el foco se pierde (p. ej. el botón pulsado desaparece al pasar a modo edición), Escape sigue
+ *   cerrando y Tab devuelve el foco al diálogo.
  * - Al cerrarse devuelve el foco al elemento que lo abrió.
  */
 @Directive({
@@ -24,7 +26,8 @@ const FOCUSABLE = [
     role: 'dialog',
     'aria-modal': 'true',
     '[attr.aria-labelledby]': 'labelledBy()',
-    '(keydown)': 'onKeydown($event)'
+    '(keydown)': 'onKeydown($event)',
+    '(document:keydown)': 'onDocumentKeydown($event)'
   }
 })
 export class DialogDirective {
@@ -71,6 +74,17 @@ export class DialogDirective {
     } else if (!event.shiftKey && active === last) {
       event.preventDefault();
       first.focus();
+    }
+  }
+
+  /** Teclas pulsadas con el foco fuera del diálogo (lo de dentro ya lo gestiona `onKeydown`). */
+  protected onDocumentKeydown(event: KeyboardEvent): void {
+    if (event.target instanceof Node && this.host.contains(event.target)) return;
+    if (event.key === 'Escape') {
+      this.dismiss.emit();
+    } else if (event.key === 'Tab') {
+      event.preventDefault();
+      (this.focusable()[0] ?? this.host).focus();
     }
   }
 

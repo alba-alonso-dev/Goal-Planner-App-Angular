@@ -13,10 +13,10 @@ import { NotificationService } from '../notification.service';
           <div
             class="toast-header"
             [ngClass]="{
-              'bg-success text-white': toast.type === 'success',
-              'bg-danger text-white': toast.type === 'error',
-              'bg-warning text-dark': toast.type === 'warning',
-              'bg-info text-white': toast.type === 'info'
+              'text-bg-success': toast.type === 'success',
+              'text-bg-danger': toast.type === 'error',
+              'text-bg-warning': toast.type === 'warning',
+              'text-bg-info': toast.type === 'info'
             }"
           >
             <i
@@ -29,12 +29,13 @@ import { NotificationService } from '../notification.service';
                 'bi-info-circle-fill': toast.type === 'info'
               }"
             ></i>
-            <strong class="me-auto ms-2">{{ toast.title || toast.type | titlecase }}</strong>
+            <strong class="me-auto ms-2">{{ toast.title || typeLabels[toast.type] }}</strong>
             <button
+              i18n-aria-label
               aria-label="Close"
               type="button"
               class="btn-close"
-              [class.btn-close-white]="toast.type !== 'warning'"
+              [class.btn-close-white]="toast.type === 'success' || toast.type === 'error'"
               (click)="notificationService.remove(toast.id)"
             ></button>
           </div>
@@ -49,4 +50,12 @@ import { NotificationService } from '../notification.service';
 })
 export class ToastContainerComponent {
   notificationService = inject(NotificationService);
+
+  /** Título cuando la notificación no trae uno. */
+  protected readonly typeLabels = {
+    success: $localize`Success`,
+    error: $localize`Error`,
+    warning: $localize`Warning`,
+    info: $localize`Information`
+  };
 }
