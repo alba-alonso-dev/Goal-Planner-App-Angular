@@ -7,10 +7,12 @@ import { ApiError } from '../../../../core/http/api-error';
 import { toDateTimeInputValue } from '../../../../shared/utils/date';
 import { notInPastValidator } from '../../../../shared/forms/date-validators';
 
+import { DialogDirective } from '../../../../shared/ui/dialog.directive';
+
 @Component({
   selector: 'app-reminder-details',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule],
+  imports: [DialogDirective, CommonModule, FormsModule, ReactiveFormsModule],
   templateUrl: './reminder-details.component.html',
   styleUrls: ['./reminder-details.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush

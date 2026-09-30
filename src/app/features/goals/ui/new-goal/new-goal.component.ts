@@ -10,10 +10,12 @@ type MilestoneForm = FormGroup<{
   description: FormControl<string>;
 }>;
 
+import { DialogDirective } from '../../../../shared/ui/dialog.directive';
+
 @Component({
   selector: 'app-new-goal',
   standalone: true,
-  imports: [ReactiveFormsModule],
+  imports: [DialogDirective, ReactiveFormsModule],
   templateUrl: './new-goal.component.html',
   styleUrls: ['./new-goal.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush

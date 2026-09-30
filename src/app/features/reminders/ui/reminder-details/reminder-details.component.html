@@ -1,13 +1,20 @@
 @let reminder = this.reminder();
-<div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0, 0, 0, 0.5)">
+<div
+  class="modal fade show d-block"
+  tabindex="-1"
+  style="background-color: rgba(0, 0, 0, 0.5)"
+  appDialog
+  appDialogLabelledBy="reminder-details-dialog-title"
+  (appDialogDismiss)="closeModal()"
+>
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title fw-bold">
+        <h5 class="modal-title fw-bold" id="reminder-details-dialog-title">
           @if (editMode()) {
-            <i class="bi bi-pencil-square me-2"></i>Edit Reminder
+            <i aria-hidden="true" class="bi bi-pencil-square me-2"></i>Edit Reminder
           } @else {
-            <i class="bi bi-bell-fill me-2"></i>Reminder Details
+            <i aria-hidden="true" class="bi bi-bell-fill me-2"></i>Reminder Details
           }
         </h5>
         <button
@@ -23,7 +30,7 @@
         <!-- Error message -->
         @if (error()) {
           <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            <i aria-hidden="true" class="bi bi-exclamation-triangle-fill me-2"></i>
             {{ error() }}
             <button aria-label="Close" type="button" class="btn-close" (click)="error.set(null)"></button>
           </div>
@@ -96,11 +103,11 @@
           <!-- VIEW MODE -->
           <div class="text-center mb-4">
             <div class="display-1 mb-3">
-              <i [class]="getStatusIcon()"></i>
+              <i aria-hidden="true" [class]="getStatusIcon()"></i>
             </div>
             <h3 class="fw-bold">{{ reminder.title }}</h3>
             <span class="badge fs-6 mt-2" [class]="getStatusClass()">
-              <i class="bi bi-circle-fill me-1" style="font-size: 8px"></i>
+              <i aria-hidden="true" class="bi bi-circle-fill me-1" style="font-size: 8px"></i>
               {{ getStatusText() }}
             </span>
           </div>
@@ -111,7 +118,7 @@
               <div class="card bg-light border-0">
                 <div class="card-body">
                   <div class="d-flex align-items-center">
-                    <i class="bi bi-calendar3 icon-2x text-primary me-3"></i>
+                    <i aria-hidden="true" class="bi bi-calendar3 icon-2x text-primary me-3"></i>
                     <div>
                       <h6 class="text-muted mb-1">Date & Time</h6>
                       <p class="h5 mb-0">
@@ -129,7 +136,7 @@
                 <div class="card bg-light border-0">
                   <div class="card-body">
                     <div class="d-flex align-items-center">
-                      <i class="bi bi-hourglass-split icon-2x text-primary me-3"></i>
+                      <i aria-hidden="true" class="bi bi-hourglass-split icon-2x text-primary me-3"></i>
                       <div>
                         <h6 class="text-muted mb-1">Time Remaining</h6>
                         <p class="h5 mb-0" [class.text-danger]="reminder.isOverdue">
@@ -168,7 +175,7 @@
               <span class="spinner-border spinner-border-sm me-2"></span>
               Saving...
             } @else {
-              <i class="bi bi-floppy me-2"></i>Save Changes
+              <i aria-hidden="true" class="bi bi-floppy me-2"></i>Save Changes
             }
           </button>
         } @else {
@@ -179,16 +186,16 @@
             [disabled]="submitting()"
           >
             @if (reminder.isAcknowledged) {
-              <i class="bi bi-arrow-counterclockwise me-2"></i>Mark Unacknowledged
+              <i aria-hidden="true" class="bi bi-arrow-counterclockwise me-2"></i>Mark Unacknowledged
             } @else {
-              <i class="bi bi-check-lg me-2"></i>Mark Acknowledged
+              <i aria-hidden="true" class="bi bi-check-lg me-2"></i>Mark Acknowledged
             }
           </button>
           <button type="button" class="btn btn-outline-primary" (click)="toggleEditMode()">
-            <i class="bi bi-pencil-square me-2"></i>Edit
+            <i aria-hidden="true" class="bi bi-pencil-square me-2"></i>Edit
           </button>
           <button type="button" class="btn btn-outline-danger" (click)="deleteReminder()">
-            <i class="bi bi-trash me-2"></i>Delete
+            <i aria-hidden="true" class="bi bi-trash me-2"></i>Delete
           </button>
           <button type="button" class="btn btn-primary" (click)="closeModal()">Close</button>
         }

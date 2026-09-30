@@ -5,9 +5,11 @@ import { LoginData, RegisterData } from '../user.model';
 import { Router } from '@angular/router';
 import { ApiError } from '../../http/api-error';
 
+import { DialogDirective } from '../../../shared/ui/dialog.directive';
+
 @Component({
   selector: 'app-login-modal',
-  imports: [FormsModule],
+  imports: [DialogDirective, FormsModule],
   templateUrl: './login-modal.component.html',
   styleUrls: ['./login-modal.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush

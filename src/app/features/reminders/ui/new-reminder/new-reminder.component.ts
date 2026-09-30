@@ -4,10 +4,12 @@ import { ReminderInput } from '../../reminder.model';
 import { toDateTimeInputValue } from '../../../../shared/utils/date';
 import { notInPastValidator } from '../../../../shared/forms/date-validators';
 
+import { DialogDirective } from '../../../../shared/ui/dialog.directive';
+
 @Component({
   selector: 'app-new-reminder',
   standalone: true,
-  imports: [ReactiveFormsModule],
+  imports: [DialogDirective, ReactiveFormsModule],
   templateUrl: './new-reminder.component.html',
   styleUrls: ['./new-reminder.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush

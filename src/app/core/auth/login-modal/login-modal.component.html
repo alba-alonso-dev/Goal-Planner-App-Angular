@@ -1,126 +1,136 @@
-<div class="modal" tabindex="-1" [style.display]="visible() ? 'block' : 'none'">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-body p-4">
-        <div class="text-center mb-4">
-          <h4 class="modal-title fw-bold" id="authModalTitle">Welcome Back!</h4>
-          <button
-            aria-label="Close"
-            type="button"
-            class="btn-close position-absolute top-0 end-0 m-3"
-            (click)="closeModal()"
-          ></button>
-        </div>
+@if (visible()) {
+  <div
+    class="modal d-block"
+    tabindex="-1"
+    appDialog
+    appDialogLabelledBy="authModalTitle"
+    (appDialogDismiss)="closeModal()"
+  >
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-body p-4">
+          <div class="text-center mb-4">
+            <h4 class="modal-title fw-bold" id="authModalTitle">
+              {{ showLogin() ? 'Welcome Back!' : 'Create your account' }}
+            </h4>
+            <button
+              aria-label="Close"
+              type="button"
+              class="btn-close position-absolute top-0 end-0 m-3"
+              (click)="closeModal()"
+            ></button>
+          </div>
 
-        @if (errorMessage(); as message) {
-          <div class="alert alert-danger py-2" role="alert">{{ message }}</div>
-        }
-        @if (successMessage(); as message) {
-          <div class="alert alert-success py-2" role="status">{{ message }}</div>
-        }
+          @if (errorMessage(); as message) {
+            <div class="alert alert-danger py-2" role="alert">{{ message }}</div>
+          }
+          @if (successMessage(); as message) {
+            <div class="alert alert-success py-2" role="status">{{ message }}</div>
+          }
 
-        @if (showLogin()) {
-          <form id="loginForm" class="needs-validation">
-            <div class="mb-3">
-              <input
-                type="email"
-                name="emailId"
-                [(ngModel)]="loginObj.emailId"
-                class="form-control"
-                placeholder="Email"
-                required
-              />
-            </div>
-            <div class="mb-3">
-              <input
-                type="password"
-                class="form-control"
-                name="password"
-                [(ngModel)]="loginObj.password"
-                placeholder="Password"
-                required
-              />
-            </div>
-            <button type="button" (click)="onLogin()" class="btn btn-primary w-100 mb-3" [disabled]="isLoading()">
-              @if (isLoading()) {
-                <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
-              }
-              Login
-            </button>
-            <p class="text-center">
-              Don't have an account?
-              <button
-                type="button"
-                id="showSignup"
-                class="btn btn-link p-0 align-baseline text-decoration-none"
-                (click)="toggleForm()"
-              >
-                Sign Up
-              </button>
-            </p>
-          </form>
-        } @else {
-          <form id="signupForm" class="needs-validation">
-            <div class="mb-3">
-              <input
-                type="text"
-                name="fullName"
-                [(ngModel)]="registerObj.fullName"
-                class="form-control"
-                placeholder="Full Name"
-                required
-              />
-            </div>
-            <div class="mb-3">
-              <input
-                type="email"
-                name="emailId"
-                [(ngModel)]="registerObj.emailId"
-                class="form-control"
-                placeholder="Email"
-                required
-              />
-            </div>
-            <div class="mb-3">
-              <input
-                type="password"
-                name="password"
-                [(ngModel)]="registerObj.password"
-                class="form-control"
-                placeholder="Password"
-                required
-              />
-            </div>
-            <div class="mb-3">
-              <input
-                type="tel"
-                name="mobileNo"
-                [(ngModel)]="registerObj.mobileNo"
-                class="form-control"
-                placeholder="Mobile number"
-                required
-              />
-            </div>
-            <button type="button" class="btn btn-primary w-100 mb-3" (click)="onRegister()" [disabled]="isLoading()">
-              @if (isLoading()) {
-                <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
-              }
-              Sign Up
-            </button>
-            <p class="text-center">
-              Already have an account?
-              <button
-                type="button"
-                id="showLogin"
-                class="btn btn-link p-0 align-baseline text-decoration-none"
-                (click)="toggleForm()"
-              >
+          @if (showLogin()) {
+            <form id="loginForm" class="needs-validation">
+              <div class="mb-3">
+                <input
+                  type="email"
+                  name="emailId"
+                  [(ngModel)]="loginObj.emailId"
+                  class="form-control"
+                  placeholder="Email"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <input
+                  type="password"
+                  class="form-control"
+                  name="password"
+                  [(ngModel)]="loginObj.password"
+                  placeholder="Password"
+                  required
+                />
+              </div>
+              <button type="button" (click)="onLogin()" class="btn btn-primary w-100 mb-3" [disabled]="isLoading()">
+                @if (isLoading()) {
+                  <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+                }
                 Login
               </button>
-            </p>
-          </form>
-        }
+              <p class="text-center">
+                Don't have an account?
+                <button
+                  type="button"
+                  id="showSignup"
+                  class="btn btn-link p-0 align-baseline text-decoration-none"
+                  (click)="toggleForm()"
+                >
+                  Sign Up
+                </button>
+              </p>
+            </form>
+          } @else {
+            <form id="signupForm" class="needs-validation">
+              <div class="mb-3">
+                <input
+                  type="text"
+                  name="fullName"
+                  [(ngModel)]="registerObj.fullName"
+                  class="form-control"
+                  placeholder="Full Name"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <input
+                  type="email"
+                  name="emailId"
+                  [(ngModel)]="registerObj.emailId"
+                  class="form-control"
+                  placeholder="Email"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <input
+                  type="password"
+                  name="password"
+                  [(ngModel)]="registerObj.password"
+                  class="form-control"
+                  placeholder="Password"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <input
+                  type="tel"
+                  name="mobileNo"
+                  [(ngModel)]="registerObj.mobileNo"
+                  class="form-control"
+                  placeholder="Mobile number"
+                  required
+                />
+              </div>
+              <button type="button" class="btn btn-primary w-100 mb-3" (click)="onRegister()" [disabled]="isLoading()">
+                @if (isLoading()) {
+                  <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+                }
+                Sign Up
+              </button>
+              <p class="text-center">
+                Already have an account?
+                <button
+                  type="button"
+                  id="showLogin"
+                  class="btn btn-link p-0 align-baseline text-decoration-none"
+                  (click)="toggleForm()"
+                >
+                  Login
+                </button>
+              </p>
+            </form>
+          }
+        </div>
       </div>
     </div>
   </div>
-</div>
+}

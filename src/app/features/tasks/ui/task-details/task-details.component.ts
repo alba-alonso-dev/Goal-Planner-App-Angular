@@ -7,10 +7,12 @@ import { ApiError } from '../../../../core/http/api-error';
 import { toDateInputValue } from '../../../../shared/utils/date';
 import { dateOrderValidator } from '../../../../shared/forms/date-validators';
 
+import { DialogDirective } from '../../../../shared/ui/dialog.directive';
+
 @Component({
   selector: 'app-task-details',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule],
+  imports: [DialogDirective, CommonModule, FormsModule, ReactiveFormsModule],
   templateUrl: './task-details.component.html',
   styleUrls: ['./task-details.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush

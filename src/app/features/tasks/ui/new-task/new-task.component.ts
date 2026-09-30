@@ -6,10 +6,12 @@ import { dateOrderValidator } from '../../../../shared/forms/date-validators';
 
 type Frequency = TaskResponse['frequency'];
 
+import { DialogDirective } from '../../../../shared/ui/dialog.directive';
+
 @Component({
   selector: 'app-new-task',
   standalone: true,
-  imports: [ReactiveFormsModule],
+  imports: [DialogDirective, ReactiveFormsModule],
   templateUrl: './new-task.component.html',
   styleUrls: ['./new-task.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush

@@ -1,9 +1,16 @@
-<div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0, 0, 0, 0.5)">
+<div
+  class="modal fade show d-block"
+  tabindex="-1"
+  style="background-color: rgba(0, 0, 0, 0.5)"
+  appDialog
+  appDialogLabelledBy="new-task-dialog-title"
+  (appDialogDismiss)="closeModal()"
+>
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title fw-bold">
-          <i class="bi bi-list-check me-2"></i>
+        <h5 class="modal-title fw-bold" id="new-task-dialog-title">
+          <i aria-hidden="true" class="bi bi-list-check me-2"></i>
           Create New Task
         </h5>
         <button
@@ -124,7 +131,7 @@
             <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
             Creating...
           } @else {
-            <i class="bi bi-plus-circle me-2"></i>Create Task
+            <i aria-hidden="true" class="bi bi-plus-circle me-2"></i>Create Task
           }
         </button>
       </div>

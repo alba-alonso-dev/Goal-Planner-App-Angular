@@ -1,8 +1,15 @@
-<div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0, 0, 0, 0.5)">
+<div
+  class="modal fade show d-block"
+  tabindex="-1"
+  style="background-color: rgba(0, 0, 0, 0.5)"
+  appDialog
+  appDialogLabelledBy="new-goal-dialog-title"
+  (appDialogDismiss)="closeModal()"
+>
   <div class="modal-dialog modal-lg modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title fw-bold">Create New Goal</h5>
+        <h5 class="modal-title fw-bold" id="new-goal-dialog-title">Create New Goal</h5>
         <button
           type="button"
           class="btn-close"
@@ -98,7 +105,7 @@
                         aria-label="Remove milestone"
                         (click)="removeMilestone($index)"
                       >
-                        <i class="bi bi-x-lg"></i>
+                        <i aria-hidden="true" class="bi bi-x-lg"></i>
                       </button>
                     </div>
 
@@ -149,7 +156,7 @@
 
               <div class="text-center">
                 <button type="button" class="btn btn-outline-secondary btn-sm w-100" (click)="addMilestone()">
-                  <i class="bi bi-plus-lg me-2"></i>Add Milestone
+                  <i aria-hidden="true" class="bi bi-plus-lg me-2"></i>Add Milestone
                 </button>
               </div>
             </div>
@@ -171,7 +178,7 @@
             <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
             Creating...
           } @else {
-            <i class="bi bi-floppy me-2"></i>Create Goal
+            <i aria-hidden="true" class="bi bi-floppy me-2"></i>Create Goal
           }
         </button>
       </div>

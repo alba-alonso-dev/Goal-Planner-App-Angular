@@ -1,13 +1,20 @@
 @let task = this.task();
-<div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0, 0, 0, 0.5)">
+<div
+  class="modal fade show d-block"
+  tabindex="-1"
+  style="background-color: rgba(0, 0, 0, 0.5)"
+  appDialog
+  appDialogLabelledBy="task-details-dialog-title"
+  (appDialogDismiss)="closeModal()"
+>
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title fw-bold">
+        <h5 class="modal-title fw-bold" id="task-details-dialog-title">
           @if (editMode()) {
-            <i class="bi bi-pencil-square me-2"></i>Edit Task
+            <i aria-hidden="true" class="bi bi-pencil-square me-2"></i>Edit Task
           } @else {
-            <i class="bi bi-list-check me-2"></i>Task Details
+            <i aria-hidden="true" class="bi bi-list-check me-2"></i>Task Details
           }
         </h5>
         <button
@@ -23,7 +30,7 @@
         <!-- Error message -->
         @if (error()) {
           <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            <i aria-hidden="true" class="bi bi-exclamation-triangle-fill me-2"></i>
             {{ error() }}
             <button aria-label="Close" type="button" class="btn-close" (click)="error.set(null)"></button>
           </div>
@@ -123,7 +130,7 @@
           <!-- VIEW MODE -->
           <div class="text-center mb-4">
             <div class="display-1 mb-3">
-              <i [class]="getFrequencyIconClass()"></i>
+              <i aria-hidden="true" [class]="getFrequencyIconClass()"></i>
             </div>
             <h3 class="fw-bold">{{ task.taskName }}</h3>
             <span
@@ -134,7 +141,7 @@
                 'bg-warning': !task.isCompleted && !task.isOverdue
               }"
             >
-              <i class="bi bi-circle-fill me-1" style="font-size: 8px"></i>
+              <i aria-hidden="true" class="bi bi-circle-fill me-1" style="font-size: 8px"></i>
               {{ getStatusText() }}
             </span>
           </div>
@@ -144,7 +151,7 @@
             <div class="col-6">
               <div class="card bg-light border-0">
                 <div class="card-body text-center">
-                  <i class="bi bi-arrow-repeat icon-2x text-primary mb-2"></i>
+                  <i aria-hidden="true" class="bi bi-arrow-repeat icon-2x text-primary mb-2"></i>
                   <h6 class="text-muted mb-1">Frequency</h6>
                   <p class="h5 mb-0">{{ task.frequency }}</p>
                 </div>
@@ -153,7 +160,7 @@
             <div class="col-6">
               <div class="card bg-light border-0">
                 <div class="card-body text-center">
-                  <i class="bi bi-clock icon-2x text-primary mb-2"></i>
+                  <i aria-hidden="true" class="bi bi-clock icon-2x text-primary mb-2"></i>
                   <h6 class="text-muted mb-1">Status</h6>
                   <p class="h5 mb-0" [class]="getStatusClass()">
                     {{ getDaysRemainingText() }}
@@ -164,7 +171,7 @@
             <div class="col-6">
               <div class="card bg-light border-0">
                 <div class="card-body text-center">
-                  <i class="bi bi-calendar3 icon-2x text-primary mb-2"></i>
+                  <i aria-hidden="true" class="bi bi-calendar3 icon-2x text-primary mb-2"></i>
                   <h6 class="text-muted mb-1">Start Date</h6>
                   <p class="h5 mb-0">{{ task.startDate | date: 'fullDate' }}</p>
                 </div>
@@ -173,7 +180,7 @@
             <div class="col-6">
               <div class="card bg-light border-0">
                 <div class="card-body text-center">
-                  <i class="bi bi-calendar-check icon-2x text-primary mb-2"></i>
+                  <i aria-hidden="true" class="bi bi-calendar-check icon-2x text-primary mb-2"></i>
                   <h6 class="text-muted mb-1">Due Date</h6>
                   <p class="h5 mb-0">{{ task.dueDate | date: 'fullDate' }}</p>
                 </div>
@@ -209,22 +216,22 @@
               <span class="spinner-border spinner-border-sm me-2"></span>
               Saving...
             } @else {
-              <i class="bi bi-floppy me-2"></i>Save Changes
+              <i aria-hidden="true" class="bi bi-floppy me-2"></i>Save Changes
             }
           </button>
         } @else {
           <button type="button" class="btn btn-outline-success" (click)="toggleCompletion()" [disabled]="submitting()">
             @if (task.isCompleted) {
-              <i class="bi bi-arrow-counterclockwise me-2"></i>Mark Pending
+              <i aria-hidden="true" class="bi bi-arrow-counterclockwise me-2"></i>Mark Pending
             } @else {
-              <i class="bi bi-check-lg me-2"></i>Mark Complete
+              <i aria-hidden="true" class="bi bi-check-lg me-2"></i>Mark Complete
             }
           </button>
           <button type="button" class="btn btn-outline-primary" (click)="toggleEditMode()">
-            <i class="bi bi-pencil-square me-2"></i>Edit
+            <i aria-hidden="true" class="bi bi-pencil-square me-2"></i>Edit
           </button>
           <button type="button" class="btn btn-outline-danger" (click)="deleteTask()">
-            <i class="bi bi-trash me-2"></i>Delete
+            <i aria-hidden="true" class="bi bi-trash me-2"></i>Delete
           </button>
           <button type="button" class="btn btn-primary" (click)="closeModal()">Close</button>
         }
