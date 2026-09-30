@@ -6,6 +6,7 @@ import { ReminderItemComponent } from '../ui/reminder-item/reminder-item.compone
 import { NewReminderComponent } from '../ui/new-reminder/new-reminder.component';
 import { ReminderDetailsComponent } from '../ui/reminder-details/reminder-details.component';
 import { ReminderStore } from '../data-access/reminder.store';
+import { ReminderAlertsService } from '../data-access/reminder-alerts.service';
 import { selectReminders } from '../domain/reminder.rules';
 import { ReminderFilter, ReminderInput, ReminderView } from '../reminder.model';
 import { ApiError } from '../../../core/http/api-error';
@@ -29,6 +30,7 @@ import { NotificationService } from '../../../core/notifications/notification.se
 })
 export class ReminderListComponent implements OnInit {
   private store = inject(ReminderStore);
+  protected readonly alerts = inject(ReminderAlertsService);
   private notificationService = inject(NotificationService);
 
   readonly filter = signal<ReminderFilter>('all');
